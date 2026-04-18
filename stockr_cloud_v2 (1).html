@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>STOCKR — クラウド在庫管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<!--
+╔══════════════════════════════════════════════════════════╗
+║  STOCKR セットアップ手順                                   ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║  【STEP 1】Firebaseプロジェクトを作成                       ║
+║  https://console.firebase.google.com/                    ║
+║  → 「プロジェクトを追加」→ プロジェクト名を入力              ║
+║                                                          ║
+║  【STEP 2】Firestoreを有効化                               ║
+║  → 左メニュー「Firestore Database」→「データベースを作成」   ║
+║  → 「本番環境モード」で作成                                 ║
+║                                                          ║
+║  【STEP 3】Authenticationを有効化                          ║
+║  → 左メニュー「Authentication」→「始める」                  ║
+║  → 「メール/パスワード」→ 有効にする                         ║
+║                                                          ║
+║  【STEP 4】ウェブアプリを追加してconfigを取得               ║
+║  → プロジェクト設定(歯車)→「マイアプリ」→「</>」             ║
+║  → アプリを登録 → firebaseConfig をコピー                   ║
+║  → 下の YOUR_* を置き換える                                ║
+║                                                          ║
+║  【STEP 5】Firestoreセキュリティルールを設定                 ║
+║  → Firestore → 「ルール」タブ → 以下に変更して公開:         ║
+║                                                          ║
+║  rules_version = '2';                                    ║
+║  service cloud.firestore {                               ║
+║    match /databases/{database}/documents {               ║
+║      match /users/{userId}/{document=**} {               ║
+║        allow read, write: if request.auth != null        ║
+║          && request.auth.uid == userId;                  ║
+║      }                                                   ║
+║    }                                                     ║
+║  }                                                       ║
+║                                                          ║
+║  【STEP 6】公開方法（どちらか選ぶ）                         ║
+║  A) Firebase Hosting（推奨）                              ║
+║     npm install -g firebase-tools                        ║
+║     firebase login                                       ║
+║     firebase init hosting                                ║
+║     → publicフォルダにこのHTMLを index.html として保存      ║
+║     firebase deploy                                      ║
+║                                                          ║
+║  B) GitHub Pages                                         ║
+║     → リポジトリにindex.htmlとして push                    ║
+║     → Settings → Pages → ブランチ選択 → Save              ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+-->
+<style>
+:root{
+  --bg:#07080b;--sf:#0f1219;--sf2:#161b26;--sf3:#1c2233;
+  --bd:#222b3e;--bd2:#2a3550;
+  --ac:#7ee8a2;--acd:rgba(126,232,162,.11);--acd2:rgba(126,232,162,.05);
+  --ac2:#5dd4ff;
+  --tx:#dce5f0;--txm:#475068;--txd:#7a88a6;
+  --ok:#7ee8a2;--okd:rgba(126,232,162,.1);
+  --dg:#ff6b6b;--dgd:rgba(255,107,107,.1);
+  --warn:#ffd166;--warnd:rgba(255,209,102,.1);
+  --r:12px;--rs:8px;
+  --fd:'Syne',sans-serif;--fb:'Noto Sans JP',sans-serif;
+  --hdr:52px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;overflow:hidden}
+input,textarea,select,button{font-family:var(--fb)}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+/* ═══ LOADING ═══ */
+#loading{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
+#loading.hide{opacity:0;pointer-events:none}
+.spinner{width:30px;height:30px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{font-size:11px;color:var(--txm)}
+
+/* ═══ AUTH ═══ */
+#auth{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+#auth.on{display:flex}
+.auth-wrap{width:100%;max-width:380px;padding:8px 0;animation:fadeUp .35s cubic-bezier(.34,1.4,.64,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-txt{font-family:var(--fd);font-size:34px;font-weight:800;letter-spacing:-1px}
+.auth-logo-txt em{color:var(--ac);font-style:normal}
+.auth-logo-sub{font-size:11px;color:var(--txm);margin-top:5px;letter-spacing:.06em}
+.auth-tabs{display:flex;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:22px}
+.auth-tab{flex:1;padding:11px;text-align:center;font-family:var(--fd);font-size:11px;font-weight:700;color:var(--txm);border:none;background:none;transition:all .2s;letter-spacing:.05em;cursor:pointer}
+.auth-tab.on{background:var(--acd);color:var(--ac)}
+.auth-sec{display:none;flex-direction:column;gap:13px}.auth-sec.on{display:flex}
+.f{display:flex;flex-direction:column;gap:5px}
+.f label{font-size:10px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.f input{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:13px 14px;border-radius:var(--rs);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
+.f input:focus{border-color:var(--ac)}
+.f input::placeholder{color:var(--txm)}
+.auth-btn{width:100%;padding:13px;background:var(--ac);color:#07080b;border:none;border-radius:var(--rs);font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.04em;transition:all .18s;margin-top:2px}
+.auth-btn:hover{background:#6ad48e}
+.auth-err{min-height:18px;font-size:12px;color:var(--dg);text-align:center;transition:opacity .2s}
+.auth-err:empty{opacity:0}
+
+/* ═══ APP SHELL ═══ */
+#app{display:none;flex-direction:column;height:100%}
+#app.on{display:flex}
+
+/* HEADER */
+.hdr{height:var(--hdr);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;position:relative;z-index:50}
+.hdr-logo{font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;flex-shrink:0}
+.hdr-logo em{color:var(--ac);font-style:normal}
+.nav{display:flex;align-items:stretch;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 4px}
+.nav::-webkit-scrollbar{display:none}
+.ntab{display:flex;align-items:center;gap:5px;padding:0 12px;height:var(--hdr);font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--txm);border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ntab.on{color:var(--ac);border-bottom-color:var(--ac)}
+.nbdg{background:var(--acd);color:var(--ac);font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--bd);flex-shrink:0}
+.sync-dot.ok{background:var(--ok)}.sync-dot.sync{background:var(--warn);animation:blink .7s infinite alternate}.sync-dot.err{background:var(--dg)}
+@keyframes blink{from{opacity:.3}to{opacity:1}}
+.logout-btn{font-size:10px;color:var(--txm);background:none;border:1px solid var(--bd);padding:4px 10px;border-radius:5px;font-family:var(--fd);font-weight:700;transition:all .15s}
+.logout-btn:hover{border-color:var(--dg);color:var(--dg)}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.pg.on{display:flex}
+
+/* ═══════════════════════════════
+   PAGE: INVENTORY
+═══════════════════════════════ */
+#pg-inv{flex-direction:row}
+@media(max-width:680px){#pg-inv{flex-direction:column}}
+
+/* Left: inventory panel */
+.inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;border-right:1px solid var(--bd)}
+@media(max-width:680px){.inv-panel{border-right:none;border-bottom:1px solid var(--bd)}}
+
+.inv-toolbar{padding:9px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.ptitle{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm)}
+.count-bdg{background:var(--acd);color:var(--ac);font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;font-family:var(--fd)}
+.srch-wrap{position:relative;flex:1;min-width:100px;max-width:260px}
+.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--txm);width:13px;height:13px;pointer-events:none}
+.srch-in{width:100%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:7px 9px 7px 28px;border-radius:var(--rs);font-size:12px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.srch-in:focus{border-color:var(--ac)}.srch-in::placeholder{color:var(--txm)}
+
+.inv-scroll{overflow-y:auto;flex:1;padding:13px}
+.inv-scroll::-webkit-scrollbar{width:4px}.inv-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+@media(max-width:600px){.inv-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:360px){.inv-grid{grid-template-columns:1fr}}
+
+.icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px;animation:cIn .18s ease;transition:border-color .2s}
+@keyframes cIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.icard:hover{border-color:var(--bd2)}
+.icard.warn{border-color:rgba(255,107,107,.35)}
+.icard.used{border-color:rgba(126,232,162,.3)}
+.icard-name{font-family:var(--fd);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.icard-cost{font-size:12px;color:var(--ac);font-family:var(--fd);font-weight:700}
+.stk-bdg{font-size:10px;font-weight:700;font-family:var(--fd);padding:2px 7px;border-radius:20px}
+.stk-ok{background:var(--okd);color:var(--ok)}
+.stk-warn{background:var(--warnd);color:var(--warn)}
+.stk-empty{background:var(--dgd);color:var(--dg)}
+.icard-qty{display:flex;align-items:center;gap:5px}
+.qb{width:24px;height:24px;border-radius:5px;border:1.5px solid var(--bd);background:none;color:var(--txd);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.qb:hover{border-color:var(--ac);color:var(--ac)}
+.qn{font-size:12px;font-weight:700;font-family:var(--fd);min-width:24px;text-align:center}
+.deck-tags{display:flex;flex-wrap:wrap;gap:3px;min-height:0}
+.dk-tag{background:var(--acd);color:var(--ac);padding:2px 6px;border-radius:4px;font-family:var(--fd);font-size:9px;font-weight:700}
+.icard-acts{display:flex;gap:5px}
+.ab{flex:1;padding:5px;border-radius:5px;border:1.5px solid var(--bd);background:none;font-size:11px;color:var(--txm);transition:all .13s}
+.ab:hover{border-color:var(--bd2);color:var(--tx)}
+.ab.del{color:var(--dg);border-color:transparent}.ab.del:hover{border-color:var(--dg);background:var(--dgd)}
+.ab.add{color:#07080b;background:var(--ac);border-color:var(--ac);font-family:var(--fd);font-weight:700}.ab.add:hover{background:#6ad48e}
+
+/* Empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:10px;color:var(--txm);grid-column:1/-1;text-align:center}
+.empty-ico{font-size:36px;opacity:.25}
+.empty p{font-size:12px;line-height:1.7}
+
+/* Right: cart sidebar */
+.cart-side{width:260px;flex-shrink:0;display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
+@media(max-width:680px){.cart-side{width:100%;max-height:230px}}
+.cart-head{padding:11px 13px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.cart-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.cart-total-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:9px 11px}
+.cart-lbl{font-size:9px;color:var(--txm);letter-spacing:.1em;text-transform:uppercase;font-family:var(--fd);margin-bottom:2px}
+.cart-amt{font-family:var(--fd);font-size:21px;font-weight:800;color:var(--ac);line-height:1}
+.cart-sub{font-size:9px;color:var(--txm);margin-top:3px}
+.cart-list{flex:1;overflow-y:auto;padding:7px 13px}
+.cart-list::-webkit-scrollbar{width:3px}.cart-list::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.cart-empty-msg{text-align:center;padding:22px 10px;color:var(--txm);font-size:11px;line-height:1.9}
+.ci{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--bd)}.ci:last-child{border-bottom:none}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-unit{font-size:9px;color:var(--txm)}
+.ci-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.ci-total{font-family:var(--fd);font-size:11px;font-weight:700;color:var(--ac)}
+.ci-ctrl{display:flex;align-items:center;gap:2px}
+.cqb{width:16px;height:16px;border-radius:3px;border:1px solid var(--bd);background:none;color:var(--txd);font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.cqb:hover{border-color:var(--ac);color:var(--ac)}
+.cqn{font-size:10px;font-weight:700;font-family:var(--fd);min-width:14px;text-align:center}
+.crm{background:none;border:none;color:var(--txm);font-size:11px;padding:1px;transition:color .13s}
+.crm:hover{color:var(--dg)}
+
+/* ═══════════════════════════════
+   PAGE: DECK
+═══════════════════════════════ */
+#pg-deck{flex-direction:row}
+@media(max-width:680px){#pg-deck{flex-direction:column}}
+
+/* Deck list sidebar */
+.dk-sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
+@media(max-width:680px){.dk-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:160px}}
+.dk-sidebar-head{padding:9px 11px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dk-scroll{overflow-y:auto;flex:1;padding:7px 9px;display:flex;flex-direction:column;gap:5px}
+.dk-scroll::-webkit-scrollbar{width:3px}.dk-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.dk-item{padding:9px 10px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .13s}
+.dk-item:hover{border-color:var(--bd2)}.dk-item.sel{border-color:var(--ac);background:var(--acd2)}
+.dk-item-name{font-family:var(--fd);font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.dk-item-meta{font-size:9px;color:var(--txm);display:flex;gap:5px;flex-wrap:wrap}
+.dsbdg{font-size:8px;font-weight:700;padding:1px 5px;border-radius:5px;font-family:var(--fd)}
+.dsb-draft{background:rgba(74,80,104,.2);color:var(--txm)}
+.dsb-active{background:var(--acd);color:var(--ac)}
+.dsb-sold{background:var(--okd);color:var(--ok)}
+.dk-empty-msg{padding:18px 10px;font-size:10px;color:var(--txm);text-align:center;line-height:1.7}
+
+/* Deck detail main */
+.dk-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.dk-hbar{padding:9px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--sf)}
+.dk-name-in{background:none;border:none;color:var(--tx);font-family:var(--fd);font-size:14px;font-weight:700;outline:none;flex:1;min-width:0}
+.dk-name-in::placeholder{color:var(--txm)}
+.status-sel{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:5px 8px;border-radius:5px;font-family:var(--fb);font-size:11px;outline:none;cursor:pointer}
+.status-sel:focus{border-color:var(--ac)}
+
+/* Stats bar */
+.dk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 13px;border-bottom:1px solid var(--bd);flex-shrink:0}
+@media(max-width:480px){.dk-stats{grid-template-columns:1fr 1fr}}
+.stat-box{background:var(--sf2);border-radius:var(--rs);padding:8px 10px}
+.stat-lbl{font-size:9px;color:var(--txm);font-family:var(--fd);letter-spacing:.04em;margin-bottom:2px}
+.stat-val{font-family:var(--fd);font-size:13px;font-weight:800}
+.stat-val.ac{color:var(--ac)}.stat-val.ok{color:var(--ok)}.stat-val.dg{color:var(--dg)}
+
+/* Deck body: search col + card area */
+.dk-body{display:flex;flex:1;overflow:hidden}
+@media(max-width:680px){.dk-body{flex-direction:column}}
+
+/* Search column */
+.dk-search-col{width:240px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+@media(max-width:680px){.dk-search-col{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:250px}}
+.dsc-head{padding:8px 11px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.dsc-htitle{font-family:var(--fd);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);margin-bottom:7px}
+.dsc-srch{display:flex;align-items:center;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden;transition:border-color .18s}
+.dsc-srch:focus-within{border-color:var(--ac)}
+.dsc-srch-ico{padding:0 8px;color:var(--txm);display:flex;align-items:center}
+.dsc-srch-ico svg{width:12px;height:12px;display:block}
+.dsc-srch-in{flex:1;background:none;border:none;color:var(--tx);padding:8px 3px;font-size:12px;outline:none}
+.dsc-srch-in::placeholder{color:var(--txm)}
+.dsc-results{flex:1;overflow-y:auto}
+.dsc-results::-webkit-scrollbar{width:3px}.dsc-results::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.dsr{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid var(--bd);transition:background .1s}
+.dsr:last-child{border-bottom:none}.dsr:hover{background:var(--sf)}
+.dsr-info{flex:1;min-width:0}
+.dsr-name{font-size:11px;font-weight:700;font-family:var(--fd);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsr-meta{font-size:10px;color:var(--txm)}
+.dsr-avail{font-weight:700}.dsr-avail.ok{color:var(--ok)}.dsr-avail.dg{color:var(--dg)}
+.dsr-add{padding:5px 10px;background:var(--ac);color:#07080b;border:none;border-radius:4px;font-family:var(--fd);font-size:10px;font-weight:700;flex-shrink:0;transition:background .13s}
+.dsr-add:hover{background:#6ad48e}
+.dsr-add:disabled{background:var(--bd);color:var(--txm);cursor:not-allowed}
+.dsc-empty{padding:16px 12px;font-size:11px;color:var(--txm);text-align:center;line-height:1.7}
+
+/* Card area (big) */
+.dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
+.dk-ca-head{padding:8px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
+.dk-ca-scroll{flex:1;overflow-y:auto;padding:12px 13px}
+.dk-ca-scroll::-webkit-scrollbar{width:3px}.dk-ca-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.dk-card-grid{display:flex;flex-direction:column;gap:10px}
+.dk-cg{display:flex;flex-direction:column;gap:5px}
+.dk-cg-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dk-cg-name{font-size:11px;font-family:var(--fd);font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-cg-ctrl{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.dk-cg-qty{font-family:var(--fd);font-size:11px;font-weight:700;color:var(--ac);min-width:26px;text-align:center}
+.dk-cg-price{font-size:9px;color:var(--txm)}
+.dk-thumbs{display:flex;flex-wrap:wrap;gap:4px}
+.dk-thumb{position:relative;width:58px;flex-shrink:0}
+.dk-thumb-ph{width:58px;height:80px;border-radius:5px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bd);border:2px solid transparent;transition:border-color .15s}
+.dk-thumb:hover .dk-thumb-ph{border-color:var(--ac)}
+.dk-thumb-rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:var(--dg);border:none;border-radius:2px;color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
+.dk-thumb:hover .dk-thumb-rm{display:flex}
+.dk-cg-sep{height:1px;background:var(--bd)}
+.dk-ca-empty{text-align:center;padding:32px 20px;color:var(--txm)}
+.dk-ca-empty-ico{font-size:24px;opacity:.2;margin-bottom:7px}
+.dk-ca-empty p{font-size:11px;line-height:1.7}
+.dk-ca-footer{display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--bd);margin-top:4px}
+.dk-ca-fl{font-size:10px;color:var(--txm)}.dk-ca-fr{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--ac)}
+
+/* Bottom: pricing */
+.dk-bottom{padding:11px 13px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:9px;max-height:34vh;overflow-y:auto}
+.dk-bottom::-webkit-scrollbar{width:3px}.dk-bottom::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.price-section{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(max-width:500px){.price-section{grid-template-columns:1fr}}
+.price-box{background:var(--sf2);border-radius:var(--rs);padding:9px 11px;display:flex;flex-direction:column;gap:7px}
+.pf{display:flex;flex-direction:column;gap:3px}
+.pf label{font-size:9px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+.pf input{background:var(--sf3);border:1.5px solid var(--bd);color:var(--tx);padding:7px 9px;border-radius:var(--rs);font-size:12px;outline:none;transition:border-color .18s;-webkit-appearance:none;width:100%}
+.pf input:focus{border-color:var(--ac)}.pf input:disabled{opacity:.4;cursor:not-allowed}
+.profit-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:10px 11px;display:flex;flex-direction:column;gap:5px}
+.prow{display:flex;justify-content:space-between;font-size:11px}
+.prow .lbl{color:var(--txm)}.prow .val{font-family:var(--fd);font-weight:700}
+.prow .val.ac{color:var(--ac)}.prow .val.ok{color:var(--ok)}.prow .val.dg{color:var(--dg)}
+.phr{border:none;border-top:1px solid var(--bd);margin:2px 0}
+.pbig{font-size:14px}
+.memo-box textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:7px 9px;border-radius:var(--rs);font-size:12px;outline:none;resize:none;line-height:1.6;-webkit-appearance:none}
+.memo-box textarea:focus{border-color:var(--ac)}
+.no-sel{display:flex;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:9px;color:var(--txm)}
+.no-sel-ico{font-size:28px;opacity:.2}.no-sel p{font-size:11px;line-height:1.7;text-align:center}
+
+/* ═══ SHARED COMPONENTS ═══ */
+.btn{padding:7px 13px;border-radius:var(--rs);font-family:var(--fd);font-size:12px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
+.btn-ac{background:var(--ac);color:#07080b}.btn-ac:hover{background:#6ad48e}
+.btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}.btn-ghost:hover{color:var(--tx);border-color:var(--bd2)}
+.btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}.btn-dg:hover{background:var(--dgd)}
+.btn-sm{padding:4px 9px;font-size:10px}
+
+/* OVERLAY / MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:400;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.overlay.on{display:flex}
+.modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:18px;width:100%;max-width:400px;animation:mIn .18s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-title{font-family:var(--fd);font-size:14px;font-weight:700;margin-bottom:14px}
+.mfields{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.mf{display:flex;flex-direction:column;gap:4px}
+.mf label{font-size:10px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.mf input,.mf textarea,.mf select{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:9px 11px;border-radius:var(--rs);font-size:13px;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
+.mf input:focus,.mf textarea:focus,.mf select:focus{border-color:var(--ac)}
+.mf input::placeholder,.mf textarea::placeholder{color:var(--txm)}
+.mf textarea{resize:none;line-height:1.6}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mactions{display:flex;gap:7px;justify-content:flex-end}
+
+/* Cart qty modal */
+.cqrow{display:flex;align-items:center;gap:10px;margin:12px 0}
+.cqbig{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bd);background:none;color:var(--tx);font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.cqbig:hover{border-color:var(--ac);color:var(--ac)}
+.cqin{width:58px;height:34px;text-align:center;font-size:14px;font-family:var(--fd);font-weight:700;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);border-radius:var(--rs);outline:none;-webkit-appearance:none}
+.cqin:focus{border-color:var(--ac)}.cqin::-webkit-inner-spin-button{-webkit-appearance:none}
+.cprev{background:var(--acd);border-radius:var(--rs);padding:7px 11px;font-family:var(--fd);font-size:12px;color:var(--ac);text-align:center;font-weight:700;margin-bottom:11px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:50px;font-size:12px;font-weight:700;font-family:var(--fd);z-index:600;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.err{background:var(--dg);color:#fff}
+
+/* Highlight */
+mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-style:normal}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p>読み込み中…</p>
+</div>
+
+<!-- AUTH -->
+<div id="auth">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-txt">STOCK<em>R</em></div>
+      <div class="auth-logo-sub">在庫管理 &amp; デッキ販売ツール</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="authTab('login')">ログイン</button>
+      <button class="auth-tab" onclick="authTab('signup')">新規登録</button>
+    </div>
+    <div class="auth-sec on" id="sec-login">
+      <div class="f"><label>メールアドレス</label><input type="email" id="l-email" placeholder="example@email.com" autocomplete="email"></div>
+      <div class="f"><label>パスワード</label><input type="password" id="l-pw" placeholder="パスワード" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="auth-btn" onclick="doLogin()">ログイン</button>
+    </div>
+    <div class="auth-sec" id="sec-signup">
+      <div class="f"><label>メールアドレス</label><input type="email" id="s-email" placeholder="example@email.com" autocomplete="email"></div>
+      <div class="f"><label>パスワード（6文字以上）</label><input type="password" id="s-pw" placeholder="パスワード" autocomplete="new-password"></div>
+      <div class="f"><label>パスワード確認</label><input type="password" id="s-pw2" placeholder="パスワードを再入力" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <button class="auth-btn" onclick="doSignup()">アカウントを作成</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-logo">STOCK<em>R</em></div>
+    <nav class="nav">
+      <button class="ntab on" id="ntab-inv" onclick="goPage('inv')">在庫管理 <span class="nbdg" id="nb-inv">0</span></button>
+      <button class="ntab" id="ntab-deck" onclick="goPage('deck')">デッキ販売 <span class="nbdg" id="nb-deck">0</span></button>
+    </nav>
+    <div class="hdr-right">
+      <div class="sync-dot" id="sync-dot"></div>
+      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="pages">
+    <!-- INVENTORY PAGE -->
+    <div class="pg on" id="pg-inv">
+      <div class="inv-panel">
+        <div class="inv-toolbar">
+          <span class="ptitle">在庫</span>
+          <span class="count-bdg" id="inv-cnt">0</span>
+          <div class="srch-wrap">
+            <svg class="srch-ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+            <input class="srch-in" id="inv-srch" placeholder="商品名で検索…" oninput="renderGrid()">
+          </div>
+          <button class="btn btn-ac btn-sm" onclick="openItemModal(null)">＋ 商品登録</button>
+        </div>
+        <div class="inv-scroll"><div class="inv-grid" id="inv-grid"></div></div>
+      </div>
+      <aside class="cart-side">
+        <div class="cart-head">
+          <div class="cart-top-row">
+            <span class="ptitle">経費カート</span>
+            <button class="btn btn-ghost btn-sm" onclick="clearCart()">全削除</button>
+          </div>
+          <div class="cart-total-box">
+            <div class="cart-lbl">経費総額</div>
+            <div class="cart-amt" id="cart-total">¥0</div>
+            <div class="cart-sub" id="cart-sub">0件</div>
+          </div>
+        </div>
+        <div class="cart-list" id="cart-list">
+          <div class="cart-empty-msg">🛒<br>商品をカートに追加してください</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- DECK PAGE -->
+    <div class="pg" id="pg-deck">
+      <div class="dk-sidebar">
+        <div class="dk-sidebar-head">
+          <span class="ptitle">デッキ <span class="count-bdg" id="dk-cnt">0</span></span>
+          <button class="btn btn-ac btn-sm" onclick="newDeck()">＋ 新規</button>
+        </div>
+        <div class="dk-scroll" id="dk-list"></div>
+      </div>
+      <div class="dk-main" id="dk-main">
+        <div class="no-sel"><div class="no-sel-ico">📦</div><p>「＋ 新規」からデッキを作成するか<br>左のデッキを選択してください。</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="overlay" id="modal-item">
+  <div class="modal">
+    <div class="modal-title" id="item-modal-title">商品を登録</div>
+    <div class="mfields">
+      <input type="hidden" id="item-eid">
+      <div class="mf"><label>商品名 *</label><input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン"></div>
+      <div class="mrow">
+        <div class="mf"><label>在庫数 *</label><input type="number" id="item-stock" placeholder="0" min="0"></div>
+        <div class="mf"><label>仕入れ値（円）</label><input type="number" id="item-cost" placeholder="0" min="0"></div>
+      </div>
+      <div class="mf"><label>販売価格（円）</label><input type="number" id="item-sell" placeholder="0" min="0"></div>
+      <div class="mf"><label>メモ</label><textarea id="item-memo" rows="2" placeholder="自由記入…"></textarea></div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-item')">キャンセル</button>
+      <button class="btn btn-ac" onclick="saveItem()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART QTY MODAL -->
+<div class="overlay" id="modal-cart">
+  <div class="modal">
+    <div class="modal-title" id="cart-modal-title">カートに追加</div>
+    <input type="hidden" id="cart-item-id">
+    <div class="cqrow">
+      <button class="cqbig" onclick="adjCQ(-1)">−</button>
+      <input class="cqin" type="number" id="cart-qty" value="1" min="1">
+      <button class="cqbig" onclick="adjCQ(1)">＋</button>
+    </div>
+    <div class="cprev" id="cart-prev">¥0</div>
+    <div class="mactions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cart')">キャンセル</button>
+      <button class="btn btn-ac" onclick="confirmCart()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {
+  getFirestore, doc, collection, addDoc, updateDoc, deleteDoc,
+  onSnapshot, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+/* ════════════════════════════════════════════
+   ★ Firebase設定をここに貼り付けてください ★
+   （Firebaseコンソール → プロジェクト設定
+     → マイアプリ → </>ウェブ → firebaseConfig）
+════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const db     = getFirestore(fbApp);
+
+await setPersistence(auth, browserLocalPersistence);
+
+/* ─── STATE ─── */
+const SHIP = 210, FEE = 0.10;
+let uid = null;
+let items  = [];   // Firestore: users/{uid}/items
+let decks  = [];   // Firestore: users/{uid}/decks
+let cart   = [];   // ローカルのみ（経費計算用）
+let selDkId = null;
+let unsubItems = null, unsubDecks = null;
+let cartItemCtx = null;
+let dkSrchQ = '';
+
+/* ─── AUTH HELPERS ─── */
+window.authTab = (t) => {
+  document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
+  document.getElementById('sec-login').classList.toggle('on', t==='login');
+  document.getElementById('sec-signup').classList.toggle('on', t==='signup');
+  document.getElementById('auth-err').textContent = '';
+};
+
+const authErrMap = {
+  'auth/user-not-found':    'このメールアドレスは登録されていません',
+  'auth/wrong-password':    'パスワードが正しくありません',
+  'auth/invalid-email':     'メールアドレスの形式が正しくありません',
+  'auth/invalid-credential':'メールアドレスまたはパスワードが正しくありません',
+  'auth/email-already-in-use':'このメールアドレスは既に使用されています',
+  'auth/weak-password':     'パスワードは6文字以上にしてください',
+  'auth/too-many-requests': 'ログイン試行回数が多すぎます。しばらくお待ちください',
+};
+
+window.doLogin = async () => {
+  const email = document.getElementById('l-email').value.trim();
+  const pw    = document.getElementById('l-pw').value;
+  if (!email||!pw) { setAuthErr('メールアドレスとパスワードを入力してください'); return; }
+  try { await signInWithEmailAndPassword(auth, email, pw); }
+  catch(e) { setAuthErr(authErrMap[e.code]||'ログインに失敗しました'); }
+};
+
+window.doSignup = async () => {
+  const email = document.getElementById('s-email').value.trim();
+  const pw    = document.getElementById('s-pw').value;
+  const pw2   = document.getElementById('s-pw2').value;
+  if (!email||!pw||!pw2) { setAuthErr('全ての項目を入力してください'); return; }
+  if (pw !== pw2) { setAuthErr('パスワードが一致しません'); return; }
+  if (pw.length < 6) { setAuthErr('パスワードは6文字以上にしてください'); return; }
+  try { await createUserWithEmailAndPassword(auth, email, pw); }
+  catch(e) { setAuthErr(authErrMap[e.code]||'登録に失敗しました'); }
+};
+
+window.doLogout = async () => {
+  if (unsubItems) unsubItems();
+  if (unsubDecks) unsubDecks();
+  await signOut(auth);
+  items=[]; decks=[]; cart=[]; selDkId=null;
+};
+
+function setAuthErr(msg) { document.getElementById('auth-err').textContent = msg; }
+
+/* ─── AUTH STATE OBSERVER ─── */
+onAuthStateChanged(auth, user => {
+  document.getElementById('loading').classList.add('hide');
+  if (user) {
+    uid = user.uid;
+    document.getElementById('auth').classList.remove('on');
+    document.getElementById('app').classList.add('on');
+    startListeners();
+  } else {
+    uid = null;
+    document.getElementById('app').classList.remove('on');
+    document.getElementById('auth').classList.add('on');
+    setSyncDot('');
+  }
+});
+
+/* ─── REALTIME LISTENERS ─── */
+function startListeners() {
+  setSyncDot('sync');
+
+  const itemsCol = collection(db,'users',uid,'items');
+  const decksCol = collection(db,'users',uid,'decks');
+
+  unsubItems = onSnapshot(itemsCol, snap => {
+    items = snap.docs.map(d=>({id:d.id,...d.data()}));
+    items.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    renderGrid();
+    renderDeckSearch();
+    updateBadges();
+    setSyncDot('ok');
+  }, () => setSyncDot('err'));
+
+  unsubDecks = onSnapshot(decksCol, snap => {
+    decks = snap.docs.map(d=>({id:d.id,...d.data()}));
+    decks.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    renderDkList();
+    renderGrid(); // デッキ変更でタグ更新
+    updateBadges();
+    setSyncDot('ok');
+  }, () => setSyncDot('err'));
+}
+
+function setSyncDot(s) {
+  document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:'');
+}
+
+/* ─── PAGE NAV ─── */
+window.goPage = (p) => {
+  ['inv','deck'].forEach(x=>{
+    document.getElementById('pg-'+x).classList.toggle('on', x===p);
+    document.getElementById('ntab-'+x).classList.toggle('on', x===p);
+  });
+  if (p==='deck') { renderDkList(); renderDeckSearch(); }
+};
+
+function updateBadges() {
+  document.getElementById('nb-inv').textContent  = items.length;
+  document.getElementById('nb-deck').textContent = decks.length;
+  document.getElementById('inv-cnt').textContent = items.length;
+  document.getElementById('dk-cnt').textContent  = decks.length;
+}
+
+/* ─── AVAILABILITY CALC ─── */
+// デッキで使われている量（仮想マイナス）
+function usedInDecks(itemId) {
+  return decks.reduce((s,dk)=>{
+    const c = (dk.cards||[]).find(c=>c.itemId===itemId);
+    return s + (c?.qty||0);
+  }, 0);
+}
+// 利用可能在庫（在庫 − デッキ使用中）
+function availStock(itemId) {
+  const item = items.find(i=>i.id===itemId);
+  return Math.max(0, (item?.stock||0) - usedInDecks(itemId));
+}
+// どのデッキに何枚使われているか
+function deckUsage(itemId) {
+  return decks.flatMap(dk=>{
+    const c = (dk.cards||[]).find(c=>c.itemId===itemId);
+    return c ? [{name:dk.name, qty:c.qty}] : [];
+  });
+}
+
+/* ─── HIGHLIGHT ─── */
+function hl(text, q) {
+  if (!q) return text;
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return text;
+  return text.slice(0,i)+`<mark>${text.slice(i,i+q.length)}</mark>`+text.slice(i+q.length);
+}
+
+/* ═══════════════════════════
+   INVENTORY
+═══════════════════════════ */
+function renderGrid() {
+  const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
+  const grid = document.getElementById('inv-grid');
+  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
+
+  if (!items.length) {
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-ico">📦</div><p>まだ商品がありません。<br>「＋ 商品登録」から追加してください。</p></div>`;
+    return;
+  }
+  if (!list.length) {
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-ico">🔍</div><p>「${q}」に一致する商品が見つかりません</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(item => {
+    const avail  = availStock(item.id);
+    const usage  = deckUsage(item.id);
+    const stockCls = avail===0?'stk-empty':avail<=3?'stk-warn':'stk-ok';
+    const cardCls  = usage.length?'used':avail<=3?'warn':'';
+    const tagsHtml = usage.length
+      ? `<div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>`
+      : '';
+    return `<div class="icard ${cardCls}">
+      <div class="icard-name" title="${item.name}">${hl(item.name,q)}</div>
+      <div class="icard-row">
+        <span class="icard-cost">¥${(item.cost||0).toLocaleString()}</span>
+        <span class="stk-bdg ${stockCls}">残${avail}枚</span>
+      </div>
+      ${tagsHtml}
+      <div class="icard-qty">
+        <button class="qb" onclick="chgStock('${item.id}',-1)">−</button>
+        <span class="qn">${item.stock||0}</span>
+        <button class="qb" onclick="chgStock('${item.id}',1)">＋</button>
+      </div>
+      <div class="icard-acts">
+        <button class="ab" onclick="openItemModal('${item.id}')">編集</button>
+        <button class="ab del" onclick="delItem('${item.id}')">削除</button>
+        <button class="ab add" onclick="openCartModal('${item.id}')">カートへ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openItemModal = (id) => {
+  const item = id ? items.find(i=>i.id===id) : null;
+  document.getElementById('item-modal-title').textContent = item?'商品を編集':'商品を登録';
+  document.getElementById('item-eid').value    = id||'';
+  document.getElementById('item-name').value   = item?.name||'';
+  document.getElementById('item-stock').value  = item?.stock??'';
+  document.getElementById('item-cost').value   = item?.cost??'';
+  document.getElementById('item-sell').value   = item?.sell??'';
+  document.getElementById('item-memo').value   = item?.memo||'';
+  openModal('modal-item');
+  setTimeout(()=>document.getElementById('item-name').focus(), 80);
+};
+
+window.saveItem = async () => {
+  const id    = document.getElementById('item-eid').value;
+  const name  = document.getElementById('item-name').value.trim();
+  const stock = parseInt(document.getElementById('item-stock').value)||0;
+  const cost  = parseInt(document.getElementById('item-cost').value)||0;
+  const sell  = parseInt(document.getElementById('item-sell').value)||0;
+  const memo  = document.getElementById('item-memo').value.trim();
+  if (!name) { toast('商品名を入力してください', true); return; }
+  if (stock < 0) { toast('在庫数は0以上にしてください', true); return; }
+
+  // 在庫を減らす場合、デッキ使用中の数を下回れないか確認
+  if (id) {
+    const used = usedInDecks(id);
+    if (stock < used) { toast(`デッキで${used}枚使用中のため、${used}枚以上が必要です`, true); return; }
+  }
+
+  setSyncDot('sync');
+  try {
+    const data = { name, stock, cost, sell, memo };
+    if (id) {
+      await updateDoc(doc(db,'users',uid,'items',id), data);
+      toast('更新しました');
+    } else {
+      await addDoc(collection(db,'users',uid,'items'), {...data, createdAt:serverTimestamp()});
+      toast('登録しました');
+    }
+    closeModal('modal-item');
+  } catch(e) { toast('保存に失敗しました', true); }
+};
+
+window.chgStock = async (id, delta) => {
+  const item  = items.find(i=>i.id===id);
+  if (!item) return;
+  const avail = availStock(id);
+  if (delta < 0 && avail <= 0) { toast('デッキで使用中のため減らせません', true); return; }
+  const newStock = Math.max(0, (item.stock||0) + delta);
+  await updateDoc(doc(db,'users',uid,'items',id), { stock: newStock });
+};
+
+window.delItem = async (id) => {
+  const item  = items.find(i=>i.id===id);
+  const usage = deckUsage(id);
+  if (usage.length) { toast(`デッキで使用中です（${usage.map(u=>u.name).join('、')}）`, true); return; }
+  if (!confirm(`「${item?.name}」を削除しますか？`)) return;
+  await deleteDoc(doc(db,'users',uid,'items',id));
+  cart = cart.filter(c=>c.itemId!==id);
+  renderCart();
+  toast('削除しました');
+};
+
+/* ═══════════════════════════
+   CART（経費カート・ローカルのみ）
+═══════════════════════════ */
+window.openCartModal = (itemId) => {
+  cartItemCtx = items.find(i=>i.id===itemId);
+  if (!cartItemCtx) return;
+  document.getElementById('cart-modal-title').textContent = `カートへ追加 — ${cartItemCtx.name}`;
+  document.getElementById('cart-item-id').value = itemId;
+  document.getElementById('cart-qty').value = 1;
+  updCartPrev();
+  openModal('modal-cart');
+};
+window.adjCQ = (d) => {
+  const inp = document.getElementById('cart-qty');
+  inp.value = Math.max(1, parseInt(inp.value||1)+d);
+  updCartPrev();
+};
+document.getElementById('cart-qty').addEventListener('input', updCartPrev);
+function updCartPrev() {
+  if (!cartItemCtx) return;
+  const q = parseInt(document.getElementById('cart-qty').value)||1;
+  document.getElementById('cart-prev').textContent =
+    `${q}個 × ¥${(cartItemCtx.cost||0).toLocaleString()} = ¥${((cartItemCtx.cost||0)*q).toLocaleString()}`;
+}
+window.confirmCart = () => {
+  const itemId = document.getElementById('cart-item-id').value;
+  const qty    = parseInt(document.getElementById('cart-qty').value)||1;
+  const ex = cart.find(c=>c.itemId===itemId);
+  if (ex) ex.qty += qty; else cart.push({itemId, qty});
+  renderCart();
+  closeModal('modal-cart');
+  toast(`カートに追加（${qty}個）`);
+};
+window.chgCQ = (itemId, d) => {
+  const c = cart.find(c=>c.itemId===itemId);
+  if (!c) return;
+  c.qty = Math.max(1, c.qty+d);
+  renderCart();
+};
+window.rmCart = (itemId) => {
+  cart = cart.filter(c=>c.itemId!==itemId);
+  renderCart();
+};
+window.clearCart = () => {
+  if (!cart.length) return;
+  if (!confirm('カートを全削除しますか？')) return;
+  cart=[];
+  renderCart();
+};
+function renderCart() {
+  const el = document.getElementById('cart-list');
+  if (!cart.length) {
+    el.innerHTML='<div class="cart-empty-msg">🛒<br>商品をカートに追加してください</div>';
+    document.getElementById('cart-total').textContent='¥0';
+    document.getElementById('cart-sub').textContent='0件';
+    return;
+  }
+  let total=0, totQ=0;
+  el.innerHTML = cart.map(c=>{
+    const item = items.find(i=>i.id===c.itemId);
+    if (!item) return '';
+    const line = (item.cost||0)*c.qty;
+    total+=line; totQ+=c.qty;
+    return `<div class="ci">
+      <div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">¥${(item.cost||0).toLocaleString()}/個</div></div>
+      <div class="ci-right">
+        <div class="ci-total">¥${line.toLocaleString()}</div>
+        <div class="ci-ctrl">
+          <button class="cqb" onclick="chgCQ('${c.itemId}',-1)">−</button>
+          <span class="cqn">${c.qty}</span>
+          <button class="cqb" onclick="chgCQ('${c.itemId}',1)">＋</button>
+          <button class="crm" onclick="rmCart('${c.itemId}')">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total').textContent = `¥${total.toLocaleString()}`;
+  document.getElementById('cart-sub').textContent   = `${cart.length}品目 / ${totQ}個`;
+}
+
+/* ═══════════════════════════
+   DECKS
+═══════════════════════════ */
+window.newDeck = async () => {
+  const ref = await addDoc(collection(db,'users',uid,'decks'), {
+    name: 'デッキ '+(decks.length+1),
+    status: 'draft',
+    cards: [],
+    sellPrice: 0,
+    memo: '',
+    createdAt: serverTimestamp()
+  });
+  selDkId = ref.id;
+  toast('デッキを作成しました');
+};
+
+function renderDkList() {
+  updateBadges();
+  const el = document.getElementById('dk-list');
+  if (!decks.length) {
+    el.innerHTML='<div class="dk-empty-msg">デッキがありません。<br>「＋ 新規」から作成してください。</div>';
+    if (selDkId) { renderDkMain(selDkId); }
+    return;
+  }
+  el.innerHTML = decks.map(dk=>{
+    const cost   = dkCost(dk);
+    const cnt    = dkCount(dk);
+    const net    = dk.sellPrice ? Math.round(dk.sellPrice*(1-FEE))-SHIP : null;
+    const profit = net!==null ? net-cost : null;
+    const sLbl   = {draft:'下書き',active:'出品中',sold:'売却済'}[dk.status]||'下書き';
+    const sCls   = {draft:'dsb-draft',active:'dsb-active',sold:'dsb-sold'}[dk.status]||'dsb-draft';
+    return `<div class="dk-item${selDkId===dk.id?' sel':''}" onclick="selDeck('${dk.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:3px;margin-bottom:3px">
+        <div class="dk-item-name">${dk.name}</div>
+        <span class="dsbdg ${sCls}">${sLbl}</span>
+      </div>
+      <div class="dk-item-meta">
+        <span>${cnt}枚</span>
+        <span>¥${cost.toLocaleString()}</span>
+        ${profit!==null?`<span style="color:${profit>=0?'var(--ok)':'var(--dg)'}">${profit>=0?'+':''}¥${profit.toLocaleString()}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  if (selDkId) renderDkMain(selDkId);
+}
+
+window.selDeck = (id) => { selDkId=id; renderDkList(); };
+
+function dkCost(dk)  { return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId);return s+(i?(i.cost||0)*c.qty:0)},0); }
+function dkCount(dk) { return (dk.cards||[]).reduce((s,c)=>s+c.qty, 0); }
+
+/* DECK SEARCH (在庫からカードを追加) */
+function renderDeckSearch() {
+  const el = document.getElementById('dk-srch-results');
+  if (!el) return;
+  const q    = dkSrchQ.toLowerCase();
+  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
+  if (!list.length) {
+    el.innerHTML='<div class="dsc-empty">在庫に商品がありません</div>';
+    return;
+  }
+  el.innerHTML = list.map(item=>{
+    const avail = availStock(item.id);
+    const canAdd = avail > 0;
+    return `<div class="dsr">
+      <div class="dsr-info">
+        <div class="dsr-name">${hl(item.name,q)}</div>
+        <div class="dsr-meta">
+          ¥${(item.cost||0).toLocaleString()} &nbsp;
+          <span class="dsr-avail ${canAdd?'ok':'dg'}">空き在庫 ${avail}枚</span>
+        </div>
+      </div>
+      <button class="dsr-add" onclick="addToDk('${item.id}')" ${!canAdd?'disabled':''}>追加</button>
+    </div>`;
+  }).join('');
+}
+
+window.addToDk = async (itemId) => {
+  if (!selDkId) { toast('デッキを選択してください', true); return; }
+  const dk    = decks.find(d=>d.id===selDkId);
+  if (!dk) return;
+  const avail = availStock(itemId);
+  if (avail <= 0) { toast('在庫が不足しています', true); return; }
+  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
+  const ex    = cards.find(c=>c.itemId===itemId);
+  if (ex) ex.qty += 1;
+  else cards.push({itemId, qty:1});
+  setSyncDot('sync');
+  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards });
+  renderDeckSearch();
+  toast('カードを追加しました');
+};
+
+/* DECK DETAIL */
+function renderDkMain(id) {
+  const dk   = decks.find(d=>d.id===id);
+  const main = document.getElementById('dk-main');
+  if (!dk) {
+    main.innerHTML='<div class="no-sel"><div class="no-sel-ico">📦</div><p>デッキを選択してください。</p></div>';
+    return;
+  }
+  const cost   = dkCost(dk);
+  const cnt    = dkCount(dk);
+  const sell   = Number(dk.sellPrice)||0;
+  const fee    = sell ? Math.round(sell*FEE) : 0;
+  const net    = sell ? Math.round(sell*(1-FEE))-SHIP : null;
+  const profit = net !== null ? net - cost : null;
+  const pCol   = v => v===null?'':v>=0?'ok':'dg';
+  const discSell    = sell ? Math.round(sell*.9) : 0;
+  const discNet     = discSell ? Math.round(discSell*(1-FEE))-SHIP : null;
+  const discProfit  = discNet!==null ? discNet-cost : null;
+
+  main.innerHTML = `
+  <div class="dk-hbar">
+    <input class="dk-name-in" value="${dk.name}" oninput="dkNameChange('${id}',this.value)" placeholder="デッキ名">
+    <select class="status-sel" onchange="dkStatusChange('${id}',this.value)">
+      <option value="draft"${dk.status==='draft'?' selected':''}>下書き</option>
+      <option value="active"${dk.status==='active'?' selected':''}>出品中</option>
+      <option value="sold"${dk.status==='sold'?' selected':''}>売却済</option>
+    </select>
+    <button class="btn btn-dg btn-sm" onclick="delDeck('${id}')">削除</button>
+  </div>
+  <div class="dk-stats">
+    <div class="stat-box"><div class="stat-lbl">枚数</div><div class="stat-val">${cnt}枚</div></div>
+    <div class="stat-box"><div class="stat-lbl">仕入れ原価</div><div class="stat-val ac">¥${cost.toLocaleString()}</div></div>
+    <div class="stat-box"><div class="stat-lbl">手取り</div><div class="stat-val">${net!==null?'¥'+net.toLocaleString():'—'}</div></div>
+    <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${pCol(profit)}">${profit!==null?(profit>=0?'+':'')+`¥${profit.toLocaleString()}`:'—'}</div></div>
+  </div>
+  <div class="dk-body">
+    <div class="dk-search-col">
+      <div class="dsc-head">
+        <div class="dsc-htitle">商品を追加</div>
+        <div class="dsc-srch">
+          <div class="dsc-srch-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg></div>
+          <input class="dsc-srch-in" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;renderDeckSearch()">
+        </div>
+      </div>
+      <div class="dsc-results" id="dk-srch-results"></div>
+    </div>
+    <div class="dk-card-area">
+      <div class="dk-ca-head">
+        <span class="ptitle">収録カード</span>
+        <span style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--ac)">¥${cost.toLocaleString()} / ${cnt}枚</span>
+      </div>
+      <div class="dk-ca-scroll" id="dk-ca-${id}">${buildCardGrid(dk)}</div>
+    </div>
+  </div>
+  <div class="dk-bottom">
+    <div class="price-section">
+      <div class="price-box">
+        <div class="pf"><label>販売価格（円）</label><input type="number" value="${sell||''}" placeholder="例: 5000" min="0" oninput="dkSellChange('${id}',this.value)"></div>
+        <div class="pf"><label>送料（固定）</label><input type="number" value="${SHIP}" disabled></div>
+      </div>
+      <div class="profit-box">
+        <div class="prow"><span class="lbl">販売価格</span><span class="val">¥${sell?sell.toLocaleString():'—'}</span></div>
+        <div class="prow"><span class="lbl">手数料 (10%)</span><span class="val dg">${sell?`−¥${fee.toLocaleString()}`:'—'}</span></div>
+        <div class="prow"><span class="lbl">送料</span><span class="val dg">−¥${SHIP}</span></div>
+        <hr class="phr">
+        <div class="prow"><span class="lbl">手取り金額</span><span class="val ac pbig">${net!==null?'¥'+net.toLocaleString():'—'}</span></div>
+        <div class="prow"><span class="lbl">仕入れ原価</span><span class="val dg">−¥${cost.toLocaleString()}</span></div>
+        <hr class="phr">
+        <div class="prow"><span class="lbl" style="font-weight:700">利益</span><span class="val ${pCol(profit)} pbig">${profit!==null?(profit>=0?'+':'')+`¥${profit.toLocaleString()}`:'—'}</span></div>
+      </div>
+    </div>
+    ${sell?`<div class="profit-box"><div class="prow"><span class="lbl">10%引き (¥${discSell.toLocaleString()}) 後利益</span><span class="val ${pCol(discProfit)} pbig">${discProfit!==null?(discProfit>=0?'+':'')+`¥${discProfit.toLocaleString()}`:'—'}</span></div></div>`:''}
+    <div class="memo-box"><textarea rows="2" placeholder="メモ…" oninput="dkMemoChange('${id}',this.value)">${dk.memo||''}</textarea></div>
+  </div>`;
+
+  renderDeckSearch();
+}
+
+function buildCardGrid(dk) {
+  if (!(dk.cards||[]).length) {
+    return `<div class="dk-ca-empty"><div class="dk-ca-empty-ico">🃏</div><p>カードがありません。<br>左の検索から追加してください。</p></div>`;
+  }
+  const groups = new Map();
+  (dk.cards||[]).forEach(c => {
+    const item = items.find(i=>i.id===c.itemId);
+    if (!item) return;
+    if (!groups.has(item.name)) groups.set(item.name, {item, qty:c.qty, itemId:c.itemId});
+    else groups.get(item.name).qty += c.qty;
+  });
+  const rows = Array.from(groups.values()).map(g => {
+    const thumbs = Array.from({length:g.qty}).map(()=>
+      `<div class="dk-thumb">
+        <div class="dk-thumb-ph">🃏</div>
+        <button class="dk-thumb-rm" onclick="event.stopPropagation();dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
+      </div>`
+    ).join('');
+    return `<div class="dk-cg">
+      <div class="dk-cg-row">
+        <span class="dk-cg-name">${g.item.name}</span>
+        <div class="dk-cg-ctrl">
+          <button class="qb" onclick="dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
+          <span class="dk-cg-qty">${g.qty}枚</span>
+          <button class="qb" onclick="dkChgQ('${dk.id}','${g.itemId}',1)">＋</button>
+          <span class="dk-cg-price">¥${((g.item.cost||0)*g.qty).toLocaleString()}</span>
+          <button class="qb" style="color:var(--dg);border-color:rgba(255,107,107,.25)" onclick="dkRmCard('${dk.id}','${g.itemId}')">✕</button>
+        </div>
+      </div>
+      <div class="dk-thumbs">${thumbs}</div>
+      <div class="dk-cg-sep"></div>
+    </div>`;
+  }).join('');
+  const cost = dkCost(dk), cnt = dkCount(dk);
+  return `<div class="dk-card-grid">${rows}</div>
+    <div class="dk-ca-footer"><span class="dk-ca-fl">${groups.size}種類 / ${cnt}枚</span><span class="dk-ca-fr">¥${cost.toLocaleString()}</span></div>`;
+}
+
+// カード枚数増減（在庫チェック付き）
+window.dkChgQ = async (dkId, itemId, delta) => {
+  const dk    = decks.find(d=>d.id===dkId);
+  if (!dk) return;
+  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
+  const c     = cards.find(c=>c.itemId===itemId);
+  if (!c) return;
+  if (delta > 0) {
+    // 追加: 利用可能在庫が0か確認
+    const avail = availStock(itemId);
+    if (avail <= 0) { toast('在庫が不足しています', true); return; }
+    c.qty += 1;
+  } else {
+    if (c.qty - 1 <= 0) { await dkRmCard(dkId, itemId); return; }
+    c.qty -= 1;
+  }
+  setSyncDot('sync');
+  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
+};
+
+window.dkRmCard = async (dkId, itemId) => {
+  const dk    = decks.find(d=>d.id===dkId);
+  if (!dk) return;
+  const cards = (dk.cards||[]).filter(c=>c.itemId!==itemId);
+  setSyncDot('sync');
+  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
+  toast('カードを削除しました');
+};
+
+// デバウンス付き保存
+const mkDebounce = (fn, ms=600) => {
+  let t;
+  return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
+};
+
+window.dkNameChange = mkDebounce(async (id, v) => {
+  const dk = decks.find(d=>d.id===id);
+  if (dk) dk.name = v;  // ローカル即時反映
+  await updateDoc(doc(db,'users',uid,'decks',id), { name:v });
+  renderDkList();
+}, 500);
+
+window.dkStatusChange = async (id, v) => {
+  await updateDoc(doc(db,'users',uid,'decks',id), { status:v });
+};
+
+window.dkSellChange = mkDebounce(async (id, v) => {
+  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice:parseInt(v)||0 });
+}, 700);
+
+window.dkMemoChange = mkDebounce(async (id, v) => {
+  await updateDoc(doc(db,'users',uid,'decks',id), { memo:v });
+}, 800);
+
+window.delDeck = async (id) => {
+  const dk = decks.find(d=>d.id===id);
+  if (!confirm(`「${dk?.name}」を削除しますか？\n使用中のカード枚数が在庫に戻ります。`)) return;
+  setSyncDot('sync');
+  await deleteDoc(doc(db,'users',uid,'decks',id));
+  if (selDkId === id) selDkId = null;
+  toast('デッキを削除しました');
+};
+
+/* ─── MODAL ─── */
+window.openModal  = (id) => document.getElementById(id).classList.add('on');
+window.closeModal = (id) => document.getElementById(id).classList.remove('on');
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); })
+);
+
+/* ─── TOAST ─── */
+let _tt = null;
+function toast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (isErr?' err':'');
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>

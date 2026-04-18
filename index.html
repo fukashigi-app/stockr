@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDDC2fXzc50EuFabgcC7I2y30g4luAu69c",
+  authDomain: "zaikokannri-c078b.firebaseapp.com",
+  projectId: "zaikokannri-c078b",
+  storageBucket: "zaikokannri-c078b.firebasestorage.app",
+  messagingSenderId: "676753428951",
+  appId: "1:676753428951:web:f901af55b76e9652c7bb92"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>STOCKR — クラウド在庫管理</title>

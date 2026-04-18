@@ -1,11 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STOCKR — クラウド在庫管理</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
-<!--
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>STOCKR — クラウド在庫管理</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDC2fXzc50EuFabgcC7I2y30g4luAu69c",
+      authDomain: "zaikokannri-c078b.firebaseapp.com",
+      projectId: "zaikokannri-c078b",
+      storageBucket: "zaikokannri-c078b.firebasestorage.app",
+      messagingSenderId: "676753428951",
+      appId: "1:676753428951:web:f901af55b76e9652c7bb92",
+      measurementId: "G-J9MHGRTLKY"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 ╔══════════════════════════════════════════════════════════╗
 ║  STOCKR セットアップ手順                                   ║
 ╠══════════════════════════════════════════════════════════╣

@@ -14,6 +14,26 @@ const firebaseConfig = {
   messagingSenderId: "676753428951",
   appId: "1:676753428951:web:f901af55b76e9652c7bb92"
 };
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "zaikokannri-c078b.firebaseapp.com",
+  projectId: "zaikokannri-c078b",
+  storageBucket: "zaikokannri-c078b.firebasestorage.app",
+  messagingSenderId: "676753428951",
+  appId: "1:676753428951:web:..."
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+  
 
 firebase.initializeApp(firebaseConfig);
 

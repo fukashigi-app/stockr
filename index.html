@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -11,7 +12,6 @@
   --bg:#07080b;--sf:#0f1219;--sf2:#161b26;--sf3:#1c2233;
   --bd:#222b3e;--bd2:#2a3550;
   --ac:#7ee8a2;--acd:rgba(126,232,162,.11);--acd2:rgba(126,232,162,.05);
-  --ac2:#5dd4ff;
   --tx:#dce5f0;--txm:#475068;--txd:#7a88a6;
   --ok:#7ee8a2;--okd:rgba(126,232,162,.1);
   --dg:#ff6b6b;--dgd:rgba(255,107,107,.1);
@@ -88,7 +88,6 @@ a{color:inherit;text-decoration:none}
 #pg-inv{flex-direction:row}
 @media(max-width:680px){#pg-inv{flex-direction:column}}
 
-/* Left: inventory panel */
 .inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;border-right:1px solid var(--bd)}
 @media(max-width:680px){.inv-panel{border-right:none;border-bottom:1px solid var(--bd)}}
 
@@ -111,6 +110,7 @@ a{color:inherit;text-decoration:none}
 .icard:hover{border-color:var(--bd2)}
 .icard.warn{border-color:rgba(255,107,107,.35)}
 .icard.used{border-color:rgba(126,232,162,.3)}
+.icard-img{width:100%;height:130px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
 .icard-name{font-family:var(--fd);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .icard-cost{font-size:12px;color:var(--ac);font-family:var(--fd);font-weight:700}
@@ -130,12 +130,10 @@ a{color:inherit;text-decoration:none}
 .ab.del{color:var(--dg);border-color:transparent}.ab.del:hover{border-color:var(--dg);background:var(--dgd)}
 .ab.add{color:#07080b;background:var(--ac);border-color:var(--ac);font-family:var(--fd);font-weight:700}.ab.add:hover{background:#6ad48e}
 
-/* Empty */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:10px;color:var(--txm);grid-column:1/-1;text-align:center}
 .empty-ico{font-size:36px;opacity:.25}
 .empty p{font-size:12px;line-height:1.7}
 
-/* Right: cart sidebar */
 .cart-side{width:260px;flex-shrink:0;display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
 @media(max-width:680px){.cart-side{width:100%;max-height:230px}}
 .cart-head{padding:11px 13px;border-bottom:1px solid var(--bd);flex-shrink:0}
@@ -166,7 +164,6 @@ a{color:inherit;text-decoration:none}
 #pg-deck{flex-direction:row}
 @media(max-width:680px){#pg-deck{flex-direction:column}}
 
-/* Deck list sidebar */
 .dk-sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
 @media(max-width:680px){.dk-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:160px}}
 .dk-sidebar-head{padding:9px 11px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -182,7 +179,6 @@ a{color:inherit;text-decoration:none}
 .dsb-sold{background:var(--okd);color:var(--ok)}
 .dk-empty-msg{padding:18px 10px;font-size:10px;color:var(--txm);text-align:center;line-height:1.7}
 
-/* Deck detail main */
 .dk-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .dk-hbar{padding:9px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--sf)}
 .dk-name-in{background:none;border:none;color:var(--tx);font-family:var(--fd);font-size:14px;font-weight:700;outline:none;flex:1;min-width:0}
@@ -190,7 +186,6 @@ a{color:inherit;text-decoration:none}
 .status-sel{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:5px 8px;border-radius:5px;font-family:var(--fb);font-size:11px;outline:none;cursor:pointer}
 .status-sel:focus{border-color:var(--ac)}
 
-/* Stats bar */
 .dk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 13px;border-bottom:1px solid var(--bd);flex-shrink:0}
 @media(max-width:480px){.dk-stats{grid-template-columns:1fr 1fr}}
 .stat-box{background:var(--sf2);border-radius:var(--rs);padding:8px 10px}
@@ -198,11 +193,9 @@ a{color:inherit;text-decoration:none}
 .stat-val{font-family:var(--fd);font-size:13px;font-weight:800}
 .stat-val.ac{color:var(--ac)}.stat-val.ok{color:var(--ok)}.stat-val.dg{color:var(--dg)}
 
-/* Deck body: search col + card area */
 .dk-body{display:flex;flex:1;overflow:hidden}
 @media(max-width:680px){.dk-body{flex-direction:column}}
 
-/* Search column */
 .dk-search-col{width:240px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 @media(max-width:680px){.dk-search-col{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:250px}}
 .dsc-head{padding:8px 11px;border-bottom:1px solid var(--bd);flex-shrink:0}
@@ -226,7 +219,6 @@ a{color:inherit;text-decoration:none}
 .dsr-add:disabled{background:var(--bd);color:var(--txm);cursor:not-allowed}
 .dsc-empty{padding:16px 12px;font-size:11px;color:var(--txm);text-align:center;line-height:1.7}
 
-/* Card area (big) */
 .dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
 .dk-ca-head{padding:8px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
 .dk-ca-scroll{flex:1;overflow-y:auto;padding:12px 13px}
@@ -240,9 +232,9 @@ a{color:inherit;text-decoration:none}
 .dk-cg-price{font-size:9px;color:var(--txm)}
 .dk-thumbs{display:flex;flex-wrap:wrap;gap:4px}
 .dk-thumb{position:relative;width:58px;flex-shrink:0}
-.dk-thumb-ph{width:58px;height:80px;border-radius:5px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bd);border:2px solid transparent;transition:border-color .15s}
+.dk-thumb-ph{width:58px;height:80px;border-radius:5px;background:var(--sf2);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bd);border:2px solid transparent;transition:border-color .15s}
 .dk-thumb:hover .dk-thumb-ph{border-color:var(--ac)}
-.dk-thumb-rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:var(--dg);border:none;border-radius:2px;color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
+.dk-thumb-rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:var(--dg);border:none;border-radius:2px;color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer}
 .dk-thumb:hover .dk-thumb-rm{display:flex}
 .dk-cg-sep{height:1px;background:var(--bd)}
 .dk-ca-empty{text-align:center;padding:32px 20px;color:var(--txm)}
@@ -251,7 +243,6 @@ a{color:inherit;text-decoration:none}
 .dk-ca-footer{display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--bd);margin-top:4px}
 .dk-ca-fl{font-size:10px;color:var(--txm)}.dk-ca-fr{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--ac)}
 
-/* Bottom: pricing */
 .dk-bottom{padding:11px 13px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:9px;max-height:34vh;overflow-y:auto}
 .dk-bottom::-webkit-scrollbar{width:3px}.dk-bottom::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .price-section{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -272,14 +263,12 @@ a{color:inherit;text-decoration:none}
 .no-sel{display:flex;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:9px;color:var(--txm)}
 .no-sel-ico{font-size:28px;opacity:.2}.no-sel p{font-size:11px;line-height:1.7;text-align:center}
 
-/* ═══ SHARED COMPONENTS ═══ */
 .btn{padding:7px 13px;border-radius:var(--rs);font-family:var(--fd);font-size:12px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
 .btn-ac{background:var(--ac);color:#07080b}.btn-ac:hover{background:#6ad48e}
 .btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}.btn-ghost:hover{color:var(--tx);border-color:var(--bd2)}
 .btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}.btn-dg:hover{background:var(--dgd)}
 .btn-sm{padding:4px 9px;font-size:10px}
 
-/* OVERLAY / MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:400;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 .overlay.on{display:flex}
 .modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:18px;width:100%;max-width:400px;animation:mIn .18s ease}
@@ -295,7 +284,9 @@ a{color:inherit;text-decoration:none}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mactions{display:flex;gap:7px;justify-content:flex-end}
 
-/* Cart qty modal */
+.img-preview{width:100%;height:140px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:11px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;transition:border-color .2s;cursor:pointer;line-height:1.5;margin-bottom:10px}
+.img-preview:hover{border-color:var(--ac)}
+
 .cqrow{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cqbig{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bd);background:none;color:var(--tx);font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .13s}
 .cqbig:hover{border-color:var(--ac);color:var(--ac)}
@@ -303,12 +294,9 @@ a{color:inherit;text-decoration:none}
 .cqin:focus{border-color:var(--ac)}.cqin::-webkit-inner-spin-button{-webkit-appearance:none}
 .cprev{background:var(--acd);border-radius:var(--rs);padding:7px 11px;font-family:var(--fd);font-size:12px;color:var(--ac);text-align:center;font-weight:700;margin-bottom:11px}
 
-/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:50px;font-size:12px;font-weight:700;font-family:var(--fd);z-index:600;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--dg);color:#fff}
-
-/* Highlight */
 mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-style:normal}
 </style>
 </head>
@@ -409,6 +397,11 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
     <div class="modal-title" id="item-modal-title">商品を登録</div>
     <div class="mfields">
       <input type="hidden" id="item-eid">
+      
+      <div id="item-img-preview" class="img-preview">
+        カードの画像をここに<br>ペースト (Ctrl + V)
+      </div>
+
       <div class="mf"><label>商品名 *</label><input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン"></div>
       <div class="mrow">
         <div class="mf"><label>在庫数 *</label><input type="number" id="item-stock" placeholder="0" min="0"></div>
@@ -482,6 +475,7 @@ let selDkId = null;
 let unsubItems = null, unsubDecks = null;
 let cartItemCtx = null;
 let dkSrchQ = '';
+let currentItemImage = null; // コピペ画像用の一時保存
 
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
@@ -633,7 +627,14 @@ function renderGrid() {
     const tagsHtml = usage.length
       ? `<div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>`
       : '';
+      
+    // 画像があれば表示、なければプレースホルダー
+    const imgHtml = item.image 
+      ? `<div class="icard-img" style="background-image:url(${item.image})"></div>`
+      : `<div class="icard-img">🃏</div>`;
+
     return `<div class="icard ${cardCls}">
+      ${imgHtml}
       <div class="icard-name" title="${item.name}">${hl(item.name,q)}</div>
       <div class="icard-row">
         <span class="icard-cost">¥${(item.cost||0).toLocaleString()}</span>
@@ -663,9 +664,62 @@ window.openItemModal = (id) => {
   document.getElementById('item-cost').value   = item?.cost??'';
   document.getElementById('item-sell').value   = item?.sell??'';
   document.getElementById('item-memo').value   = item?.memo||'';
+  
+  // 画像プレビューのリセット
+  currentItemImage = item?.image || null;
+  const pv = document.getElementById('item-img-preview');
+  if (currentItemImage) {
+    pv.style.backgroundImage = `url(${currentItemImage})`;
+    pv.innerHTML = '';
+  } else {
+    pv.style.backgroundImage = 'none';
+    pv.innerHTML = 'カードの画像をここに<br>ペースト (Ctrl + V)';
+  }
+
   openModal('modal-item');
   setTimeout(()=>document.getElementById('item-name').focus(), 80);
 };
+
+// --- 画像コピペ機能 ---
+document.addEventListener('paste', (e) => {
+  const modal = document.getElementById('modal-item');
+  if (!modal.classList.contains('on')) return; // モーダルが開いていない時は無視
+
+  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+  for (let item of items) {
+    if (item.type.indexOf('image') === 0) {
+      const blob = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // 画像を小さく圧縮する（最大300px）これでDBを圧迫しません
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 300;
+          let w = img.width, h = img.height;
+          if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
+          else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          
+          // 圧縮した画像を保存
+          currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
+          
+          // プレビュー表示の更新
+          const pv = document.getElementById('item-img-preview');
+          pv.style.backgroundImage = `url(${currentItemImage})`;
+          pv.innerHTML = '';
+          toast('画像を貼り付けました！');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(blob);
+      e.preventDefault();
+      break;
+    }
+  }
+});
 
 window.saveItem = async () => {
   const id    = document.getElementById('item-eid').value;
@@ -684,7 +738,7 @@ window.saveItem = async () => {
 
   setSyncDot('sync');
   try {
-    const data = { name, stock, cost, sell, memo };
+    const data = { name, stock, cost, sell, memo, image: currentItemImage };
     if (id) {
       await updateDoc(doc(db,'users',uid,'items',id), data);
       toast('更新しました');
@@ -971,12 +1025,19 @@ function buildCardGrid(dk) {
     else groups.get(item.name).qty += c.qty;
   });
   const rows = Array.from(groups.values()).map(g => {
+    
+    // 画像があればデッキエリアにも表示
+    const imgHtml = g.item.image 
+      ? `<div class="dk-thumb-ph" style="background-image:url(${g.item.image});"></div>`
+      : `<div class="dk-thumb-ph">🃏</div>`;
+
     const thumbs = Array.from({length:g.qty}).map(()=>
       `<div class="dk-thumb">
-        <div class="dk-thumb-ph">🃏</div>
+        ${imgHtml}
         <button class="dk-thumb-rm" onclick="event.stopPropagation();dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
       </div>`
     ).join('');
+    
     return `<div class="dk-cg">
       <div class="dk-cg-row">
         <span class="dk-cg-name">${g.item.name}</span>

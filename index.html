@@ -470,28 +470,11 @@ const fbApp  = initializeApp(firebaseConfig);
 const auth   = getAuth(fbApp);
 const db     = getFirestore(fbApp);
 
-await setPersistence(auth, browserLocalPersistence);
-
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-const fbApp  = initializeApp(firebaseConfig);
-const auth   = getAuth(fbApp);
-const db     = getFirestore(fbApp);
-
-await setPersistence(auth, browserLocalPersistence);
+try {
+  await setPersistence(auth, browserLocalPersistence);
+} catch (e) {
+  console.log("Persistence warning:", e);
+}
 
 /* ─── STATE ─── */
 const SHIP = 210, FEE = 0.10;

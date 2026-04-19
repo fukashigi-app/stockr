@@ -454,9 +454,6 @@ import {
   onSnapshot, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-/* ════════════════════════════════════════════
-   ここにあなたのFirebase設定を埋め込んでいます
-════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
@@ -476,18 +473,16 @@ try {
   console.log("Persistence warning:", e);
 }
 
-/* ─── STATE ─── */
 const SHIP = 210, FEE = 0.10;
 let uid = null;
-let items  = [];   // Firestore: users/{uid}/items
-let decks  = [];   // Firestore: users/{uid}/decks
-let cart   = [];   // ローカルのみ（経費計算用）
+let items  = [];   
+let decks  = [];   
+let cart   = [];   
 let selDkId = null;
 let unsubItems = null, unsubDecks = null;
 let cartItemCtx = null;
 let dkSrchQ = '';
 
-/* ─── AUTH HELPERS ─── */
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
   document.getElementById('sec-login').classList.toggle('on', t==='login');
@@ -533,7 +528,6 @@ window.doLogout = async () => {
 
 function setAuthErr(msg) { document.getElementById('auth-err').textContent = msg; }
 
-/* ─── AUTH STATE OBSERVER ─── */
 onAuthStateChanged(auth, user => {
   document.getElementById('loading').classList.add('hide');
   if (user) {
@@ -549,7 +543,6 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-/* ─── REALTIME LISTENERS ─── */
 function startListeners() {
   setSyncDot('sync');
 
@@ -569,7 +562,7 @@ function startListeners() {
     decks = snap.docs.map(d=>({id:d.id,...d.data()}));
     decks.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
     renderDkList();
-    renderGrid(); // デッキ変更でタグ更新
+    renderGrid(); 
     updateBadges();
     setSyncDot('ok');
   }, () => setSyncDot('err'));
@@ -579,7 +572,6 @@ function setSyncDot(s) {
   document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:'');
 }
 
-/* ─── PAGE NAV ─── */
 window.goPage = (p) => {
   ['inv','deck'].forEach(x=>{
     document.getElementById('pg-'+x).classList.toggle('on', x===p);
@@ -595,20 +587,16 @@ function updateBadges() {
   document.getElementById('dk-cnt').textContent  = decks.length;
 }
 
-/* ─── AVAILABILITY CALC ─── */
-// デッキで使われている量（仮想マイナス）
 function usedInDecks(itemId) {
   return decks.reduce((s,dk)=>{
     const c = (dk.cards||[]).find(c=>c.itemId===itemId);
     return s + (c?.qty||0);
   }, 0);
 }
-// 利用可能在庫（在庫 − デッキ使用中）
 function availStock(itemId) {
   const item = items.find(i=>i.id===itemId);
   return Math.max(0, (item?.stock||0) - usedInDecks(itemId));
 }
-// どのデッキに何枚使われているか
 function deckUsage(itemId) {
   return decks.flatMap(dk=>{
     const c = (dk.cards||[]).find(c=>c.itemId===itemId);
@@ -616,7 +604,6 @@ function deckUsage(itemId) {
   });
 }
 
-/* ─── HIGHLIGHT ─── */
 function hl(text, q) {
   if (!q) return text;
   const i = text.toLowerCase().indexOf(q.toLowerCase());
@@ -624,9 +611,6 @@ function hl(text, q) {
   return text.slice(0,i)+`<mark>${text.slice(i,i+q.length)}</mark>`+text.slice(i+q.length);
 }
 
-/* ═══════════════════════════
-   INVENTORY
-═══════════════════════════ */
 function renderGrid() {
   const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
   const grid = document.getElementById('inv-grid');
@@ -693,7 +677,6 @@ window.saveItem = async () => {
   if (!name) { toast('商品名を入力してください', true); return; }
   if (stock < 0) { toast('在庫数は0以上にしてください', true); return; }
 
-  // 在庫を減らす場合、デッキ使用中の数を下回れないか確認
   if (id) {
     const used = usedInDecks(id);
     if (stock < used) { toast(`デッキで${used}枚使用中のため、${used}枚以上が必要です`, true); return; }
@@ -733,9 +716,6 @@ window.delItem = async (id) => {
   toast('削除しました');
 };
 
-/* ═══════════════════════════
-   CART（経費カート・ローカルのみ）
-═══════════════════════════ */
 window.openCartModal = (itemId) => {
   cartItemCtx = items.find(i=>i.id===itemId);
   if (!cartItemCtx) return;
@@ -813,9 +793,6 @@ function renderCart() {
   document.getElementById('cart-sub').textContent   = `${cart.length}品目 / ${totQ}個`;
 }
 
-/* ═══════════════════════════
-   DECKS
-═══════════════════════════ */
 window.newDeck = async () => {
   const ref = await addDoc(collection(db,'users',uid,'decks'), {
     name: 'デッキ '+(decks.length+1),
@@ -864,7 +841,6 @@ window.selDeck = (id) => { selDkId=id; renderDkList(); };
 function dkCost(dk)  { return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId);return s+(i?(i.cost||0)*c.qty:0)},0); }
 function dkCount(dk) { return (dk.cards||[]).reduce((s,c)=>s+c.qty, 0); }
 
-/* DECK SEARCH (在庫からカードを追加) */
 function renderDeckSearch() {
   const el = document.getElementById('dk-srch-results');
   if (!el) return;
@@ -906,7 +882,6 @@ window.addToDk = async (itemId) => {
   toast('カードを追加しました');
 };
 
-/* DECK DETAIL */
 function renderDkMain(id) {
   const dk   = decks.find(d=>d.id===id);
   const main = document.getElementById('dk-main');
@@ -1022,7 +997,6 @@ function buildCardGrid(dk) {
     <div class="dk-ca-footer"><span class="dk-ca-fl">${groups.size}種類 / ${cnt}枚</span><span class="dk-ca-fr">¥${cost.toLocaleString()}</span></div>`;
 }
 
-// カード枚数増減（在庫チェック付き）
 window.dkChgQ = async (dkId, itemId, delta) => {
   const dk    = decks.find(d=>d.id===dkId);
   if (!dk) return;
@@ -1030,7 +1004,6 @@ window.dkChgQ = async (dkId, itemId, delta) => {
   const c     = cards.find(c=>c.itemId===itemId);
   if (!c) return;
   if (delta > 0) {
-    // 追加: 利用可能在庫が0か確認
     const avail = availStock(itemId);
     if (avail <= 0) { toast('在庫が不足しています', true); return; }
     c.qty += 1;
@@ -1051,7 +1024,6 @@ window.dkRmCard = async (dkId, itemId) => {
   toast('カードを削除しました');
 };
 
-// デバウンス付き保存
 const mkDebounce = (fn, ms=600) => {
   let t;
   return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
@@ -1059,7 +1031,7 @@ const mkDebounce = (fn, ms=600) => {
 
 window.dkNameChange = mkDebounce(async (id, v) => {
   const dk = decks.find(d=>d.id===id);
-  if (dk) dk.name = v;  // ローカル即時反映
+  if (dk) dk.name = v;  
   await updateDoc(doc(db,'users',uid,'decks',id), { name:v });
   renderDkList();
 }, 500);
@@ -1085,14 +1057,12 @@ window.delDeck = async (id) => {
   toast('デッキを削除しました');
 };
 
-/* ─── MODAL ─── */
 window.openModal  = (id) => document.getElementById(id).classList.add('on');
 window.closeModal = (id) => document.getElementById(id).classList.remove('on');
 document.querySelectorAll('.overlay').forEach(o =>
   o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); })
 );
 
-/* ─── TOAST ─── */
 let _tt = null;
 function toast(msg, isErr=false) {
   const t = document.getElementById('toast');

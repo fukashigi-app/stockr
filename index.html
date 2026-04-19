@@ -457,8 +457,6 @@ import {
 /* ════════════════════════════════════════════
    ここにあなたのFirebase設定を埋め込んでいます
 ════════════════════════════════════════════ */
-// Import the functions you need from the SDKs you need
-
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
@@ -467,6 +465,12 @@ const firebaseConfig = {
   messagingSenderId: "699514971368",
   appId: "1:699514971368:web:417196f4ac40bb6a0e555d"
 };
+
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const db     = getFirestore(fbApp);
+
+await setPersistence(auth, browserLocalPersistence);
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);

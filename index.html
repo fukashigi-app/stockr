@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -284,6 +283,7 @@ a{color:inherit;text-decoration:none}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mactions{display:flex;gap:7px;justify-content:flex-end}
 
+/* 画像コピペエリアのスタイル */
 .img-preview{width:100%;height:140px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:11px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;transition:border-color .2s;cursor:pointer;line-height:1.5;margin-bottom:10px}
 .img-preview:hover{border-color:var(--ac)}
 
@@ -447,6 +447,7 @@ import {
   onSnapshot, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
+// 最新のAPIキー（zaiko2）
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
@@ -475,7 +476,7 @@ let selDkId = null;
 let unsubItems = null, unsubDecks = null;
 let cartItemCtx = null;
 let dkSrchQ = '';
-let currentItemImage = null; // コピペ画像用の一時保存
+let currentItemImage = null; // コピペ画像用
 
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
@@ -539,7 +540,6 @@ onAuthStateChanged(auth, user => {
 
 function startListeners() {
   setSyncDot('sync');
-
   const itemsCol = collection(db,'users',uid,'items');
   const decksCol = collection(db,'users',uid,'decks');
 
@@ -628,7 +628,7 @@ function renderGrid() {
       ? `<div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>`
       : '';
       
-    // 画像があれば表示、なければプレースホルダー
+    // 画像表示
     const imgHtml = item.image 
       ? `<div class="icard-img" style="background-image:url(${item.image})"></div>`
       : `<div class="icard-img">🃏</div>`;
@@ -665,7 +665,6 @@ window.openItemModal = (id) => {
   document.getElementById('item-sell').value   = item?.sell??'';
   document.getElementById('item-memo').value   = item?.memo||'';
   
-  // 画像プレビューのリセット
   currentItemImage = item?.image || null;
   const pv = document.getElementById('item-img-preview');
   if (currentItemImage) {
@@ -680,10 +679,10 @@ window.openItemModal = (id) => {
   setTimeout(()=>document.getElementById('item-name').focus(), 80);
 };
 
-// --- 画像コピペ機能 ---
+// 画像コピペ機能
 document.addEventListener('paste', (e) => {
   const modal = document.getElementById('modal-item');
-  if (!modal.classList.contains('on')) return; // モーダルが開いていない時は無視
+  if (!modal.classList.contains('on')) return; 
 
   const items = (e.clipboardData || e.originalEvent.clipboardData).items;
   for (let item of items) {
@@ -693,7 +692,6 @@ document.addEventListener('paste', (e) => {
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          // 画像を小さく圧縮する（最大300px）これでDBを圧迫しません
           const canvas = document.createElement('canvas');
           const MAX_SIZE = 300;
           let w = img.width, h = img.height;
@@ -703,10 +701,8 @@ document.addEventListener('paste', (e) => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
           
-          // 圧縮した画像を保存
           currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
           
-          // プレビュー表示の更新
           const pv = document.getElementById('item-img-preview');
           pv.style.backgroundImage = `url(${currentItemImage})`;
           pv.innerHTML = '';
@@ -1026,7 +1022,6 @@ function buildCardGrid(dk) {
   });
   const rows = Array.from(groups.values()).map(g => {
     
-    // 画像があればデッキエリアにも表示
     const imgHtml = g.item.image 
       ? `<div class="dk-thumb-ph" style="background-image:url(${g.item.image});"></div>`
       : `<div class="dk-thumb-ph">🃏</div>`;

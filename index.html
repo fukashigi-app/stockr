@@ -462,12 +462,16 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
-  databaseURL: "https://zaiko2-d1fef-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "zaiko2-d1fef",
   storageBucket: "zaiko2-d1fef.firebasestorage.app",
   messagingSenderId: "699514971368",
-  appId: "1:699514971368:web:417196f4ac40bb6a0e555d",
-  measurementId: "G-W6NQLWNPVQ"
+  appId: "1:699514971368:web:417196f4ac40bb6a0e555d"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
 };
 
 // Initialize Firebase

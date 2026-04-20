@@ -402,7 +402,14 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
         カードの画像をここに<br>ペースト (Ctrl + V)
       </div>
 
-      <div class="mf"><label>商品名 *</label><input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン"></div>
+      <div class="mf">
+        <label>商品名 *</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン" style="flex:1; min-width:0;">
+          <button type="button" class="btn btn-ghost" onclick="searchOfficial()" style="flex-shrink:0; padding:0 10px;">🔍 公式検索</button>
+        </div>
+      </div>
+
       <div class="mrow">
         <div class="mf"><label>在庫数 *</label><input type="number" id="item-stock" placeholder="0" min="0"></div>
         <div class="mf"><label>仕入れ値（円）</label><input type="number" id="item-cost" placeholder="0" min="0"></div>
@@ -447,7 +454,7 @@ import {
   onSnapshot, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-// 最新のAPIキー（zaiko2）
+// APIキー
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
@@ -677,6 +684,17 @@ window.openItemModal = (id) => {
 
   openModal('modal-item');
   setTimeout(()=>document.getElementById('item-name').focus(), 80);
+};
+
+// ★ 公式検索ボタンの機能
+window.searchOfficial = () => {
+  const name = document.getElementById('item-name').value.trim();
+  if (!name) {
+    toast('商品名を入力してください', true);
+    return;
+  }
+  const url = `https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(name)}`;
+  window.open(url, '_blank');
 };
 
 // 画像コピペ機能

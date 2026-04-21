@@ -250,7 +250,7 @@ a{color:inherit;text-decoration:none}
 .pf{display:flex;flex-direction:column;gap:3px}
 .pf label{font-size:9px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
 .pf input{background:var(--sf3);border:1.5px solid var(--bd);color:var(--tx);padding:7px 9px;border-radius:var(--rs);font-size:12px;outline:none;transition:border-color .18s;-webkit-appearance:none;width:100%}
-.pf input:focus{border-color:var(--ac)}.pf input:disabled{opacity:.4;cursor:not-allowed}
+.pf input:focus{border-color:var(--ac)}
 .profit-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:10px 11px;display:flex;flex-direction:column;gap:5px}
 .prow{display:flex;justify-content:space-between;font-size:11px}
 .prow .lbl{color:var(--txm)}.prow .val{font-family:var(--fd);font-weight:700}
@@ -404,9 +404,14 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 
       <div class="mf">
         <label>商品名 *</label>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:6px; margin-bottom: 6px;">
           <input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン" style="flex:1; min-width:0;">
-          <button type="button" class="btn btn-ghost" onclick="searchOfficial()" style="flex-shrink:0; padding:0 10px;">🔍 公式検索</button>
+          <button type="button" class="btn btn-ghost" onclick="searchOfficial()" style="flex-shrink:0; padding:0 10px;">🔍 公式</button>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('mercari')" style="flex:1; border-color:#e63232; color:#e63232;">メルカリ</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('magi')" style="flex:1; border-color:#2a70ff; color:#2a70ff;">magi</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('yahoo')" style="flex:1; border-color:#f5b000; color:#f5b000;">ヤフオク</button>
         </div>
       </div>
 
@@ -683,11 +688,23 @@ window.openItemModal = (id) => {
   setTimeout(()=>document.getElementById('item-name').focus(), 80);
 };
 
+// ★ 公式検索・フリマ相場検索
 window.searchOfficial = () => {
   const name = document.getElementById('item-name').value.trim();
   if (!name) { toast('商品名を入力してください', true); return; }
   const url = `https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(name)}`;
   window.open(url, '_blank');
+};
+
+window.searchMarket = (site) => {
+  const name = document.getElementById('item-name').value.trim();
+  if (!name) { toast('商品名を入力してください', true); return; }
+  const keyword = encodeURIComponent(name);
+  let url = '';
+  if (site === 'mercari') url = `https://jp.mercari.com/search?keyword=${keyword}`;
+  else if (site === 'magi') url = `https://magi.camp/items/search?keyword=${keyword}`;
+  else if (site === 'yahoo') url = `https://auctions.yahoo.co.jp/search/search?p=${keyword}`;
+  if (url) window.open(url, '_blank');
 };
 
 document.addEventListener('paste', (e) => {
@@ -948,6 +965,20 @@ function renderDkMain(id) {
     main.innerHTML='<div class="no-sel"><div class="no-sel-ico">📦</div><p>デッキを選択してください。</p></div>';
     return;
   }
+  
+  // ★ 入力途中にカーソルが外れないための「フォーカス記憶」処理
+  const activeEl = document.activeElement;
+  const activeId = activeEl ? activeEl.id : null;
+  let sStart = null, sEnd = null;
+  if (activeId && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+    try {
+      if (activeEl.type !== 'number') {
+        sStart = activeEl.selectionStart;
+        sEnd = activeEl.selectionEnd;
+      }
+    } catch(e) {}
+  }
+
   const cost   = dkCost(dk);
   const cnt    = dkCount(dk);
   const sell   = Number(dk.sellPrice)||0;
@@ -963,8 +994,8 @@ function renderDkMain(id) {
 
   main.innerHTML = `
   <div class="dk-hbar">
-    <input class="dk-name-in" value="${dk.name}" oninput="dkNameChange('${id}',this.value)" placeholder="デッキ名">
-    <select class="status-sel" onchange="dkStatusChange('${id}',this.value)">
+    <input class="dk-name-in" id="dk-inp-name-${id}" value="${dk.name}" oninput="dkNameChange('${id}',this.value)" placeholder="デッキ名">
+    <select class="status-sel" id="dk-inp-status-${id}" onchange="dkStatusChange('${id}',this.value)">
       <option value="draft"${dk.status==='draft'?' selected':''}>下書き</option>
       <option value="active"${dk.status==='active'?' selected':''}>出品中</option>
       <option value="sold"${dk.status==='sold'?' selected':''}>売却済</option>
@@ -983,7 +1014,7 @@ function renderDkMain(id) {
         <div class="dsc-htitle">商品を追加</div>
         <div class="dsc-srch">
           <div class="dsc-srch-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg></div>
-          <input class="dsc-srch-in" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;renderDeckSearch()">
+          <input class="dsc-srch-in" id="dk-inp-srch-${id}" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;renderDeckSearch()">
         </div>
       </div>
       <div class="dsc-results" id="dk-srch-results"></div>
@@ -999,9 +1030,9 @@ function renderDkMain(id) {
   <div class="dk-bottom">
     <div class="price-section">
       <div class="price-box">
-        <div class="pf"><label>販売価格（円）</label><input type="number" value="${sell||''}" placeholder="例: 5000" min="0" oninput="dkSellChange('${id}',this.value)"></div>
-        <div class="pf"><label>サイト手数料 (%)</label><input type="number" value="${dk.feePercent ?? 10}" placeholder="10" min="0" oninput="dkFeeChange('${id}',this.value)"></div>
-        <div class="pf"><label>送料（円）</label><input type="number" value="${dk.shippingCost ?? 210}" placeholder="210" min="0" oninput="dkShipChange('${id}',this.value)"></div>
+        <div class="pf"><label>販売価格（円）</label><input type="number" id="dk-inp-sell-${id}" value="${sell||''}" placeholder="例: 5000" min="0" oninput="dkSellChange('${id}',this.value)"></div>
+        <div class="pf"><label>サイト手数料 (%)</label><input type="number" id="dk-inp-fee-${id}" value="${dk.feePercent ?? 10}" placeholder="10" min="0" oninput="dkFeeChange('${id}',this.value)"></div>
+        <div class="pf"><label>送料（円）</label><input type="number" id="dk-inp-ship-${id}" value="${dk.shippingCost ?? 210}" placeholder="210" min="0" oninput="dkShipChange('${id}',this.value)"></div>
       </div>
       <div class="profit-box">
         <div class="prow"><span class="lbl">販売価格</span><span class="val">¥${sell?sell.toLocaleString():'—'}</span></div>
@@ -1015,8 +1046,21 @@ function renderDkMain(id) {
       </div>
     </div>
     ${sell?`<div class="profit-box"><div class="prow"><span class="lbl">10%引き (¥${discSell.toLocaleString()}) 後利益</span><span class="val ${pCol(discProfit)} pbig">${discProfit!==null?(discProfit>=0?'+':'')+`¥${discProfit.toLocaleString()}`:'—'}</span></div></div>`:''}
-    <div class="memo-box"><textarea rows="2" placeholder="メモ…" oninput="dkMemoChange('${id}',this.value)">${dk.memo||''}</textarea></div>
+    <div class="memo-box"><textarea id="dk-inp-memo-${id}" rows="2" placeholder="メモ…" oninput="dkMemoChange('${id}',this.value)">${dk.memo||''}</textarea></div>
   </div>`;
+
+  // ★ フォーカスの復元
+  if (activeId) {
+    setTimeout(() => {
+      const el = document.getElementById(activeId);
+      if (el) {
+        el.focus();
+        if (sStart !== null) {
+          try { el.setSelectionRange(sStart, sEnd); } catch(e) {}
+        }
+      }
+    }, 10);
+  }
 
   renderDeckSearch();
 }
@@ -1108,11 +1152,15 @@ window.dkSellChange = mkDebounce(async (id, v) => {
 }, 700);
 
 window.dkFeeChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent:parseInt(v)||0 });
+  let num = parseInt(v);
+  if (isNaN(num) || num < 0) num = 0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent: num });
 }, 700);
 
 window.dkShipChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost:parseInt(v)||0 });
+  let num = parseInt(v);
+  if (isNaN(num) || num < 0) num = 0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost: num });
 }, 700);
 
 window.dkMemoChange = mkDebounce(async (id, v) => {

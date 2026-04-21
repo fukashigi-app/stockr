@@ -109,7 +109,6 @@ a{color:inherit;text-decoration:none}
 .icard:hover{border-color:var(--bd2)}
 .icard.warn{border-color:rgba(255,107,107,.35)}
 .icard.used{border-color:rgba(126,232,162,.3)}
-/* 画像表示用スタイル */
 .icard-img{width:100%;height:130px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
 .icard-name{font-family:var(--fd);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
@@ -455,7 +454,6 @@ import {
   onSnapshot, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
-// APIキー
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
   authDomain: "zaiko2-d1fef.firebaseapp.com",
@@ -475,7 +473,6 @@ try {
   console.log("Persistence warning:", e);
 }
 
-const SHIP = 210, FEE = 0.10;
 let uid = null;
 let items  = [];   
 let decks  = [];   
@@ -484,7 +481,7 @@ let selDkId = null;
 let unsubItems = null, unsubDecks = null;
 let cartItemCtx = null;
 let dkSrchQ = '';
-let currentItemImage = null; // コピペ画像用
+let currentItemImage = null;
 
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
@@ -636,7 +633,6 @@ function renderGrid() {
       ? `<div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>`
       : '';
       
-    // 画像表示
     const imgHtml = item.image 
       ? `<div class="icard-img" style="background-image:url(${item.image})"></div>`
       : `<div class="icard-img">🃏</div>`;
@@ -687,22 +683,16 @@ window.openItemModal = (id) => {
   setTimeout(()=>document.getElementById('item-name').focus(), 80);
 };
 
-// ★ 公式検索ボタンの機能
 window.searchOfficial = () => {
   const name = document.getElementById('item-name').value.trim();
-  if (!name) {
-    toast('商品名を入力してください', true);
-    return;
-  }
+  if (!name) { toast('商品名を入力してください', true); return; }
   const url = `https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(name)}`;
   window.open(url, '_blank');
 };
 
-// 画像コピペ機能
 document.addEventListener('paste', (e) => {
   const modal = document.getElementById('modal-item');
   if (!modal.classList.contains('on')) return; 
-
   const items = (e.clipboardData || e.originalEvent.clipboardData).items;
   for (let item of items) {
     if (item.type.indexOf('image') === 0) {
@@ -719,9 +709,7 @@ document.addEventListener('paste', (e) => {
           canvas.width = w; canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          
           currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
-          
           const pv = document.getElementById('item-img-preview');
           pv.style.backgroundImage = `url(${currentItemImage})`;
           pv.innerHTML = '';
@@ -745,12 +733,10 @@ window.saveItem = async () => {
   const memo  = document.getElementById('item-memo').value.trim();
   if (!name) { toast('商品名を入力してください', true); return; }
   if (stock < 0) { toast('在庫数は0以上にしてください', true); return; }
-
   if (id) {
     const used = usedInDecks(id);
     if (stock < used) { toast(`デッキで${used}枚使用中のため、${used}枚以上が必要です`, true); return; }
   }
-
   setSyncDot('sync');
   try {
     const data = { name, stock, cost, sell, memo, image: currentItemImage };
@@ -868,6 +854,8 @@ window.newDeck = async () => {
     status: 'draft',
     cards: [],
     sellPrice: 0,
+    feePercent: 10,
+    shippingCost: 210,
     memo: '',
     createdAt: serverTimestamp()
   });
@@ -886,7 +874,9 @@ function renderDkList() {
   el.innerHTML = decks.map(dk=>{
     const cost   = dkCost(dk);
     const cnt    = dkCount(dk);
-    const net    = dk.sellPrice ? Math.round(dk.sellPrice*(1-FEE))-SHIP : null;
+    const feePct = (dk.feePercent ?? 10) / 100;
+    const ship   = dk.shippingCost ?? 210;
+    const net    = dk.sellPrice ? Math.round(dk.sellPrice*(1-feePct))-ship : null;
     const profit = net!==null ? net-cost : null;
     const sLbl   = {draft:'下書き',active:'出品中',sold:'売却済'}[dk.status]||'下書き';
     const sCls   = {draft:'dsb-draft',active:'dsb-active',sold:'dsb-sold'}[dk.status]||'dsb-draft';
@@ -961,12 +951,14 @@ function renderDkMain(id) {
   const cost   = dkCost(dk);
   const cnt    = dkCount(dk);
   const sell   = Number(dk.sellPrice)||0;
-  const fee    = sell ? Math.round(sell*FEE) : 0;
-  const net    = sell ? Math.round(sell*(1-FEE))-SHIP : null;
+  const feePct = (dk.feePercent ?? 10) / 100;
+  const ship   = dk.shippingCost ?? 210;
+  const fee    = sell ? Math.round(sell * feePct) : 0;
+  const net    = sell ? Math.round(sell * (1 - feePct)) - ship : null;
   const profit = net !== null ? net - cost : null;
   const pCol   = v => v===null?'':v>=0?'ok':'dg';
   const discSell    = sell ? Math.round(sell*.9) : 0;
-  const discNet     = discSell ? Math.round(discSell*(1-FEE))-SHIP : null;
+  const discNet     = discSell ? Math.round(discSell*(1-feePct)) - ship : null;
   const discProfit  = discNet!==null ? discNet-cost : null;
 
   main.innerHTML = `
@@ -1008,12 +1000,13 @@ function renderDkMain(id) {
     <div class="price-section">
       <div class="price-box">
         <div class="pf"><label>販売価格（円）</label><input type="number" value="${sell||''}" placeholder="例: 5000" min="0" oninput="dkSellChange('${id}',this.value)"></div>
-        <div class="pf"><label>送料（固定）</label><input type="number" value="${SHIP}" disabled></div>
+        <div class="pf"><label>サイト手数料 (%)</label><input type="number" value="${dk.feePercent ?? 10}" placeholder="10" min="0" oninput="dkFeeChange('${id}',this.value)"></div>
+        <div class="pf"><label>送料（円）</label><input type="number" value="${dk.shippingCost ?? 210}" placeholder="210" min="0" oninput="dkShipChange('${id}',this.value)"></div>
       </div>
       <div class="profit-box">
         <div class="prow"><span class="lbl">販売価格</span><span class="val">¥${sell?sell.toLocaleString():'—'}</span></div>
-        <div class="prow"><span class="lbl">手数料 (10%)</span><span class="val dg">${sell?`−¥${fee.toLocaleString()}`:'—'}</span></div>
-        <div class="prow"><span class="lbl">送料</span><span class="val dg">−¥${SHIP}</span></div>
+        <div class="prow"><span class="lbl">手数料 (${dk.feePercent ?? 10}%)</span><span class="val dg">${sell?`−¥${fee.toLocaleString()}`:'—'}</span></div>
+        <div class="prow"><span class="lbl">送料</span><span class="val dg">−¥${ship.toLocaleString()}</span></div>
         <hr class="phr">
         <div class="prow"><span class="lbl">手取り金額</span><span class="val ac pbig">${net!==null?'¥'+net.toLocaleString():'—'}</span></div>
         <div class="prow"><span class="lbl">仕入れ原価</span><span class="val dg">−¥${cost.toLocaleString()}</span></div>
@@ -1040,18 +1033,15 @@ function buildCardGrid(dk) {
     else groups.get(item.name).qty += c.qty;
   });
   const rows = Array.from(groups.values()).map(g => {
-    
     const imgHtml = g.item.image 
       ? `<div class="dk-thumb-ph" style="background-image:url(${g.item.image});"></div>`
       : `<div class="dk-thumb-ph">🃏</div>`;
-
     const thumbs = Array.from({length:g.qty}).map(()=>
       `<div class="dk-thumb">
         ${imgHtml}
         <button class="dk-thumb-rm" onclick="event.stopPropagation();dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
       </div>`
     ).join('');
-    
     return `<div class="dk-cg">
       <div class="dk-cg-row">
         <span class="dk-cg-name">${g.item.name}</span>
@@ -1105,8 +1095,6 @@ const mkDebounce = (fn, ms=600) => {
 };
 
 window.dkNameChange = mkDebounce(async (id, v) => {
-  const dk = decks.find(d=>d.id===id);
-  if (dk) dk.name = v;  
   await updateDoc(doc(db,'users',uid,'decks',id), { name:v });
   renderDkList();
 }, 500);
@@ -1119,13 +1107,21 @@ window.dkSellChange = mkDebounce(async (id, v) => {
   await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice:parseInt(v)||0 });
 }, 700);
 
+window.dkFeeChange = mkDebounce(async (id, v) => {
+  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent:parseInt(v)||0 });
+}, 700);
+
+window.dkShipChange = mkDebounce(async (id, v) => {
+  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost:parseInt(v)||0 });
+}, 700);
+
 window.dkMemoChange = mkDebounce(async (id, v) => {
   await updateDoc(doc(db,'users',uid,'decks',id), { memo:v });
 }, 800);
 
 window.delDeck = async (id) => {
   const dk = decks.find(d=>d.id===id);
-  if (!confirm(`「${dk?.name}」を削除しますか？\n使用中のカード枚数が在庫に戻ります。`)) return;
+  if (!confirm(`「${dk?.name}」を削除しますか？`)) return;
   setSyncDot('sync');
   await deleteDoc(doc(db,'users',uid,'decks',id));
   if (selDkId === id) selDkId = null;

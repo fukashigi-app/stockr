@@ -104,11 +104,7 @@ a{color:inherit;text-decoration:none}
    PAGE: INVENTORY
 ═══════════════════════════════ */
 #pg-inv{flex-direction:row}
-@media(max-width:680px){#pg-inv{flex-direction:column}}
-
 .inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;border-right:1px solid var(--bd)}
-@media(max-width:680px){.inv-panel{border-right:none;border-bottom:1px solid var(--bd)}}
-
 .inv-toolbar{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
 .ptitle{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm)}
 .count-bdg{background:var(--acd);color:var(--ac);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;font-family:var(--fd)}
@@ -120,9 +116,6 @@ a{color:inherit;text-decoration:none}
 .inv-scroll{overflow-y:auto;flex:1;padding:14px}
 .inv-scroll::-webkit-scrollbar{width:4px}.inv-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px}
-@media(max-width:600px){.inv-grid{grid-template-columns:repeat(2,1fr); gap:10px;}}
-@media(max-width:360px){.inv-grid{grid-template-columns:1fr}}
-
 .icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;animation:cIn .18s ease;transition:border-color .2s}
 @keyframes cIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 .icard:hover{border-color:var(--bd2)}
@@ -130,18 +123,7 @@ a{color:inherit;text-decoration:none}
 .icard.used{border-color:rgba(126,232,162,.3)}
 .icard-img{width:100%;height:110px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
 
-.icard-name{
-  font-family:var(--fd);
-  font-weight:700;
-  font-size:13px;
-  line-height:1.4;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  white-space:normal;
-  overflow:hidden;
-  min-height:36px;
-}
+.icard-name{font-family:var(--fd);font-weight:700;font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;min-height:36px;}
 .icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .icard-cost{font-size:13px;color:var(--ac);font-family:var(--fd);font-weight:700}
 .stk-bdg{font-size:11px;font-weight:700;font-family:var(--fd);padding:3px 8px;border-radius:20px}
@@ -165,7 +147,6 @@ a{color:inherit;text-decoration:none}
 .empty p{font-size:13px;line-height:1.7}
 
 .cart-side{width:260px;flex-shrink:0;display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
-@media(max-width:680px){.cart-side{width:100%;max-height:35vh; border-top:1px solid var(--bd);}}
 .cart-head{padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
 .cart-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .cart-total-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:10px 12px}
@@ -192,10 +173,7 @@ a{color:inherit;text-decoration:none}
    PAGE: DECK
 ═══════════════════════════════ */
 #pg-deck{flex-direction:row}
-@media(max-width:680px){#pg-deck{flex-direction:column}}
-
 .dk-sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
-@media(max-width:680px){.dk-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:180px}}
 .dk-sidebar-head{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .dk-scroll{overflow-y:auto;flex:1;padding:10px;display:flex;flex-direction:column;gap:6px}
 .dk-scroll::-webkit-scrollbar{width:4px}.dk-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
@@ -217,17 +195,13 @@ a{color:inherit;text-decoration:none}
 .status-sel:focus{border-color:var(--ac)}
 
 .dk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
-@media(max-width:480px){.dk-stats{grid-template-columns:1fr 1fr}}
 .stat-box{background:var(--sf2);border-radius:var(--rs);padding:10px 12px}
 .stat-lbl{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.04em;margin-bottom:4px}
 .stat-val{font-family:var(--fd);font-size:14px;font-weight:800}
 .stat-val.ac{color:var(--ac)}.stat-val.ok{color:var(--ok)}.stat-val.dg{color:var(--dg)}
 
 .dk-body{display:flex;flex:1;overflow:hidden}
-@media(max-width:680px){.dk-body{flex-direction:column}}
-
 .dk-search-col{width:260px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-@media(max-width:680px){.dk-search-col{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:280px}}
 .dsc-head{padding:10px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
 .dsc-htitle{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);margin-bottom:8px}
 .dsc-srch{display:flex;align-items:center;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden;transition:border-color .18s}
@@ -276,7 +250,6 @@ a{color:inherit;text-decoration:none}
 .dk-bottom{padding:14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:12px;max-height:38vh;overflow-y:auto}
 .dk-bottom::-webkit-scrollbar{width:4px}.dk-bottom::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .price-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:500px){.price-section{grid-template-columns:1fr}}
 .price-box{background:var(--sf2);border-radius:var(--rs);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
 .pf{display:flex;flex-direction:column;gap:4px}
 .pf label{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
@@ -299,9 +272,10 @@ a{color:inherit;text-decoration:none}
 .btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}.btn-dg:hover{background:var(--dgd)}
 .btn-sm{padding:6px 12px;font-size:12px}
 
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+/* モーダル関連：スマホで潰れないように大幅修正 */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .overlay.on{display:flex}
-.modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:20px;width:100%;max-width:420px;animation:mIn .18s ease}
+.modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:20px;width:100%;max-width:420px;animation:mIn .18s ease; margin:auto;}
 @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .modal-title{font-family:var(--fd);font-size:16px;font-weight:700;margin-bottom:16px}
 .mfields{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
@@ -314,6 +288,7 @@ a{color:inherit;text-decoration:none}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mactions{display:flex;gap:10px;justify-content:flex-end}
 
+/* スマホ用カメラ・写真選択対応 */
 .img-preview{width:100%;height:160px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:13px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;transition:border-color .2s;cursor:pointer;line-height:1.5;margin-bottom:12px}
 .img-preview:hover{border-color:var(--ac)}
 
@@ -328,6 +303,37 @@ a{color:inherit;text-decoration:none}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--dg);color:#fff}
 mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-style:normal}
+
+/* ★★★ スマホ用完全最適化（縦スクロールの制限解除） ★★★ */
+@media(max-width:680px){
+  body { overflow-y: auto; }
+  #app { height: auto; min-height: 100vh; display: flex; flex-direction: column; }
+  .pages { flex: 1; overflow: visible; display: flex; flex-direction: column; }
+  .pg { position: relative; inset: auto; flex: 1; display: none; flex-direction: column; overflow: visible; }
+  .pg.on { display: flex; }
+  
+  .inv-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .inv-scroll { overflow-y: visible; padding-bottom: 40px; }
+  .cart-side { max-height: none; border-top: 2px solid var(--bd); }
+  .cart-list { max-height: 300px; }
+  
+  #pg-deck { flex-direction: column; }
+  .dk-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
+  .dk-scroll { max-height: 240px; }
+  
+  .dk-main { overflow: visible; }
+  .dk-stats { grid-template-columns: 1fr 1fr; }
+  .dk-body { flex-direction: column; overflow: visible; }
+  
+  .dk-search-col { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
+  .dsc-results { max-height: 240px; }
+  
+  .dk-card-area { overflow: visible; border-bottom: 2px solid var(--bd); }
+  .dk-ca-scroll { overflow: visible; padding-bottom: 20px; }
+  
+  .dk-bottom { max-height: none; overflow: visible; padding-bottom: 60px; }
+  .price-section { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -474,8 +480,9 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
     <div class="mfields">
       <input type="hidden" id="item-eid">
       
-      <div id="item-img-preview" class="img-preview">
-        カードの画像をここに<br>ペースト (Ctrl + V)
+      <input type="file" id="item-img-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+      <div id="item-img-preview" class="img-preview" onclick="document.getElementById('item-img-upload').click()">
+        📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはペースト Ctrl+V も可)</span>
       </div>
 
       <div class="mf">
@@ -548,11 +555,7 @@ const fbApp  = initializeApp(firebaseConfig);
 const auth   = getAuth(fbApp);
 const db     = getFirestore(fbApp);
 
-try {
-  await setPersistence(auth, browserLocalPersistence);
-} catch (e) {
-  console.log("Persistence warning:", e);
-}
+try { await setPersistence(auth, browserLocalPersistence); } catch(e) {}
 
 let uid = null;
 let items  = [];   
@@ -572,32 +575,31 @@ window.authTab = (t) => {
 };
 
 const authErrMap = {
-  'auth/user-not-found':    'このメールアドレスは登録されていません',
-  'auth/wrong-password':    'パスワードが正しくありません',
-  'auth/invalid-email':     'メールアドレスの形式が正しくありません',
-  'auth/invalid-credential':'メールアドレスまたはパスワードが正しくありません',
-  'auth/email-already-in-use':'このメールアドレスは既に使用されています',
-  'auth/weak-password':     'パスワードは6文字以上にしてください',
-  'auth/too-many-requests': 'ログイン試行回数が多すぎます。しばらくお待ちください',
+  'auth/user-not-found':    '登録されていません',
+  'auth/wrong-password':    'パスワードが違います',
+  'auth/invalid-email':     'メールアドレスの形式エラー',
+  'auth/invalid-credential':'メアドかパスワードが違います',
+  'auth/email-already-in-use':'既に使用されています',
+  'auth/weak-password':     '6文字以上にしてください',
 };
 
 window.doLogin = async () => {
   const email = document.getElementById('l-email').value.trim();
   const pw    = document.getElementById('l-pw').value;
-  if (!email||!pw) { setAuthErr('メールアドレスとパスワードを入力してください'); return; }
+  if (!email||!pw) { setAuthErr('入力してください'); return; }
   try { await signInWithEmailAndPassword(auth, email, pw); }
-  catch(e) { setAuthErr(authErrMap[e.code]||'ログインに失敗しました'); }
+  catch(e) { setAuthErr(authErrMap[e.code]||'ログイン失敗'); }
 };
 
 window.doSignup = async () => {
   const email = document.getElementById('s-email').value.trim();
   const pw    = document.getElementById('s-pw').value;
   const pw2   = document.getElementById('s-pw2').value;
-  if (!email||!pw||!pw2) { setAuthErr('全ての項目を入力してください'); return; }
-  if (pw !== pw2) { setAuthErr('パスワードが一致しません'); return; }
-  if (pw.length < 6) { setAuthErr('パスワードは6文字以上にしてください'); return; }
+  if (!email||!pw||!pw2) { setAuthErr('入力してください'); return; }
+  if (pw !== pw2) { setAuthErr('パスワード不一致'); return; }
+  if (pw.length < 6) { setAuthErr('6文字以上必須'); return; }
   try { await createUserWithEmailAndPassword(auth, email, pw); }
-  catch(e) { setAuthErr(authErrMap[e.code]||'登録に失敗しました'); }
+  catch(e) { setAuthErr(authErrMap[e.code]||'登録失敗'); }
 };
 
 window.doLogout = async () => {
@@ -665,22 +667,18 @@ window.goPage = (p) => {
   if (p==='report') { renderReport(); }
 };
 
-// ★ レポートの計算＆月別切り替え機能
 window.renderReport = () => {
-  // 1. 売却済デッキから、存在する「月」のリストを作成する
   const monthSet = new Set();
   decks.forEach(dk => {
     if (dk.status === 'sold') {
-      // 売却日がなければ作成日、それもなければ現在時刻で代用
       const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
       const d = new Date(t);
       const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
       monthSet.add(mStr);
     }
   });
-  const monthArr = Array.from(monthSet).sort().reverse(); // 新しい月が上
+  const monthArr = Array.from(monthSet).sort().reverse();
 
-  // プルダウンの構築（選択されている月をキープする）
   const selEl = document.getElementById('rep-month-sel');
   const currentSel = selEl.value || 'all';
   let opts = `<option value="all"${currentSel==='all'?' selected':''}>全期間（累計）</option>`;
@@ -688,26 +686,20 @@ window.renderReport = () => {
     opts += `<option value="${m}"${currentSel===m?' selected':''}>${m}</option>`;
   });
   selEl.innerHTML = opts;
-  const targetMonth = selEl.value; // 再取得
+  const targetMonth = selEl.value;
 
-  // 2. 集計処理
   let totalAsset = 0;
   items.forEach(item => {
     totalAsset += (item.stock || 0) * (item.cost || 0);
   });
 
-  let totalSales = 0;
-  let totalFees = 0;
-  let totalProfit = 0;
-  let soldCount = 0;
+  let totalSales = 0, totalFees = 0, totalProfit = 0, soldCount = 0;
 
   decks.forEach(dk => {
     if (dk.status === 'sold') {
       const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
       const d = new Date(t);
       const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
-
-      // 指定された月以外はスキップ
       if (targetMonth !== 'all' && targetMonth !== mStr) return;
 
       soldCount++;
@@ -770,7 +762,8 @@ function hl(text, q) {
   return text.slice(0,i)+`<mark>${text.slice(i,i+q.length)}</mark>`+text.slice(i+q.length);
 }
 
-function renderGrid() {
+// ★ 検索機能が反応しないエラーの修正（window. に登録）
+window.renderGrid = () => {
   const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
   const grid = document.getElementById('inv-grid');
   const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
@@ -817,7 +810,7 @@ function renderGrid() {
       </div>
     </div>`;
   }).join('');
-}
+};
 
 window.openItemModal = (id) => {
   const item = id ? items.find(i=>i.id===id) : null;
@@ -836,11 +829,10 @@ window.openItemModal = (id) => {
     pv.innerHTML = '';
   } else {
     pv.style.backgroundImage = 'none';
-    pv.innerHTML = 'カードの画像をここに<br>ペースト (Ctrl + V)';
+    pv.innerHTML = '📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはペースト Ctrl+V も可)</span>';
   }
 
   openModal('modal-item');
-  setTimeout(()=>document.getElementById('item-name').focus(), 80);
 };
 
 window.searchOfficial = () => {
@@ -861,6 +853,34 @@ window.searchMarket = (site) => {
   if (url) window.open(url, '_blank');
 };
 
+// ★ スマホ用：カメラ・アルバムからの画像読み込み
+window.handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 300;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
+      else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
+      const pv = document.getElementById('item-img-preview');
+      pv.style.backgroundImage = `url(${currentItemImage})`;
+      pv.innerHTML = '';
+      toast('画像を読み込みました！');
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+// PC用：コピペ対応
 document.addEventListener('paste', (e) => {
   const modal = document.getElementById('modal-item');
   if (!modal.classList.contains('on')) return; 
@@ -1032,6 +1052,7 @@ window.newDeck = async () => {
   });
   selDkId = ref.id;
   toast('デッキを作成しました');
+  renderDkList(); // ★作成時に再描画を確実に行う
 };
 
 function renderDkList() {
@@ -1071,7 +1092,8 @@ window.selDeck = (id) => { selDkId=id; renderDkList(); };
 function dkCost(dk)  { return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId);return s+(i?(i.cost||0)*c.qty:0)},0); }
 function dkCount(dk) { return (dk.cards||[]).reduce((s,c)=>s+c.qty, 0); }
 
-function renderDeckSearch() {
+// ★ 検索機能が反応しないエラーの修正（window. に登録）
+window.renderDeckSearch = () => {
   const el = document.getElementById('dk-srch-results');
   if (!el) return;
   const q    = dkSrchQ.toLowerCase();
@@ -1094,7 +1116,7 @@ function renderDeckSearch() {
       <button class="dsr-add" onclick="addToDk('${item.id}')" ${!canAdd?'disabled':''}>追加</button>
     </div>`;
   }).join('');
-}
+};
 
 window.addToDk = async (itemId) => {
   if (!selDkId) { toast('デッキを選択してください', true); return; }
@@ -1108,7 +1130,7 @@ window.addToDk = async (itemId) => {
   else cards.push({itemId, qty:1});
   setSyncDot('sync');
   await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards });
-  renderDeckSearch();
+  window.renderDeckSearch();
   toast('カードを追加しました');
 };
 
@@ -1167,7 +1189,7 @@ function renderDkMain(id) {
         <div class="dsc-htitle">商品を追加</div>
         <div class="dsc-srch">
           <div class="dsc-srch-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg></div>
-          <input class="dsc-srch-in" id="dk-inp-srch-${id}" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;renderDeckSearch()">
+          <input class="dsc-srch-in" id="dk-inp-srch-${id}" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;window.renderDeckSearch()">
         </div>
       </div>
       <div class="dsc-results" id="dk-srch-results"></div>
@@ -1214,12 +1236,12 @@ function renderDkMain(id) {
     }, 10);
   }
 
-  renderDeckSearch();
+  window.renderDeckSearch();
 }
 
 function buildCardGrid(dk) {
   if (!(dk.cards||[]).length) {
-    return `<div class="dk-ca-empty"><div class="dk-ca-empty-ico">🃏</div><p>カードがありません。<br>左の検索から追加してください。</p></div>`;
+    return `<div class="dk-ca-empty"><div class="dk-ca-empty-ico">🃏</div><p>カードがありません。<br>上の検索から追加してください。</p></div>`;
   }
   const groups = new Map();
   (dk.cards||[]).forEach(c => {
@@ -1295,12 +1317,9 @@ window.dkNameChange = mkDebounce(async (id, v) => {
   renderDkList();
 }, 500);
 
-// ★ ステータスが「売却済」になったら、その瞬間の時間（月）を記録！
 window.dkStatusChange = async (id, v) => {
   const updateData = { status: v };
-  if (v === 'sold') {
-    updateData.soldAt = Date.now();
-  }
+  if (v === 'sold') updateData.soldAt = Date.now();
   await updateDoc(doc(db,'users',uid,'decks',id), updateData);
 };
 

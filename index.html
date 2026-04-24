@@ -82,6 +82,25 @@ a{color:inherit;text-decoration:none}
 .pg.on{display:flex}
 
 /* ═══════════════════════════════
+   PAGE: REPORT (NEW!)
+═══════════════════════════════ */
+#pg-report{padding:20px; overflow-y:auto; background:var(--bg);}
+.rep-header { margin-bottom: 20px; }
+.rep-title { font-family: var(--fd); font-size: 18px; font-weight: 800; color: var(--tx); }
+.rep-desc { font-size: 12px; color: var(--txm); margin-top: 4px; }
+.rep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.rep-box { background: var(--sf); border: 1.5px solid var(--bd); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
+.rep-box:hover { border-color: var(--bd2); }
+.rep-box.highlight { border-color: var(--ac); background: var(--acd2); }
+.rep-box.highlight2 { border-color: var(--ok); background: var(--okd); }
+.rep-lbl { font-size: 11px; color: var(--txm); font-family: var(--fd); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.rep-val { font-size: 28px; font-weight: 800; font-family: var(--fd); line-height: 1; }
+.rep-val.ac { color: var(--ac); }
+.rep-val.ok { color: var(--ok); }
+.rep-val.dg { color: var(--dg); }
+.rep-sub { font-size: 11px; color: var(--txm); margin-top: auto; }
+
+/* ═══════════════════════════════
    PAGE: INVENTORY
 ═══════════════════════════════ */
 #pg-inv{flex-direction:row}
@@ -109,10 +128,8 @@ a{color:inherit;text-decoration:none}
 .icard:hover{border-color:var(--bd2)}
 .icard.warn{border-color:rgba(255,107,107,.35)}
 .icard.used{border-color:rgba(126,232,162,.3)}
-/* スマホ画面に合わせて画像少し調整 */
 .icard-img{width:100%;height:110px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
 
-/* 長いカード名でも2行で表示されるように修正 */
 .icard-name{
   font-family:var(--fd);
   font-weight:700;
@@ -132,14 +149,12 @@ a{color:inherit;text-decoration:none}
 .stk-warn{background:var(--warnd);color:var(--warn)}
 .stk-empty{background:var(--dgd);color:var(--dg)}
 .icard-qty{display:flex;align-items:center;gap:6px; margin-top:auto;}
-/* 押しやすいようにボタンを少し大きく */
 .qb{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bd);background:none;color:var(--txd);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .13s}
 .qb:hover{border-color:var(--ac);color:var(--ac)}
 .qn{font-size:14px;font-weight:700;font-family:var(--fd);min-width:28px;text-align:center}
 .deck-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:0}
 .dk-tag{background:var(--acd);color:var(--ac);padding:3px 7px;border-radius:4px;font-family:var(--fd);font-size:10px;font-weight:700}
 .icard-acts{display:flex;gap:6px}
-/* ボタンの文字が折り返さないように nowrap 追加 */
 .ab{flex:1;padding:8px 4px;border-radius:6px;border:1.5px solid var(--bd);background:none;font-size:12px;color:var(--txm);transition:all .13s; white-space:nowrap;}
 .ab:hover{border-color:var(--bd2);color:var(--tx)}
 .ab.del{color:var(--dg);border-color:transparent}.ab.del:hover{border-color:var(--dg);background:var(--dgd)}
@@ -353,6 +368,7 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
     <nav class="nav">
       <button class="ntab on" id="ntab-inv" onclick="goPage('inv')">在庫管理 <span class="nbdg" id="nb-inv">0</span></button>
       <button class="ntab" id="ntab-deck" onclick="goPage('deck')">デッキ販売 <span class="nbdg" id="nb-deck">0</span></button>
+      <button class="ntab" id="ntab-report" onclick="goPage('report')">📊 売上レポート</button>
     </nav>
     <div class="hdr-right">
       <div class="sync-dot" id="sync-dot"></div>
@@ -361,6 +377,48 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   </div>
 
   <div class="pages">
+    
+    <div class="pg" id="pg-report">
+      <div class="rep-header">
+        <div class="rep-title">売上＆資産レポート</div>
+        <div class="rep-desc">現在の在庫資産と、売却済デッキの累計実績です。</div>
+      </div>
+      
+      <div class="rep-grid">
+        <div class="rep-box">
+          <div class="rep-lbl">現在の在庫資産（原価）</div>
+          <div class="rep-val" id="rep-asset">¥0</div>
+          <div class="rep-sub">手元にあるカードの仕入れ値合計</div>
+        </div>
+      </div>
+
+      <div class="rep-grid">
+        <div class="rep-box highlight">
+          <div class="rep-lbl">累計 売上総額</div>
+          <div class="rep-val ac" id="rep-sales">¥0</div>
+          <div class="rep-sub">「売却済」デッキの販売価格合計</div>
+        </div>
+        <div class="rep-box highlight2">
+          <div class="rep-lbl">累計 純利益</div>
+          <div class="rep-val ok" id="rep-profit">¥0</div>
+          <div class="rep-sub">売上から原価・手数料・送料を引いた額</div>
+        </div>
+      </div>
+
+      <div class="rep-grid">
+        <div class="rep-box">
+          <div class="rep-lbl">累計 経費・手数料</div>
+          <div class="rep-val" id="rep-fees">¥0</div>
+          <div class="rep-sub">引かれた送料・サイト手数料の合計</div>
+        </div>
+        <div class="rep-box">
+          <div class="rep-lbl">販売件数 / 利益率</div>
+          <div class="rep-val" id="rep-margin">0%</div>
+          <div class="rep-sub" id="rep-sold-cnt">販売 0件</div>
+        </div>
+      </div>
+    </div>
+
     <div class="pg on" id="pg-inv">
       <div class="inv-panel">
         <div class="inv-toolbar">
@@ -574,6 +632,7 @@ function startListeners() {
     renderGrid();
     renderDeckSearch();
     updateBadges();
+    renderReport(); // ★データ更新時にレポートも更新
     setSyncDot('ok');
   }, () => setSyncDot('err'));
 
@@ -583,6 +642,7 @@ function startListeners() {
     renderDkList();
     renderGrid(); 
     updateBadges();
+    renderReport(); // ★データ更新時にレポートも更新
     setSyncDot('ok');
   }, () => setSyncDot('err'));
 }
@@ -591,13 +651,63 @@ function setSyncDot(s) {
   document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:'');
 }
 
+// ★ レポート用タブ追加
 window.goPage = (p) => {
-  ['inv','deck'].forEach(x=>{
-    document.getElementById('pg-'+x).classList.toggle('on', x===p);
-    document.getElementById('ntab-'+x).classList.toggle('on', x===p);
+  ['inv','deck','report'].forEach(x=>{
+    const pg = document.getElementById('pg-'+x);
+    const tab = document.getElementById('ntab-'+x);
+    if(pg) pg.classList.toggle('on', x===p);
+    if(tab) tab.classList.toggle('on', x===p);
   });
   if (p==='deck') { renderDkList(); renderDeckSearch(); }
+  if (p==='report') { renderReport(); }
 };
+
+// ★ レポートの計算＆描画機能
+function renderReport() {
+  // 在庫資産の計算
+  let totalAsset = 0;
+  items.forEach(item => {
+    totalAsset += (item.stock || 0) * (item.cost || 0);
+  });
+
+  // 売上の計算（statusがsoldのものだけ）
+  let totalSales = 0;
+  let totalFees = 0;
+  let totalProfit = 0;
+  let soldCount = 0;
+
+  decks.forEach(dk => {
+    if (dk.status === 'sold') {
+      soldCount++;
+      const cost = dkCost(dk);
+      const sell = Number(dk.sellPrice) || 0;
+      const feePct = (dk.feePercent ?? 10) / 100;
+      const ship = dk.shippingCost ?? 210;
+      const fee = sell ? Math.round(sell * feePct) : 0;
+      const net = sell ? Math.round(sell * (1 - feePct)) - ship : 0;
+      const profit = sell ? net - cost : 0;
+
+      totalSales += sell;
+      totalFees += (fee + (sell ? ship : 0));
+      totalProfit += profit;
+    }
+  });
+
+  const margin = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) : 0;
+
+  // 画面に反映
+  document.getElementById('rep-asset').textContent = `¥${totalAsset.toLocaleString()}`;
+  document.getElementById('rep-sales').textContent = `¥${totalSales.toLocaleString()}`;
+  document.getElementById('rep-fees').textContent = `¥${totalFees.toLocaleString()}`;
+  
+  const pEl = document.getElementById('rep-profit');
+  pEl.textContent = `${totalProfit >= 0 ? '+' : ''}¥${totalProfit.toLocaleString()}`;
+  pEl.className = 'rep-val ' + (totalProfit >= 0 ? 'ok' : 'dg');
+
+  document.getElementById('rep-sold-cnt').textContent = `販売 ${soldCount}件`;
+  document.getElementById('rep-margin').textContent = `${margin}%`;
+}
 
 function updateBadges() {
   document.getElementById('nb-inv').textContent  = items.length;
@@ -1160,7 +1270,7 @@ window.dkStatusChange = async (id, v) => {
 };
 
 window.dkSellChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice:parseInt(v)||0 });
+  await updateDoc(doc(doc(db,'users',uid,'decks',id)), { sellPrice:parseInt(v)||0 });
 }, 700);
 
 window.dkFeeChange = mkDebounce(async (id, v) => {

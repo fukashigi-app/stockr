@@ -379,9 +379,12 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   <div class="pages">
     
     <div class="pg" id="pg-report">
-      <div class="rep-header">
-        <div class="rep-title">売上＆資産レポート</div>
-        <div class="rep-desc">現在の在庫資産と、売却済デッキの累計実績です。</div>
+      <div class="rep-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div class="rep-title">売上＆資産レポート</div>
+          <div class="rep-desc">現在の在庫資産と、売却済デッキの実績です。</div>
+        </div>
+        <select id="rep-month-sel" class="status-sel" style="min-width:140px; font-size:14px; padding:8px 12px;" onchange="renderReport()"></select>
       </div>
       
       <div class="rep-grid">
@@ -394,12 +397,12 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 
       <div class="rep-grid">
         <div class="rep-box highlight">
-          <div class="rep-lbl">累計 売上総額</div>
+          <div class="rep-lbl">売上総額</div>
           <div class="rep-val ac" id="rep-sales">¥0</div>
           <div class="rep-sub">「売却済」デッキの販売価格合計</div>
         </div>
         <div class="rep-box highlight2">
-          <div class="rep-lbl">累計 純利益</div>
+          <div class="rep-lbl">純利益</div>
           <div class="rep-val ok" id="rep-profit">¥0</div>
           <div class="rep-sub">売上から原価・手数料・送料を引いた額</div>
         </div>
@@ -407,7 +410,7 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 
       <div class="rep-grid">
         <div class="rep-box">
-          <div class="rep-lbl">累計 経費・手数料</div>
+          <div class="rep-lbl">経費・手数料</div>
           <div class="rep-val" id="rep-fees">¥0</div>
           <div class="rep-sub">引かれた送料・サイト手数料の合計</div>
         </div>
@@ -662,7 +665,32 @@ window.goPage = (p) => {
   if (p==='report') { renderReport(); }
 };
 
-function renderReport() {
+// ★ レポートの計算＆月別切り替え機能
+window.renderReport = () => {
+  // 1. 売却済デッキから、存在する「月」のリストを作成する
+  const monthSet = new Set();
+  decks.forEach(dk => {
+    if (dk.status === 'sold') {
+      // 売却日がなければ作成日、それもなければ現在時刻で代用
+      const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
+      const d = new Date(t);
+      const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
+      monthSet.add(mStr);
+    }
+  });
+  const monthArr = Array.from(monthSet).sort().reverse(); // 新しい月が上
+
+  // プルダウンの構築（選択されている月をキープする）
+  const selEl = document.getElementById('rep-month-sel');
+  const currentSel = selEl.value || 'all';
+  let opts = `<option value="all"${currentSel==='all'?' selected':''}>全期間（累計）</option>`;
+  monthArr.forEach(m => {
+    opts += `<option value="${m}"${currentSel===m?' selected':''}>${m}</option>`;
+  });
+  selEl.innerHTML = opts;
+  const targetMonth = selEl.value; // 再取得
+
+  // 2. 集計処理
   let totalAsset = 0;
   items.forEach(item => {
     totalAsset += (item.stock || 0) * (item.cost || 0);
@@ -675,6 +703,13 @@ function renderReport() {
 
   decks.forEach(dk => {
     if (dk.status === 'sold') {
+      const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
+      const d = new Date(t);
+      const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
+
+      // 指定された月以外はスキップ
+      if (targetMonth !== 'all' && targetMonth !== mStr) return;
+
       soldCount++;
       const cost = dkCost(dk);
       const sell = Number(dk.sellPrice) || 0;
@@ -702,7 +737,7 @@ function renderReport() {
 
   document.getElementById('rep-sold-cnt').textContent = `販売 ${soldCount}件`;
   document.getElementById('rep-margin').textContent = `${margin}%`;
-}
+};
 
 function updateBadges() {
   document.getElementById('nb-inv').textContent  = items.length;
@@ -1260,11 +1295,15 @@ window.dkNameChange = mkDebounce(async (id, v) => {
   renderDkList();
 }, 500);
 
+// ★ ステータスが「売却済」になったら、その瞬間の時間（月）を記録！
 window.dkStatusChange = async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { status:v });
+  const updateData = { status: v };
+  if (v === 'sold') {
+    updateData.soldAt = Date.now();
+  }
+  await updateDoc(doc(db,'users',uid,'decks',id), updateData);
 };
 
-// ★ ここがエラーの原因でした（doc(doc(...)) を doc(...) に修正しました）
 window.dkSellChange = mkDebounce(async (id, v) => {
   let num = parseInt(v);
   if (isNaN(num) || num < 0) num = 0;

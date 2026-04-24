@@ -50,21 +50,16 @@ a{color:inherit;text-decoration:none}
 .f label{font-size:10px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .f input{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:13px 14px;border-radius:var(--rs);font-size:16px;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
 .f input:focus{border-color:var(--ac)}
-.f input::placeholder{color:var(--txm)}
 .auth-btn{width:100%;padding:13px;background:var(--ac);color:#07080b;border:none;border-radius:var(--rs);font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.04em;transition:all .18s;margin-top:2px}
-.auth-btn:hover{background:#6ad48e}
-.auth-err{min-height:18px;font-size:12px;color:var(--dg);text-align:center;transition:opacity .2s}
-.auth-err:empty{opacity:0}
+.auth-err{min-height:18px;font-size:12px;color:var(--dg);text-align:center}
 
 /* ═══ APP SHELL ═══ */
 #app{display:none;flex-direction:column;height:100%}
 #app.on{display:flex}
-
-/* HEADER */
 .hdr{height:var(--hdr);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;position:relative;z-index:50}
 .hdr-logo{font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;flex-shrink:0}
 .hdr-logo em{color:var(--ac);font-style:normal}
-.nav{display:flex;align-items:stretch;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 4px}
+.nav{display:flex;align-items:stretch;flex:1;overflow-x:auto;margin:0 4px}
 .nav::-webkit-scrollbar{display:none}
 .ntab{display:flex;align-items:center;gap:5px;padding:0 12px;height:var(--hdr);font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--txm);border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
 .ntab.on{color:var(--ac);border-bottom-color:var(--ac)}
@@ -74,7 +69,6 @@ a{color:inherit;text-decoration:none}
 .sync-dot.ok{background:var(--ok)}.sync-dot.sync{background:var(--warn);animation:blink .7s infinite alternate}.sync-dot.err{background:var(--dg)}
 @keyframes blink{from{opacity:.3}to{opacity:1}}
 .logout-btn{font-size:11px;color:var(--txm);background:none;border:1px solid var(--bd);padding:5px 12px;border-radius:5px;font-family:var(--fd);font-weight:700;transition:all .15s}
-.logout-btn:hover{border-color:var(--dg);color:var(--dg)}
 
 /* PAGES */
 .pages{flex:1;overflow:hidden;position:relative}
@@ -89,8 +83,7 @@ a{color:inherit;text-decoration:none}
 .rep-title { font-family: var(--fd); font-size: 18px; font-weight: 800; color: var(--tx); }
 .rep-desc { font-size: 12px; color: var(--txm); margin-top: 4px; }
 .rep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.rep-box { background: var(--sf); border: 1.5px solid var(--bd); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
-.rep-box:hover { border-color: var(--bd2); }
+.rep-box { background: var(--sf); border: 1.5px solid var(--bd); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
 .rep-box.highlight { border-color: var(--ac); background: var(--acd2); }
 .rep-box.highlight2 { border-color: var(--ok); background: var(--okd); }
 .rep-lbl { font-size: 11px; color: var(--txm); font-family: var(--fd); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
@@ -98,13 +91,12 @@ a{color:inherit;text-decoration:none}
 .rep-val.ac { color: var(--ac); }
 .rep-val.ok { color: var(--ok); }
 .rep-val.dg { color: var(--dg); }
-.rep-sub { font-size: 11px; color: var(--txm); margin-top: auto; }
 
 /* ═══════════════════════════════
-   PAGE: INVENTORY
+   PAGE: INVENTORY (CART REMOVED)
 ═══════════════════════════════ */
-#pg-inv{flex-direction:row}
-.inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;border-right:1px solid var(--bd)}
+#pg-inv{flex-direction:column}
+.inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;}
 .inv-toolbar{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
 .ptitle{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm)}
 .count-bdg{background:var(--acd);color:var(--ac);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;font-family:var(--fd)}
@@ -116,13 +108,8 @@ a{color:inherit;text-decoration:none}
 .inv-scroll{overflow-y:auto;flex:1;padding:14px}
 .inv-scroll::-webkit-scrollbar{width:4px}.inv-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px}
-.icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;animation:cIn .18s ease;transition:border-color .2s}
-@keyframes cIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
-.icard:hover{border-color:var(--bd2)}
-.icard.warn{border-color:rgba(255,107,107,.35)}
-.icard.used{border-color:rgba(126,232,162,.3)}
+.icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;animation:cIn .18s ease}
 .icard-img{width:100%;height:110px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
-
 .icard-name{font-family:var(--fd);font-weight:700;font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;min-height:36px;}
 .icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .icard-cost{font-size:13px;color:var(--ac);font-family:var(--fd);font-weight:700}
@@ -132,42 +119,14 @@ a{color:inherit;text-decoration:none}
 .stk-empty{background:var(--dgd);color:var(--dg)}
 .icard-qty{display:flex;align-items:center;gap:6px; margin-top:auto;}
 .qb{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bd);background:none;color:var(--txd);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .13s}
-.qb:hover{border-color:var(--ac);color:var(--ac)}
 .qn{font-size:14px;font-weight:700;font-family:var(--fd);min-width:28px;text-align:center}
-.deck-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:0}
 .dk-tag{background:var(--acd);color:var(--ac);padding:3px 7px;border-radius:4px;font-family:var(--fd);font-size:10px;font-weight:700}
 .icard-acts{display:flex;gap:6px}
 .ab{flex:1;padding:8px 4px;border-radius:6px;border:1.5px solid var(--bd);background:none;font-size:12px;color:var(--txm);transition:all .13s; white-space:nowrap;}
-.ab:hover{border-color:var(--bd2);color:var(--tx)}
 .ab.del{color:var(--dg);border-color:transparent}.ab.del:hover{border-color:var(--dg);background:var(--dgd)}
-.ab.add{color:#07080b;background:var(--ac);border-color:var(--ac);font-family:var(--fd);font-weight:700}.ab.add:hover{background:#6ad48e}
 
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:10px;color:var(--txm);grid-column:1/-1;text-align:center}
 .empty-ico{font-size:36px;opacity:.25}
-.empty p{font-size:13px;line-height:1.7}
-
-.cart-side{width:260px;flex-shrink:0;display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
-.cart-head{padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
-.cart-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.cart-total-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:10px 12px}
-.cart-lbl{font-size:10px;color:var(--txm);letter-spacing:.1em;text-transform:uppercase;font-family:var(--fd);margin-bottom:3px}
-.cart-amt{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--ac);line-height:1}
-.cart-sub{font-size:10px;color:var(--txm);margin-top:4px}
-.cart-list{flex:1;overflow-y:auto;padding:8px 14px}
-.cart-list::-webkit-scrollbar{width:4px}.cart-list::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.cart-empty-msg{text-align:center;padding:26px 10px;color:var(--txm);font-size:12px;line-height:1.9}
-.ci{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}.ci:last-child{border-bottom:none}
-.ci-info{flex:1;min-width:0}
-.ci-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ci-unit{font-size:10px;color:var(--txm)}
-.ci-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.ci-total{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--ac)}
-.ci-ctrl{display:flex;align-items:center;gap:4px}
-.cqb{width:20px;height:20px;border-radius:4px;border:1px solid var(--bd);background:none;color:var(--txd);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .13s}
-.cqb:hover{border-color:var(--ac);color:var(--ac)}
-.cqn{font-size:11px;font-weight:700;font-family:var(--fd);min-width:16px;text-align:center}
-.crm{background:none;border:none;color:var(--txm);font-size:12px;padding:3px;transition:color .13s}
-.crm:hover{color:var(--dg)}
 
 /* ═══════════════════════════════
    PAGE: DECK
@@ -178,21 +137,18 @@ a{color:inherit;text-decoration:none}
 .dk-scroll{overflow-y:auto;flex:1;padding:10px;display:flex;flex-direction:column;gap:6px}
 .dk-scroll::-webkit-scrollbar{width:4px}.dk-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .dk-item{padding:10px 12px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .13s}
-.dk-item:hover{border-color:var(--bd2)}.dk-item.sel{border-color:var(--ac);background:var(--acd2)}
+.dk-item.sel{border-color:var(--ac);background:var(--acd2)}
 .dk-item-name{font-family:var(--fd);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
 .dk-item-meta{font-size:10px;color:var(--txm);display:flex;gap:6px;flex-wrap:wrap}
 .dsbdg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;font-family:var(--fd)}
 .dsb-draft{background:rgba(74,80,104,.2);color:var(--txm)}
 .dsb-active{background:var(--acd);color:var(--ac)}
 .dsb-sold{background:var(--okd);color:var(--ok)}
-.dk-empty-msg{padding:20px 10px;font-size:12px;color:var(--txm);text-align:center;line-height:1.7}
 
 .dk-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .dk-hbar{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--sf)}
 .dk-name-in{background:none;border:none;color:var(--tx);font-family:var(--fd);font-size:16px !important;font-weight:700;outline:none;flex:1;min-width:0}
-.dk-name-in::placeholder{color:var(--txm)}
 .status-sel{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:6px;font-family:var(--fb);font-size:13px;outline:none;cursor:pointer}
-.status-sel:focus{border-color:var(--ac)}
 
 .dk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
 .stat-box{background:var(--sf2);border-radius:var(--rs);padding:10px 12px}
@@ -203,76 +159,48 @@ a{color:inherit;text-decoration:none}
 .dk-body{display:flex;flex:1;overflow:hidden}
 .dk-search-col{width:260px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .dsc-head{padding:10px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
-.dsc-htitle{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);margin-bottom:8px}
 .dsc-srch{display:flex;align-items:center;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden;transition:border-color .18s}
-.dsc-srch:focus-within{border-color:var(--ac)}
-.dsc-srch-ico{padding:0 10px;color:var(--txm);display:flex;align-items:center}
-.dsc-srch-ico svg{width:14px;height:14px;display:block}
 .dsc-srch-in{flex:1;background:none;border:none;color:var(--tx);padding:10px 4px;font-size:16px !important;outline:none}
-.dsc-srch-in::placeholder{color:var(--txm)}
 .dsc-results{flex:1;overflow-y:auto}
-.dsc-results::-webkit-scrollbar{width:4px}.dsc-results::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.dsr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);transition:background .1s}
-.dsr:last-child{border-bottom:none}.dsr:hover{background:var(--sf)}
+.dsr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd)}
 .dsr-info{flex:1;min-width:0}
 .dsr-name{font-size:13px;font-weight:700;font-family:var(--fd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dsr-meta{font-size:11px;color:var(--txm)}
-.dsr-avail{font-weight:700}.dsr-avail.ok{color:var(--ok)}.dsr-avail.dg{color:var(--dg)}
-.dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0;transition:background .13s}
-.dsr-add:hover{background:#6ad48e}
-.dsr-add:disabled{background:var(--bd);color:var(--txm);cursor:not-allowed}
-.dsc-empty{padding:20px 14px;font-size:12px;color:var(--txm);text-align:center;line-height:1.7}
+.dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0}
 
 .dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
 .dk-ca-head{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
 .dk-ca-scroll{flex:1;overflow-y:auto;padding:14px}
-.dk-ca-scroll::-webkit-scrollbar{width:4px}.dk-ca-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .dk-card-grid{display:flex;flex-direction:column;gap:12px}
 .dk-cg{display:flex;flex-direction:column;gap:6px}
 .dk-cg-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.dk-cg-name{font-size:13px;font-family:var(--fd);font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dk-cg-ctrl{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .dk-cg-qty{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--ac);min-width:30px;text-align:center}
-.dk-cg-price{font-size:11px;color:var(--txm)}
 .dk-thumbs{display:flex;flex-wrap:wrap;gap:6px}
 .dk-thumb{position:relative;width:62px;flex-shrink:0}
-.dk-thumb-ph{width:62px;height:86px;border-radius:6px;background:var(--sf2);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--bd);border:2px solid transparent;transition:border-color .15s}
-.dk-thumb:hover .dk-thumb-ph{border-color:var(--ac)}
-.dk-thumb-rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:var(--dg);border:none;border-radius:4px;color:#fff;font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer}
+.dk-thumb-ph{width:62px;height:86px;border-radius:6px;background:var(--sf2);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--bd);border:2px solid transparent}
+.dk-thumb-rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:var(--dg);border:none;border-radius:4px;color:#fff;font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
 .dk-thumb:hover .dk-thumb-rm{display:flex}
-.dk-cg-sep{height:1px;background:var(--bd)}
-.dk-ca-empty{text-align:center;padding:40px 20px;color:var(--txm)}
-.dk-ca-empty-ico{font-size:30px;opacity:.2;margin-bottom:10px}
-.dk-ca-empty p{font-size:13px;line-height:1.7}
 .dk-ca-footer{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--bd);margin-top:6px}
-.dk-ca-fl{font-size:11px;color:var(--txm)}.dk-ca-fr{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--ac)}
 
 .dk-bottom{padding:14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:12px;max-height:38vh;overflow-y:auto}
-.dk-bottom::-webkit-scrollbar{width:4px}.dk-bottom::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .price-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .price-box{background:var(--sf2);border-radius:var(--rs);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
 .pf{display:flex;flex-direction:column;gap:4px}
 .pf label{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
 .pf input{background:var(--sf3);border:1.5px solid var(--bd);color:var(--tx);padding:9px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;transition:border-color .18s;-webkit-appearance:none;width:100%}
-.pf input:focus{border-color:var(--ac)}
 .profit-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:14px;display:flex;flex-direction:column;gap:6px}
 .prow{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
-.prow .lbl{color:var(--txm)}.prow .val{font-family:var(--fd);font-weight:700}
+.prow .val{font-family:var(--fd);font-weight:700}
 .prow .val.ac{color:var(--ac)}.prow .val.ok{color:var(--ok)}.prow .val.dg{color:var(--dg)}
 .phr{border:none;border-top:1px solid var(--bd);margin:4px 0}
-.pbig{font-size:16px;}
 .memo-box textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;resize:none;line-height:1.6;-webkit-appearance:none}
-.memo-box textarea:focus{border-color:var(--ac)}
 .no-sel{display:flex;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--txm)}
-.no-sel-ico{font-size:32px;opacity:.2}.no-sel p{font-size:13px;line-height:1.7;text-align:center}
 
 .btn{padding:10px 16px;border-radius:var(--rs);font-family:var(--fd);font-size:14px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
-.btn-ac{background:var(--ac);color:#07080b}.btn-ac:hover{background:#6ad48e}
-.btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}.btn-ghost:hover{color:var(--tx);border-color:var(--bd2)}
-.btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}.btn-dg:hover{background:var(--dgd)}
+.btn-ac{background:var(--ac);color:#07080b}
+.btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}
+.btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}
 .btn-sm{padding:6px 12px;font-size:12px}
 
-/* モーダル関連：スマホで潰れないように大幅修正 */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .overlay.on{display:flex}
 .modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:20px;width:100%;max-width:420px;animation:mIn .18s ease; margin:auto;}
@@ -283,28 +211,17 @@ a{color:inherit;text-decoration:none}
 .mf label{font-size:11px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.07em;text-transform:uppercase}
 .mf input,.mf textarea,.mf select{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
 .mf input:focus,.mf textarea:focus,.mf select:focus{border-color:var(--ac)}
-.mf input::placeholder,.mf textarea::placeholder{color:var(--txm)}
 .mf textarea{resize:none;line-height:1.6}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mactions{display:flex;gap:10px;justify-content:flex-end}
 
-/* スマホ用カメラ・写真選択対応 */
-.img-preview{width:100%;height:160px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:13px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;transition:border-color .2s;cursor:pointer;line-height:1.5;margin-bottom:12px}
-.img-preview:hover{border-color:var(--ac)}
+.img-preview{width:100%;height:160px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:13px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;cursor:pointer;line-height:1.5;margin-bottom:12px}
 
-.cqrow{display:flex;align-items:center;gap:12px;margin:16px 0}
-.cqbig{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--bd);background:none;color:var(--tx);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .13s}
-.cqbig:hover{border-color:var(--ac);color:var(--ac)}
-.cqin{width:68px;height:40px;text-align:center;font-size:16px !important;font-family:var(--fd);font-weight:700;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);border-radius:var(--rs);outline:none;-webkit-appearance:none}
-.cqin:focus{border-color:var(--ac)}.cqin::-webkit-inner-spin-button{-webkit-appearance:none}
-.cprev{background:var(--acd);border-radius:var(--rs);padding:10px 14px;font-family:var(--fd);font-size:14px;color:var(--ac);text-align:center;font-weight:700;margin-bottom:16px}
-
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--tx);color:var(--bg);padding:10px 22px;border-radius:50px;font-size:14px;font-weight:700;font-family:var(--fd);z-index:600;transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .28s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--tx);color:var(--bg);padding:10px 22px;border-radius:50px;font-size:14px;font-weight:700;font-family:var(--fd);z-index:600;transition:all .28s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--dg);color:#fff}
 mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-style:normal}
 
-/* ★★★ スマホ用完全最適化（縦スクロールの制限解除） ★★★ */
 @media(max-width:680px){
   body { overflow-y: auto; }
   #app { height: auto; min-height: 100vh; display: flex; flex-direction: column; }
@@ -314,8 +231,6 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   
   .inv-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
   .inv-scroll { overflow-y: visible; padding-bottom: 40px; }
-  .cart-side { max-height: none; border-top: 2px solid var(--bd); }
-  .cart-list { max-height: 300px; }
   
   #pg-deck { flex-direction: column; }
   .dk-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
@@ -354,14 +269,14 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
       <button class="auth-tab" onclick="authTab('signup')">新規登録</button>
     </div>
     <div class="auth-sec on" id="sec-login">
-      <div class="f"><label>メールアドレス</label><input type="email" id="l-email" placeholder="example@email.com" autocomplete="email"></div>
-      <div class="f"><label>パスワード</label><input type="password" id="l-pw" placeholder="パスワード" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="f"><label>メールアドレス</label><input type="email" id="l-email" placeholder="example@email.com"></div>
+      <div class="f"><label>パスワード</label><input type="password" id="l-pw" placeholder="パスワード" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="auth-btn" onclick="doLogin()">ログイン</button>
     </div>
     <div class="auth-sec" id="sec-signup">
-      <div class="f"><label>メールアドレス</label><input type="email" id="s-email" placeholder="example@email.com" autocomplete="email"></div>
-      <div class="f"><label>パスワード（6文字以上）</label><input type="password" id="s-pw" placeholder="パスワード" autocomplete="new-password"></div>
-      <div class="f"><label>パスワード確認</label><input type="password" id="s-pw2" placeholder="パスワードを再入力" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="f"><label>メールアドレス</label><input type="email" id="s-email" placeholder="example@email.com"></div>
+      <div class="f"><label>パスワード（6文字以上）</label><input type="password" id="s-pw" placeholder="パスワード"></div>
+      <div class="f"><label>パスワード確認</label><input type="password" id="s-pw2" placeholder="再入力" onkeydown="if(event.key==='Enter')doSignup()"></div>
       <button class="auth-btn" onclick="doSignup()">アカウントを作成</button>
     </div>
     <div class="auth-err" id="auth-err"></div>
@@ -388,37 +303,31 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
       <div class="rep-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
         <div>
           <div class="rep-title">売上＆資産レポート</div>
-          <div class="rep-desc">現在の在庫資産と、売却済デッキの実績です。</div>
+          <div class="rep-desc">売却済デッキの実績を集計しています。</div>
         </div>
-        <select id="rep-month-sel" class="status-sel" style="min-width:140px; font-size:14px; padding:8px 12px;" onchange="renderReport()"></select>
+        <select id="rep-month-sel" class="status-sel" style="min-width:140px; font-size:14px; padding:8px 12px;" onchange="window.renderReport()"></select>
       </div>
       
       <div class="rep-grid">
         <div class="rep-box">
           <div class="rep-lbl">現在の在庫資産（原価）</div>
           <div class="rep-val" id="rep-asset">¥0</div>
-          <div class="rep-sub">手元にあるカードの仕入れ値合計</div>
         </div>
       </div>
-
       <div class="rep-grid">
         <div class="rep-box highlight">
           <div class="rep-lbl">売上総額</div>
           <div class="rep-val ac" id="rep-sales">¥0</div>
-          <div class="rep-sub">「売却済」デッキの販売価格合計</div>
         </div>
         <div class="rep-box highlight2">
           <div class="rep-lbl">純利益</div>
           <div class="rep-val ok" id="rep-profit">¥0</div>
-          <div class="rep-sub">売上から原価・手数料・送料を引いた額</div>
         </div>
       </div>
-
       <div class="rep-grid">
         <div class="rep-box">
-          <div class="rep-lbl">経費・手数料</div>
+          <div class="rep-lbl">経費・手数料合計</div>
           <div class="rep-val" id="rep-fees">¥0</div>
-          <div class="rep-sub">引かれた送料・サイト手数料の合計</div>
         </div>
         <div class="rep-box">
           <div class="rep-lbl">販売件数 / 利益率</div>
@@ -435,40 +344,24 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
           <span class="count-bdg" id="inv-cnt">0</span>
           <div class="srch-wrap">
             <svg class="srch-ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
-            <input class="srch-in" id="inv-srch" placeholder="商品名で検索…" oninput="renderGrid()">
+            <input class="srch-in" id="inv-srch" placeholder="商品名で検索…" oninput="window.renderGrid()">
           </div>
-          <button class="btn btn-ac btn-sm" onclick="openItemModal(null)">＋ 商品登録</button>
+          <button class="btn btn-ac btn-sm" onclick="window.openItemModal(null)">＋ 商品登録</button>
         </div>
         <div class="inv-scroll"><div class="inv-grid" id="inv-grid"></div></div>
       </div>
-      <aside class="cart-side">
-        <div class="cart-head">
-          <div class="cart-top-row">
-            <span class="ptitle">経費カート</span>
-            <button class="btn btn-ghost btn-sm" onclick="clearCart()">全削除</button>
-          </div>
-          <div class="cart-total-box">
-            <div class="cart-lbl">経費総額</div>
-            <div class="cart-amt" id="cart-total">¥0</div>
-            <div class="cart-sub" id="cart-sub">0件</div>
-          </div>
-        </div>
-        <div class="cart-list" id="cart-list">
-          <div class="cart-empty-msg">🛒<br>商品をカートに追加してください</div>
-        </div>
-      </aside>
     </div>
 
     <div class="pg" id="pg-deck">
       <div class="dk-sidebar">
         <div class="dk-sidebar-head">
           <span class="ptitle">デッキ <span class="count-bdg" id="dk-cnt">0</span></span>
-          <button class="btn btn-ac btn-sm" onclick="newDeck()">＋ 新規</button>
+          <button class="btn btn-ac btn-sm" onclick="window.newDeck()">＋ 新規</button>
         </div>
         <div class="dk-scroll" id="dk-list"></div>
       </div>
       <div class="dk-main" id="dk-main">
-        <div class="no-sel"><div class="no-sel-ico">📦</div><p>「＋ 新規」からデッキを作成するか<br>左のデッキを選択してください。</p></div>
+        <div class="no-sel"><div class="no-sel-ico">📦</div><p>デッキを選択してください。</p></div>
       </div>
     </div>
   </div>
@@ -479,22 +372,21 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
     <div class="modal-title" id="item-modal-title">商品を登録</div>
     <div class="mfields">
       <input type="hidden" id="item-eid">
-      
-      <input type="file" id="item-img-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+      <input type="file" id="item-img-upload" accept="image/*" style="display:none;" onchange="window.handleImageUpload(event)">
       <div id="item-img-preview" class="img-preview" onclick="document.getElementById('item-img-upload').click()">
-        📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはペースト Ctrl+V も可)</span>
+        📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはCtrl+V可)</span>
       </div>
 
       <div class="mf">
         <label>商品名 *</label>
         <div style="display:flex; gap:6px; margin-bottom: 6px;">
           <input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン" style="flex:1; min-width:0;">
-          <button type="button" class="btn btn-ghost" onclick="searchOfficial()" style="flex-shrink:0; padding:0 12px;">🔍 公式</button>
+          <button type="button" class="btn btn-ghost" onclick="window.searchOfficial()" style="flex-shrink:0; padding:0 12px;">🔍 公式</button>
         </div>
         <div style="display:flex; gap:6px;">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('mercari')" style="flex:1; border-color:#e63232; color:#e63232;">メルカリ</button>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('magi')" style="flex:1; border-color:#2a70ff; color:#2a70ff;">magi</button>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="searchMarket('yahoo')" style="flex:1; border-color:#f5b000; color:#f5b000;">ヤフオク</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('mercari')" style="flex:1; border-color:#e63232; color:#e63232;">メルカリ</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('magi')" style="flex:1; border-color:#2a70ff; color:#2a70ff;">magi</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('yahoo')" style="flex:1; border-color:#f5b000; color:#f5b000;">ヤフオク</button>
         </div>
       </div>
 
@@ -506,25 +398,8 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
       <div class="mf"><label>メモ</label><textarea id="item-memo" rows="2" placeholder="自由記入…"></textarea></div>
     </div>
     <div class="mactions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-item')">キャンセル</button>
-      <button class="btn btn-ac" onclick="saveItem()">保存する</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="modal-cart">
-  <div class="modal">
-    <div class="modal-title" id="cart-modal-title">カートに追加</div>
-    <input type="hidden" id="cart-item-id">
-    <div class="cqrow">
-      <button class="cqbig" onclick="adjCQ(-1)">−</button>
-      <input class="cqin" type="number" id="cart-qty" value="1" min="1">
-      <button class="cqbig" onclick="adjCQ(1)">＋</button>
-    </div>
-    <div class="cprev" id="cart-prev">¥0</div>
-    <div class="mactions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-cart')">キャンセル</button>
-      <button class="btn btn-ac" onclick="confirmCart()">追加する</button>
+      <button class="btn btn-ghost" onclick="window.closeModal('modal-item')">キャンセル</button>
+      <button class="btn btn-ac" onclick="window.saveItem()">保存する</button>
     </div>
   </div>
 </div>
@@ -533,14 +408,8 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
-} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {
-  getFirestore, doc, collection, addDoc, updateDoc, deleteDoc,
-  onSnapshot, serverTimestamp
-} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
@@ -560,56 +429,31 @@ try { await setPersistence(auth, browserLocalPersistence); } catch(e) {}
 let uid = null;
 let items  = [];   
 let decks  = [];   
-let cart   = [];   
 let selDkId = null;
 let unsubItems = null, unsubDecks = null;
-let cartItemCtx = null;
 let dkSrchQ = '';
 let currentItemImage = null;
 
+// Auth Functions
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
   document.getElementById('sec-login').classList.toggle('on', t==='login');
   document.getElementById('sec-signup').classList.toggle('on', t==='signup');
   document.getElementById('auth-err').textContent = '';
 };
-
-const authErrMap = {
-  'auth/user-not-found':    '登録されていません',
-  'auth/wrong-password':    'パスワードが違います',
-  'auth/invalid-email':     'メールアドレスの形式エラー',
-  'auth/invalid-credential':'メアドかパスワードが違います',
-  'auth/email-already-in-use':'既に使用されています',
-  'auth/weak-password':     '6文字以上にしてください',
-};
-
 window.doLogin = async () => {
   const email = document.getElementById('l-email').value.trim();
   const pw    = document.getElementById('l-pw').value;
-  if (!email||!pw) { setAuthErr('入力してください'); return; }
-  try { await signInWithEmailAndPassword(auth, email, pw); }
-  catch(e) { setAuthErr(authErrMap[e.code]||'ログイン失敗'); }
+  try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { document.getElementById('auth-err').textContent = 'ログインに失敗しました'; }
 };
-
 window.doSignup = async () => {
   const email = document.getElementById('s-email').value.trim();
   const pw    = document.getElementById('s-pw').value;
   const pw2   = document.getElementById('s-pw2').value;
-  if (!email||!pw||!pw2) { setAuthErr('入力してください'); return; }
-  if (pw !== pw2) { setAuthErr('パスワード不一致'); return; }
-  if (pw.length < 6) { setAuthErr('6文字以上必須'); return; }
-  try { await createUserWithEmailAndPassword(auth, email, pw); }
-  catch(e) { setAuthErr(authErrMap[e.code]||'登録失敗'); }
+  if (pw !== pw2) { document.getElementById('auth-err').textContent = 'パスワードが一致しません'; return; }
+  try { await createUserWithEmailAndPassword(auth, email, pw); } catch(e) { document.getElementById('auth-err').textContent = '登録に失敗しました'; }
 };
-
-window.doLogout = async () => {
-  if (unsubItems) unsubItems();
-  if (unsubDecks) unsubDecks();
-  await signOut(auth);
-  items=[]; decks=[]; cart=[]; selDkId=null;
-};
-
-function setAuthErr(msg) { document.getElementById('auth-err').textContent = msg; }
+window.doLogout = async () => { if(unsubItems) unsubItems(); if(unsubDecks) unsubDecks(); await signOut(auth); };
 
 onAuthStateChanged(auth, user => {
   document.getElementById('loading').classList.add('hide');
@@ -622,39 +466,32 @@ onAuthStateChanged(auth, user => {
     uid = null;
     document.getElementById('app').classList.remove('on');
     document.getElementById('auth').classList.add('on');
-    setSyncDot('');
   }
 });
 
 function startListeners() {
   setSyncDot('sync');
-  const itemsCol = collection(db,'users',uid,'items');
-  const decksCol = collection(db,'users',uid,'decks');
-
-  unsubItems = onSnapshot(itemsCol, snap => {
+  unsubItems = onSnapshot(collection(db,'users',uid,'items'), snap => {
     items = snap.docs.map(d=>({id:d.id,...d.data()}));
     items.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-    renderGrid();
-    renderDeckSearch();
+    window.renderGrid();
+    window.renderDeckSearch();
     updateBadges();
-    renderReport();
+    window.renderReport();
     setSyncDot('ok');
-  }, () => setSyncDot('err'));
-
-  unsubDecks = onSnapshot(decksCol, snap => {
+  });
+  unsubDecks = onSnapshot(collection(db,'users',uid,'decks'), snap => {
     decks = snap.docs.map(d=>({id:d.id,...d.data()}));
     decks.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
     renderDkList();
-    renderGrid(); 
+    window.renderGrid(); 
     updateBadges();
-    renderReport();
+    window.renderReport();
     setSyncDot('ok');
-  }, () => setSyncDot('err'));
+  });
 }
 
-function setSyncDot(s) {
-  document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:'');
-}
+function setSyncDot(s) { document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:''); }
 
 window.goPage = (p) => {
   ['inv','deck','report'].forEach(x=>{
@@ -663,10 +500,11 @@ window.goPage = (p) => {
     if(pg) pg.classList.toggle('on', x===p);
     if(tab) tab.classList.toggle('on', x===p);
   });
-  if (p==='deck') { renderDkList(); renderDeckSearch(); }
-  if (p==='report') { renderReport(); }
+  if (p==='deck') { renderDkList(); window.renderDeckSearch(); }
+  if (p==='report') { window.renderReport(); }
 };
 
+// Report logic
 window.renderReport = () => {
   const monthSet = new Set();
   decks.forEach(dk => {
@@ -678,30 +516,23 @@ window.renderReport = () => {
     }
   });
   const monthArr = Array.from(monthSet).sort().reverse();
-
   const selEl = document.getElementById('rep-month-sel');
   const currentSel = selEl.value || 'all';
   let opts = `<option value="all"${currentSel==='all'?' selected':''}>全期間（累計）</option>`;
-  monthArr.forEach(m => {
-    opts += `<option value="${m}"${currentSel===m?' selected':''}>${m}</option>`;
-  });
+  monthArr.forEach(m => { opts += `<option value="${m}"${currentSel===m?' selected':''}>${m}</option>`; });
   selEl.innerHTML = opts;
   const targetMonth = selEl.value;
 
   let totalAsset = 0;
-  items.forEach(item => {
-    totalAsset += (item.stock || 0) * (item.cost || 0);
-  });
+  items.forEach(item => { totalAsset += (item.stock || 0) * (item.cost || 0); });
 
   let totalSales = 0, totalFees = 0, totalProfit = 0, soldCount = 0;
-
   decks.forEach(dk => {
     if (dk.status === 'sold') {
       const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
       const d = new Date(t);
       const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
       if (targetMonth !== 'all' && targetMonth !== mStr) return;
-
       soldCount++;
       const cost = dkCost(dk);
       const sell = Number(dk.sellPrice) || 0;
@@ -709,104 +540,50 @@ window.renderReport = () => {
       const ship = dk.shippingCost ?? 210;
       const fee = sell ? Math.round(sell * feePct) : 0;
       const net = sell ? Math.round(sell * (1 - feePct)) - ship : 0;
-      const profit = sell ? net - cost : 0;
-
-      totalSales += sell;
-      totalFees += (fee + (sell ? ship : 0));
-      totalProfit += profit;
+      totalSales += sell; totalFees += (fee + (sell ? ship : 0)); totalProfit += (sell ? net - cost : 0);
     }
   });
-
-  const margin = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) : 0;
-
   document.getElementById('rep-asset').textContent = `¥${totalAsset.toLocaleString()}`;
   document.getElementById('rep-sales').textContent = `¥${totalSales.toLocaleString()}`;
   document.getElementById('rep-fees').textContent = `¥${totalFees.toLocaleString()}`;
-  
   const pEl = document.getElementById('rep-profit');
   pEl.textContent = `${totalProfit >= 0 ? '+' : ''}¥${totalProfit.toLocaleString()}`;
   pEl.className = 'rep-val ' + (totalProfit >= 0 ? 'ok' : 'dg');
-
   document.getElementById('rep-sold-cnt').textContent = `販売 ${soldCount}件`;
-  document.getElementById('rep-margin').textContent = `${margin}%`;
+  document.getElementById('rep-margin').textContent = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) + '%' : '0%';
 };
 
-function updateBadges() {
-  document.getElementById('nb-inv').textContent  = items.length;
-  document.getElementById('nb-deck').textContent = decks.length;
-  document.getElementById('inv-cnt').textContent = items.length;
-  document.getElementById('dk-cnt').textContent  = decks.length;
-}
-
-function usedInDecks(itemId) {
-  return decks.reduce((s,dk)=>{
-    const c = (dk.cards||[]).find(c=>c.itemId===itemId);
-    return s + (c?.qty||0);
-  }, 0);
-}
-function availStock(itemId) {
-  const item = items.find(i=>i.id===itemId);
-  return Math.max(0, (item?.stock||0) - usedInDecks(itemId));
-}
-function deckUsage(itemId) {
-  return decks.flatMap(dk=>{
-    const c = (dk.cards||[]).find(c=>c.itemId===itemId);
-    return c ? [{name:dk.name, qty:c.qty}] : [];
-  });
-}
-
-function hl(text, q) {
-  if (!q) return text;
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i)+`<mark>${text.slice(i,i+q.length)}</mark>`+text.slice(i+q.length);
-}
-
-// ★ 検索機能が反応しないエラーの修正（window. に登録）
+// Inventory logic
 window.renderGrid = () => {
   const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
   const grid = document.getElementById('inv-grid');
   const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
 
   if (!items.length) {
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-ico">📦</div><p>まだ商品がありません。<br>「＋ 商品登録」から追加してください。</p></div>`;
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><p>まだ商品がありません。</p></div>`;
     return;
   }
-  if (!list.length) {
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-ico">🔍</div><p>「${q}」に一致する商品が見つかりません</p></div>`;
-    return;
-  }
-
   grid.innerHTML = list.map(item => {
-    const avail  = availStock(item.id);
-    const usage  = deckUsage(item.id);
-    const stockCls = avail===0?'stk-empty':avail<=3?'stk-warn':'stk-ok';
-    const cardCls  = usage.length?'used':avail<=3?'warn':'';
-    const tagsHtml = usage.length
-      ? `<div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>`
-      : '';
-      
-    const imgHtml = item.image 
-      ? `<div class="icard-img" style="background-image:url(${item.image})"></div>`
-      : `<div class="icard-img">🃏</div>`;
+    const avail = Math.max(0, (item.stock||0) - decks.reduce((s,dk)=>s+((dk.cards||[]).find(c=>c.itemId===item.id)?.qty||0),0));
+    const usage = decks.flatMap(dk=>{const c=(dk.cards||[]).find(c=>c.itemId===item.id);return c?[{name:dk.name,qty:c.qty}]:[]});
+    const imgHtml = item.image ? `<div class="icard-img" style="background-image:url(${item.image})"></div>` : `<div class="icard-img">🃏</div>`;
 
-    return `<div class="icard ${cardCls}">
+    return `<div class="icard ${usage.length?'used':''}">
       ${imgHtml}
-      <div class="icard-name" title="${item.name}">${hl(item.name,q)}</div>
+      <div class="icard-name">${hl(item.name,q)}</div>
       <div class="icard-row">
         <span class="icard-cost">¥${(item.cost||0).toLocaleString()}</span>
-        <span class="stk-bdg ${stockCls}">残${avail}枚</span>
+        <span class="stk-bdg ${avail===0?'stk-empty':'stk-ok'}">残${avail}枚</span>
       </div>
-      ${tagsHtml}
+      <div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>
       <div class="icard-qty">
-        <button class="qb" onclick="chgStock('${item.id}',-1)">−</button>
+        <button class="qb" onclick="window.chgStock('${item.id}',-1)">−</button>
         <span class="qn">${item.stock||0}</span>
-        <button class="qb" onclick="chgStock('${item.id}',1)">＋</button>
+        <button class="qb" onclick="window.chgStock('${item.id}',1)">＋</button>
       </div>
       <div class="icard-acts">
-        <button class="ab" onclick="openItemModal('${item.id}')">編集</button>
-        <button class="ab del" onclick="delItem('${item.id}')">削除</button>
-        <button class="ab add" onclick="openCartModal('${item.id}')">カートへ</button>
+        <button class="ab" onclick="window.openItemModal('${item.id}')">編集</button>
+        <button class="ab del" onclick="window.delItem('${item.id}')">削除</button>
       </div>
     </div>`;
   }).join('');
@@ -814,46 +591,19 @@ window.renderGrid = () => {
 
 window.openItemModal = (id) => {
   const item = id ? items.find(i=>i.id===id) : null;
-  document.getElementById('item-modal-title').textContent = item?'商品を編集':'商品を登録';
-  document.getElementById('item-eid').value    = id||'';
-  document.getElementById('item-name').value   = item?.name||'';
-  document.getElementById('item-stock').value  = item?.stock??'';
-  document.getElementById('item-cost').value   = item?.cost??'';
-  document.getElementById('item-sell').value   = item?.sell??'';
-  document.getElementById('item-memo').value   = item?.memo||'';
-  
+  document.getElementById('item-eid').value = id||'';
+  document.getElementById('item-name').value = item?.name||'';
+  document.getElementById('item-stock').value = item?.stock??'';
+  document.getElementById('item-cost').value = item?.cost??'';
+  document.getElementById('item-sell').value = item?.sell??'';
+  document.getElementById('item-memo').value = item?.memo||'';
   currentItemImage = item?.image || null;
   const pv = document.getElementById('item-img-preview');
-  if (currentItemImage) {
-    pv.style.backgroundImage = `url(${currentItemImage})`;
-    pv.innerHTML = '';
-  } else {
-    pv.style.backgroundImage = 'none';
-    pv.innerHTML = '📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはペースト Ctrl+V も可)</span>';
-  }
-
-  openModal('modal-item');
+  pv.style.backgroundImage = currentItemImage ? `url(${currentItemImage})` : 'none';
+  pv.innerHTML = currentItemImage ? '' : '📱 タップして画像を選択・撮影';
+  window.openModal('modal-item');
 };
 
-window.searchOfficial = () => {
-  const name = document.getElementById('item-name').value.trim();
-  if (!name) { toast('商品名を入力してください', true); return; }
-  const url = `https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(name)}`;
-  window.open(url, '_blank');
-};
-
-window.searchMarket = (site) => {
-  const name = document.getElementById('item-name').value.trim();
-  if (!name) { toast('商品名を入力してください', true); return; }
-  const keyword = encodeURIComponent(name);
-  let url = '';
-  if (site === 'mercari') url = `https://jp.mercari.com/search?keyword=${keyword}`;
-  else if (site === 'magi') url = `https://magi.camp/items/search?keyword=${keyword}`;
-  else if (site === 'yahoo') url = `https://auctions.yahoo.co.jp/search/search?p=${keyword}`;
-  if (url) window.open(url, '_blank');
-};
-
-// ★ スマホ用：カメラ・アルバムからの画像読み込み
 window.handleImageUpload = (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -862,513 +612,191 @@ window.handleImageUpload = (e) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 300;
-      let w = img.width, h = img.height;
-      if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
-      else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
+      const MAX = 300; let w=img.width, h=img.height;
+      if(w>h && w>MAX){h*=MAX/w; w=MAX;} else if(h>MAX){w*=MAX/h; h=MAX;}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
       currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
       const pv = document.getElementById('item-img-preview');
-      pv.style.backgroundImage = `url(${currentItemImage})`;
-      pv.innerHTML = '';
-      toast('画像を読み込みました！');
+      pv.style.backgroundImage = `url(${currentItemImage})`; pv.innerHTML = '';
     };
     img.src = event.target.result;
   };
   reader.readAsDataURL(file);
 };
 
-// PC用：コピペ対応
+window.saveItem = async () => {
+  const id = document.getElementById('item-eid').value;
+  const name = document.getElementById('item-name').value.trim();
+  const stock = parseInt(document.getElementById('item-stock').value)||0;
+  if (!name) return;
+  const data = { name, stock, cost:parseInt(document.getElementById('item-cost').value)||0, sell:parseInt(document.getElementById('item-sell').value)||0, memo:document.getElementById('item-memo').value, image:currentItemImage };
+  if (id) await updateDoc(doc(db,'users',uid,'items',id), data);
+  else await addDoc(collection(db,'users',uid,'items'), {...data, createdAt:serverTimestamp()});
+  window.closeModal('modal-item');
+};
+
+window.chgStock = async (id, d) => {
+  const item = items.find(i=>i.id===id);
+  if (item) await updateDoc(doc(db,'users',uid,'items',id), { stock: Math.max(0, (item.stock||0)+d) });
+};
+
+window.delItem = async (id) => { if(confirm('削除しますか？')) await deleteDoc(doc(db,'users',uid,'items',id)); };
+
+window.searchOfficial = () => {
+  const n = document.getElementById('item-name').value.trim();
+  if(n) window.open(`https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(n)}`, '_blank');
+};
+window.searchMarket = (s) => {
+  const n = document.getElementById('item-name').value.trim();
+  if(!n) return;
+  const k = encodeURIComponent(n);
+  if(s==='mercari') window.open(`https://jp.mercari.com/search?keyword=${k}`, '_blank');
+  if(s==='magi') window.open(`https://magi.camp/items/search?keyword=${k}`, '_blank');
+  if(s==='yahoo') window.open(`https://auctions.yahoo.co.jp/search/search?p=${k}`, '_blank');
+};
+
+// Deck logic
+window.newDeck = async () => {
+  const ref = await addDoc(collection(db,'users',uid,'decks'), { name:'新規デッキ', status:'draft', cards:[], sellPrice:0, feePercent:10, shippingCost:210, memo:'', createdAt:serverTimestamp() });
+  selDkId = ref.id; renderDkList();
+};
+
+function renderDkList() {
+  const el = document.getElementById('dk-list');
+  el.innerHTML = decks.map(dk=>{
+    const cost = dkCost(dk);
+    const sCls = {draft:'dsb-draft',active:'dsb-active',sold:'dsb-sold'}[dk.status];
+    return `<div class="dk-item ${selDkId===dk.id?'sel':''}" onclick="window.selDeck('${dk.id}')">
+      <div class="dk-item-name">${dk.name}</div>
+      <div class="dk-item-meta"><span>¥${cost.toLocaleString()}</span><span class="dsbdg ${sCls}">${dk.status}</span></div>
+    </div>`;
+  }).join('');
+  if (selDkId) renderDkMain(selDkId);
+}
+window.selDeck = (id) => { selDkId=id; renderDkList(); };
+
+window.renderDeckSearch = () => {
+  const el = document.getElementById('dk-srch-results'); if(!el) return;
+  const q = dkSrchQ.toLowerCase();
+  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
+  el.innerHTML = list.map(item=>{
+    const avail = Math.max(0, (item.stock||0) - decks.reduce((s,dk)=>s+((dk.cards||[]).find(c=>c.itemId===item.id)?.qty||0),0));
+    return `<div class="dsr"><div class="dsr-info"><div class="dsr-name">${item.name}</div><div style="font-size:10px;color:var(--txm)">在庫:${avail}</div></div>
+      <button class="dsr-add" onclick="window.addToDk('${item.id}')" ${avail<=0?'disabled':''}>追加</button></div>`;
+  }).join('');
+};
+
+window.addToDk = async (itemId) => {
+  const dk = decks.find(d=>d.id===selDkId); if(!dk) return;
+  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
+  const ex = cards.find(c=>c.itemId===itemId);
+  if(ex) ex.qty++; else cards.push({itemId, qty:1});
+  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards });
+};
+
+function renderDkMain(id) {
+  const dk = decks.find(d=>d.id===id); if(!dk) return;
+  const cost = dkCost(dk);
+  const sell = dk.sellPrice||0;
+  const fee = Math.round(sell * (dk.feePercent/100));
+  const net = sell - fee - dk.shippingCost;
+  const profit = net - cost;
+
+  document.getElementById('dk-main').innerHTML = `
+    <div class="dk-hbar">
+      <input class="dk-name-in" value="${dk.name}" oninput="window.dkUpdate('${id}','name',this.value)">
+      <select class="status-sel" onchange="window.dkStatusChange('${id}',this.value)">
+        <option value="draft" ${dk.status==='draft'?'selected':''}>下書き</option>
+        <option value="active" ${dk.status==='active'?'selected':''}>出品中</option>
+        <option value="sold" ${dk.status==='sold'?'selected':''}>売却済</option>
+      </select>
+      <button class="btn btn-dg btn-sm" onclick="window.delDeck('${id}')">削除</button>
+    </div>
+    <div class="dk-stats">
+      <div class="stat-box"><div class="stat-lbl">原価</div><div class="stat-val ac">¥${cost.toLocaleString()}</div></div>
+      <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${profit>=0?'ok':'dg'}">¥${profit.toLocaleString()}</div></div>
+    </div>
+    <div class="dk-body">
+      <div class="dk-search-col">
+        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" placeholder="検索…" oninput="dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
+        <div class="dsc-results" id="dk-srch-results"></div>
+      </div>
+      <div class="dk-card-area">
+        <div class="dk-ca-scroll">${buildCardGrid(dk)}</div>
+      </div>
+    </div>
+    <div class="dk-bottom">
+      <div class="price-section">
+        <div class="price-box">
+          <div class="pf"><label>販売価格</label><input type="number" value="${sell||''}" oninput="window.dkUpdate('${id}','sellPrice',parseInt(this.value)||0)"></div>
+          <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent}" oninput="window.dkUpdate('${id}','feePercent',parseInt(this.value)||0)"></div>
+          <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost}" oninput="window.dkUpdate('${id}','shippingCost',parseInt(this.value)||0)"></div>
+        </div>
+        <div class="profit-box">
+          <div class="prow"><span>手取り</span><span class="val ac">¥${net.toLocaleString()}</span></div>
+          <div class="prow"><span>利益</span><span class="val ${profit>=0?'ok':'dg'}">¥${profit.toLocaleString()}</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+  window.renderDeckSearch();
+}
+
+function buildCardGrid(dk) {
+  return `<div class="dk-card-grid">` + (dk.cards||[]).map(c=>{
+    const item = items.find(i=>i.id===c.itemId); if(!item) return '';
+    const imgHtml = item.image ? `<div class="dk-thumb-ph" style="background-image:url(${item.image})"></div>` : `<div class="dk-thumb-ph">🃏</div>`;
+    return `<div class="dk-cg"><div class="dk-cg-row"><span>${item.name}</span><div class="dk-cg-ctrl">
+      <button class="qb" onclick="window.dkChgQ('${dk.id}','${item.id}',-1)">−</button><span class="dk-cg-qty">${c.qty}</span><button class="qb" onclick="window.dkChgQ('${dk.id}','${item.id}',1)">＋</button>
+    </div></div><div class="dk-thumbs">${Array(c.qty).fill(`<div class="dk-thumb">${imgHtml}</div>`).join('')}</div></div>`;
+  }).join('') + `</div>`;
+}
+
+window.dkUpdate = async (id, key, val) => { const d={}; d[key]=val; await updateDoc(doc(db,'users',uid,'decks',id), d); };
+window.dkStatusChange = async (id, v) => { const d={status:v}; if(v==='sold') d.soldAt=Date.now(); await updateDoc(doc(db,'users',uid,'decks',id), d); };
+window.dkChgQ = async (dkId, itemId, delta) => {
+  const dk = decks.find(d=>d.id===dkId); if(!dk) return;
+  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
+  const c = cards.find(c=>c.itemId===itemId); if(!c) return;
+  c.qty += delta; if(c.qty<=0) cards.splice(cards.indexOf(c),1);
+  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
+};
+window.delDeck = async (id) => { if(confirm('削除しますか？')) await deleteDoc(doc(db,'users',uid,'decks',id)); };
+
+// Utility
+function dkCost(dk){ return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId); return s+(i?(i.cost||0)*c.qty:0)},0); }
+function updateBadges(){ document.getElementById('nb-inv').textContent=items.length; document.getElementById('nb-deck').textContent=decks.length; document.getElementById('inv-cnt').textContent=items.length; document.getElementById('dk-cnt').textContent=decks.length; }
+function hl(t,q){ if(!q) return t; const i=t.toLowerCase().indexOf(q.toLowerCase()); if(i<0) return t; return t.slice(0,i)+`<mark>${t.slice(i,i+q.length)}</mark>`+t.slice(i+q.length); }
+window.openModal = (id) => document.getElementById(id).classList.add('on');
+window.closeModal = (id) => document.getElementById(id).classList.remove('on');
+function toast(m,e=false){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast'+(e?' err':'')+' show'; setTimeout(()=>t.classList.remove('show'),2600); }
+
 document.addEventListener('paste', (e) => {
-  const modal = document.getElementById('modal-item');
-  if (!modal.classList.contains('on')) return; 
+  if(!document.getElementById('modal-item').classList.contains('on')) return;
   const items = (e.clipboardData || e.originalEvent.clipboardData).items;
   for (let item of items) {
     if (item.type.indexOf('image') === 0) {
-      const blob = item.getAsFile();
+      const file = item.getAsFile();
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_SIZE = 300;
-          let w = img.width, h = img.height;
-          if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
-          else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
+          const MAX = 300; let w=img.width, h=img.height;
+          if(w>h && w>MAX){h*=MAX/w; w=MAX;} else if(h>MAX){w*=MAX/h; h=MAX;}
+          canvas.width=w; canvas.height=h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
           currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
           const pv = document.getElementById('item-img-preview');
-          pv.style.backgroundImage = `url(${currentItemImage})`;
-          pv.innerHTML = '';
-          toast('画像を貼り付けました！');
+          pv.style.backgroundImage = `url(${currentItemImage})`; pv.innerHTML = '';
         };
         img.src = event.target.result;
       };
-      reader.readAsDataURL(blob);
-      e.preventDefault();
-      break;
+      reader.readAsDataURL(file);
     }
   }
 });
-
-window.saveItem = async () => {
-  const id    = document.getElementById('item-eid').value;
-  const name  = document.getElementById('item-name').value.trim();
-  const stock = parseInt(document.getElementById('item-stock').value)||0;
-  const cost  = parseInt(document.getElementById('item-cost').value)||0;
-  const sell  = parseInt(document.getElementById('item-sell').value)||0;
-  const memo  = document.getElementById('item-memo').value.trim();
-  if (!name) { toast('商品名を入力してください', true); return; }
-  if (stock < 0) { toast('在庫数は0以上にしてください', true); return; }
-  if (id) {
-    const used = usedInDecks(id);
-    if (stock < used) { toast(`デッキで${used}枚使用中のため、${used}枚以上が必要です`, true); return; }
-  }
-  setSyncDot('sync');
-  try {
-    const data = { name, stock, cost, sell, memo, image: currentItemImage };
-    if (id) {
-      await updateDoc(doc(db,'users',uid,'items',id), data);
-      toast('更新しました');
-    } else {
-      await addDoc(collection(db,'users',uid,'items'), {...data, createdAt:serverTimestamp()});
-      toast('登録しました');
-    }
-    closeModal('modal-item');
-  } catch(e) { toast('保存に失敗しました', true); }
-};
-
-window.chgStock = async (id, delta) => {
-  const item  = items.find(i=>i.id===id);
-  if (!item) return;
-  const avail = availStock(id);
-  if (delta < 0 && avail <= 0) { toast('デッキで使用中のため減らせません', true); return; }
-  const newStock = Math.max(0, (item.stock||0) + delta);
-  await updateDoc(doc(db,'users',uid,'items',id), { stock: newStock });
-};
-
-window.delItem = async (id) => {
-  const item  = items.find(i=>i.id===id);
-  const usage = deckUsage(id);
-  if (usage.length) { toast(`デッキで使用中です（${usage.map(u=>u.name).join('、')}）`, true); return; }
-  if (!confirm(`「${item?.name}」を削除しますか？`)) return;
-  await deleteDoc(doc(db,'users',uid,'items',id));
-  cart = cart.filter(c=>c.itemId!==id);
-  renderCart();
-  toast('削除しました');
-};
-
-window.openCartModal = (itemId) => {
-  cartItemCtx = items.find(i=>i.id===itemId);
-  if (!cartItemCtx) return;
-  document.getElementById('cart-modal-title').textContent = `カートへ追加 — ${cartItemCtx.name}`;
-  document.getElementById('cart-item-id').value = itemId;
-  document.getElementById('cart-qty').value = 1;
-  updCartPrev();
-  openModal('modal-cart');
-};
-window.adjCQ = (d) => {
-  const inp = document.getElementById('cart-qty');
-  inp.value = Math.max(1, parseInt(inp.value||1)+d);
-  updCartPrev();
-};
-document.getElementById('cart-qty').addEventListener('input', updCartPrev);
-function updCartPrev() {
-  if (!cartItemCtx) return;
-  const q = parseInt(document.getElementById('cart-qty').value)||1;
-  document.getElementById('cart-prev').textContent =
-    `${q}個 × ¥${(cartItemCtx.cost||0).toLocaleString()} = ¥${((cartItemCtx.cost||0)*q).toLocaleString()}`;
-}
-window.confirmCart = () => {
-  const itemId = document.getElementById('cart-item-id').value;
-  const qty    = parseInt(document.getElementById('cart-qty').value)||1;
-  const ex = cart.find(c=>c.itemId===itemId);
-  if (ex) ex.qty += qty; else cart.push({itemId, qty});
-  renderCart();
-  closeModal('modal-cart');
-  toast(`カートに追加（${qty}個）`);
-};
-window.chgCQ = (itemId, d) => {
-  const c = cart.find(c=>c.itemId===itemId);
-  if (!c) return;
-  c.qty = Math.max(1, c.qty+d);
-  renderCart();
-};
-window.rmCart = (itemId) => {
-  cart = cart.filter(c=>c.itemId!==itemId);
-  renderCart();
-};
-window.clearCart = () => {
-  if (!cart.length) return;
-  if (!confirm('カートを全削除しますか？')) return;
-  cart=[];
-  renderCart();
-};
-function renderCart() {
-  const el = document.getElementById('cart-list');
-  if (!cart.length) {
-    el.innerHTML='<div class="cart-empty-msg">🛒<br>商品をカートに追加してください</div>';
-    document.getElementById('cart-total').textContent='¥0';
-    document.getElementById('cart-sub').textContent='0件';
-    return;
-  }
-  let total=0, totQ=0;
-  el.innerHTML = cart.map(c=>{
-    const item = items.find(i=>i.id===c.itemId);
-    if (!item) return '';
-    const line = (item.cost||0)*c.qty;
-    total+=line; totQ+=c.qty;
-    return `<div class="ci">
-      <div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">¥${(item.cost||0).toLocaleString()}/個</div></div>
-      <div class="ci-right">
-        <div class="ci-total">¥${line.toLocaleString()}</div>
-        <div class="ci-ctrl">
-          <button class="cqb" onclick="chgCQ('${c.itemId}',-1)">−</button>
-          <span class="cqn">${c.qty}</span>
-          <button class="cqb" onclick="chgCQ('${c.itemId}',1)">＋</button>
-          <button class="crm" onclick="rmCart('${c.itemId}')">✕</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('cart-total').textContent = `¥${total.toLocaleString()}`;
-  document.getElementById('cart-sub').textContent   = `${cart.length}品目 / ${totQ}個`;
-}
-
-window.newDeck = async () => {
-  const ref = await addDoc(collection(db,'users',uid,'decks'), {
-    name: 'デッキ '+(decks.length+1),
-    status: 'draft',
-    cards: [],
-    sellPrice: 0,
-    feePercent: 10,
-    shippingCost: 210,
-    memo: '',
-    createdAt: serverTimestamp()
-  });
-  selDkId = ref.id;
-  toast('デッキを作成しました');
-  renderDkList(); // ★作成時に再描画を確実に行う
-};
-
-function renderDkList() {
-  updateBadges();
-  const el = document.getElementById('dk-list');
-  if (!decks.length) {
-    el.innerHTML='<div class="dk-empty-msg">デッキがありません。<br>「＋ 新規」から作成してください。</div>';
-    if (selDkId) { renderDkMain(selDkId); }
-    return;
-  }
-  el.innerHTML = decks.map(dk=>{
-    const cost   = dkCost(dk);
-    const cnt    = dkCount(dk);
-    const feePct = (dk.feePercent ?? 10) / 100;
-    const ship   = dk.shippingCost ?? 210;
-    const net    = dk.sellPrice ? Math.round(dk.sellPrice*(1-feePct))-ship : null;
-    const profit = net!==null ? net-cost : null;
-    const sLbl   = {draft:'下書き',active:'出品中',sold:'売却済'}[dk.status]||'下書き';
-    const sCls   = {draft:'dsb-draft',active:'dsb-active',sold:'dsb-sold'}[dk.status]||'dsb-draft';
-    return `<div class="dk-item${selDkId===dk.id?' sel':''}" onclick="selDeck('${dk.id}')">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:3px;margin-bottom:3px">
-        <div class="dk-item-name">${dk.name}</div>
-        <span class="dsbdg ${sCls}">${sLbl}</span>
-      </div>
-      <div class="dk-item-meta">
-        <span>${cnt}枚</span>
-        <span>¥${cost.toLocaleString()}</span>
-        ${profit!==null?`<span style="color:${profit>=0?'var(--ok)':'var(--dg)'}">${profit>=0?'+':''}¥${profit.toLocaleString()}</span>`:''}
-      </div>
-    </div>`;
-  }).join('');
-  if (selDkId) renderDkMain(selDkId);
-}
-
-window.selDeck = (id) => { selDkId=id; renderDkList(); };
-
-function dkCost(dk)  { return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId);return s+(i?(i.cost||0)*c.qty:0)},0); }
-function dkCount(dk) { return (dk.cards||[]).reduce((s,c)=>s+c.qty, 0); }
-
-// ★ 検索機能が反応しないエラーの修正（window. に登録）
-window.renderDeckSearch = () => {
-  const el = document.getElementById('dk-srch-results');
-  if (!el) return;
-  const q    = dkSrchQ.toLowerCase();
-  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
-  if (!list.length) {
-    el.innerHTML='<div class="dsc-empty">在庫に商品がありません</div>';
-    return;
-  }
-  el.innerHTML = list.map(item=>{
-    const avail = availStock(item.id);
-    const canAdd = avail > 0;
-    return `<div class="dsr">
-      <div class="dsr-info">
-        <div class="dsr-name">${hl(item.name,q)}</div>
-        <div class="dsr-meta">
-          ¥${(item.cost||0).toLocaleString()} &nbsp;
-          <span class="dsr-avail ${canAdd?'ok':'dg'}">空き在庫 ${avail}枚</span>
-        </div>
-      </div>
-      <button class="dsr-add" onclick="addToDk('${item.id}')" ${!canAdd?'disabled':''}>追加</button>
-    </div>`;
-  }).join('');
-};
-
-window.addToDk = async (itemId) => {
-  if (!selDkId) { toast('デッキを選択してください', true); return; }
-  const dk    = decks.find(d=>d.id===selDkId);
-  if (!dk) return;
-  const avail = availStock(itemId);
-  if (avail <= 0) { toast('在庫が不足しています', true); return; }
-  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
-  const ex    = cards.find(c=>c.itemId===itemId);
-  if (ex) ex.qty += 1;
-  else cards.push({itemId, qty:1});
-  setSyncDot('sync');
-  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards });
-  window.renderDeckSearch();
-  toast('カードを追加しました');
-};
-
-function renderDkMain(id) {
-  const dk   = decks.find(d=>d.id===id);
-  const main = document.getElementById('dk-main');
-  if (!dk) {
-    main.innerHTML='<div class="no-sel"><div class="no-sel-ico">📦</div><p>デッキを選択してください。</p></div>';
-    return;
-  }
-  
-  const activeEl = document.activeElement;
-  const activeId = activeEl ? activeEl.id : null;
-  let sStart = null, sEnd = null;
-  if (activeId && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-    try {
-      if (activeEl.type !== 'number') {
-        sStart = activeEl.selectionStart;
-        sEnd = activeEl.selectionEnd;
-      }
-    } catch(e) {}
-  }
-
-  const cost   = dkCost(dk);
-  const cnt    = dkCount(dk);
-  const sell   = Number(dk.sellPrice)||0;
-  const feePct = (dk.feePercent ?? 10) / 100;
-  const ship   = dk.shippingCost ?? 210;
-  const fee    = sell ? Math.round(sell * feePct) : 0;
-  const net    = sell ? Math.round(sell * (1 - feePct)) - ship : null;
-  const profit = net !== null ? net - cost : null;
-  const pCol   = v => v===null?'':v>=0?'ok':'dg';
-  const discSell    = sell ? Math.round(sell*.9) : 0;
-  const discNet     = discSell ? Math.round(discSell*(1-feePct)) - ship : null;
-  const discProfit  = discNet!==null ? discNet-cost : null;
-
-  main.innerHTML = `
-  <div class="dk-hbar">
-    <input class="dk-name-in" id="dk-inp-name-${id}" value="${dk.name}" oninput="dkNameChange('${id}',this.value)" placeholder="デッキ名">
-    <select class="status-sel" id="dk-inp-status-${id}" onchange="dkStatusChange('${id}',this.value)">
-      <option value="draft"${dk.status==='draft'?' selected':''}>下書き</option>
-      <option value="active"${dk.status==='active'?' selected':''}>出品中</option>
-      <option value="sold"${dk.status==='sold'?' selected':''}>売却済</option>
-    </select>
-    <button class="btn btn-dg btn-sm" onclick="delDeck('${id}')">削除</button>
-  </div>
-  <div class="dk-stats">
-    <div class="stat-box"><div class="stat-lbl">枚数</div><div class="stat-val">${cnt}枚</div></div>
-    <div class="stat-box"><div class="stat-lbl">仕入れ原価</div><div class="stat-val ac">¥${cost.toLocaleString()}</div></div>
-    <div class="stat-box"><div class="stat-lbl">手取り</div><div class="stat-val">${net!==null?'¥'+net.toLocaleString():'—'}</div></div>
-    <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${pCol(profit)}">${profit!==null?(profit>=0?'+':'')+`¥${profit.toLocaleString()}`:'—'}</div></div>
-  </div>
-  <div class="dk-body">
-    <div class="dk-search-col">
-      <div class="dsc-head">
-        <div class="dsc-htitle">商品を追加</div>
-        <div class="dsc-srch">
-          <div class="dsc-srch-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg></div>
-          <input class="dsc-srch-in" id="dk-inp-srch-${id}" placeholder="商品名で検索…" value="${dkSrchQ}" oninput="dkSrchQ=this.value;window.renderDeckSearch()">
-        </div>
-      </div>
-      <div class="dsc-results" id="dk-srch-results"></div>
-    </div>
-    <div class="dk-card-area">
-      <div class="dk-ca-head">
-        <span class="ptitle">収録カード</span>
-        <span style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--ac)">¥${cost.toLocaleString()} / ${cnt}枚</span>
-      </div>
-      <div class="dk-ca-scroll" id="dk-ca-${id}">${buildCardGrid(dk)}</div>
-    </div>
-  </div>
-  <div class="dk-bottom">
-    <div class="price-section">
-      <div class="price-box">
-        <div class="pf"><label>販売価格（円）</label><input type="number" id="dk-inp-sell-${id}" value="${sell||''}" placeholder="例: 5000" min="0" oninput="dkSellChange('${id}',this.value)"></div>
-        <div class="pf"><label>サイト手数料 (%)</label><input type="number" id="dk-inp-fee-${id}" value="${dk.feePercent ?? 10}" placeholder="10" min="0" oninput="dkFeeChange('${id}',this.value)"></div>
-        <div class="pf"><label>送料（円）</label><input type="number" id="dk-inp-ship-${id}" value="${dk.shippingCost ?? 210}" placeholder="210" min="0" oninput="dkShipChange('${id}',this.value)"></div>
-      </div>
-      <div class="profit-box">
-        <div class="prow"><span class="lbl">販売価格</span><span class="val">${sell?'¥'+sell.toLocaleString():'—'}</span></div>
-        <div class="prow"><span class="lbl">手数料 (${dk.feePercent ?? 10}%)</span><span class="val dg">${sell?`−¥${fee.toLocaleString()}`:'—'}</span></div>
-        <div class="prow"><span class="lbl">送料</span><span class="val dg">−¥${ship.toLocaleString()}</span></div>
-        <hr class="phr">
-        <div class="prow"><span class="lbl">手取り金額</span><span class="val ac pbig">${net!==null?'¥'+net.toLocaleString():'—'}</span></div>
-        <div class="prow"><span class="lbl">仕入れ原価</span><span class="val dg">${cost>0?`−¥${cost.toLocaleString()}`:'—'}</span></div>
-        <hr class="phr">
-        <div class="prow"><span class="lbl" style="font-weight:700">利益</span><span class="val ${pCol(profit)} pbig">${profit!==null?(profit>=0?'+':'')+`¥${profit.toLocaleString()}`:'—'}</span></div>
-      </div>
-    </div>
-    ${sell?`<div class="profit-box"><div class="prow"><span class="lbl">10%引き (¥${discSell.toLocaleString()}) 後利益</span><span class="val ${pCol(discProfit)} pbig">${discProfit!==null?(discProfit>=0?'+':'')+`¥${discProfit.toLocaleString()}`:'—'}</span></div></div>`:''}
-    <div class="memo-box"><textarea id="dk-inp-memo-${id}" rows="2" placeholder="メモ…" oninput="dkMemoChange('${id}',this.value)">${dk.memo||''}</textarea></div>
-  </div>`;
-
-  if (activeId) {
-    setTimeout(() => {
-      const el = document.getElementById(activeId);
-      if (el) {
-        el.focus();
-        if (sStart !== null) {
-          try { el.setSelectionRange(sStart, sEnd); } catch(e) {}
-        }
-      }
-    }, 10);
-  }
-
-  window.renderDeckSearch();
-}
-
-function buildCardGrid(dk) {
-  if (!(dk.cards||[]).length) {
-    return `<div class="dk-ca-empty"><div class="dk-ca-empty-ico">🃏</div><p>カードがありません。<br>上の検索から追加してください。</p></div>`;
-  }
-  const groups = new Map();
-  (dk.cards||[]).forEach(c => {
-    const item = items.find(i=>i.id===c.itemId);
-    if (!item) return;
-    if (!groups.has(item.name)) groups.set(item.name, {item, qty:c.qty, itemId:c.itemId});
-    else groups.get(item.name).qty += c.qty;
-  });
-  const rows = Array.from(groups.values()).map(g => {
-    const imgHtml = g.item.image 
-      ? `<div class="dk-thumb-ph" style="background-image:url(${g.item.image});"></div>`
-      : `<div class="dk-thumb-ph">🃏</div>`;
-    const thumbs = Array.from({length:g.qty}).map(()=>
-      `<div class="dk-thumb">
-        ${imgHtml}
-        <button class="dk-thumb-rm" onclick="event.stopPropagation();dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
-      </div>`
-    ).join('');
-    return `<div class="dk-cg">
-      <div class="dk-cg-row">
-        <span class="dk-cg-name">${g.item.name}</span>
-        <div class="dk-cg-ctrl">
-          <button class="qb" onclick="dkChgQ('${dk.id}','${g.itemId}',-1)">−</button>
-          <span class="dk-cg-qty">${g.qty}枚</span>
-          <button class="qb" onclick="dkChgQ('${dk.id}','${g.itemId}',1)">＋</button>
-          <span class="dk-cg-price">¥${((g.item.cost||0)*g.qty).toLocaleString()}</span>
-          <button class="qb" style="color:var(--dg);border-color:rgba(255,107,107,.25)" onclick="dkRmCard('${dk.id}','${g.itemId}')">✕</button>
-        </div>
-      </div>
-      <div class="dk-thumbs">${thumbs}</div>
-      <div class="dk-cg-sep"></div>
-    </div>`;
-  }).join('');
-  const cost = dkCost(dk), cnt = dkCount(dk);
-  return `<div class="dk-card-grid">${rows}</div>
-    <div class="dk-ca-footer"><span class="dk-ca-fl">${groups.size}種類 / ${cnt}枚</span><span class="dk-ca-fr">¥${cost.toLocaleString()}</span></div>`;
-}
-
-window.dkChgQ = async (dkId, itemId, delta) => {
-  const dk    = decks.find(d=>d.id===dkId);
-  if (!dk) return;
-  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
-  const c     = cards.find(c=>c.itemId===itemId);
-  if (!c) return;
-  if (delta > 0) {
-    const avail = availStock(itemId);
-    if (avail <= 0) { toast('在庫が不足しています', true); return; }
-    c.qty += 1;
-  } else {
-    if (c.qty - 1 <= 0) { await dkRmCard(dkId, itemId); return; }
-    c.qty -= 1;
-  }
-  setSyncDot('sync');
-  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
-};
-
-window.dkRmCard = async (dkId, itemId) => {
-  const dk    = decks.find(d=>d.id===dkId);
-  if (!dk) return;
-  const cards = (dk.cards||[]).filter(c=>c.itemId!==itemId);
-  setSyncDot('sync');
-  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
-  toast('カードを削除しました');
-};
-
-const mkDebounce = (fn, ms=600) => {
-  let t;
-  return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
-};
-
-window.dkNameChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { name:v });
-  renderDkList();
-}, 500);
-
-window.dkStatusChange = async (id, v) => {
-  const updateData = { status: v };
-  if (v === 'sold') updateData.soldAt = Date.now();
-  await updateDoc(doc(db,'users',uid,'decks',id), updateData);
-};
-
-window.dkSellChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v);
-  if (isNaN(num) || num < 0) num = 0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice: num });
-}, 700);
-
-window.dkFeeChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v);
-  if (isNaN(num) || num < 0) num = 0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent: num });
-}, 700);
-
-window.dkShipChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v);
-  if (isNaN(num) || num < 0) num = 0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost: num });
-}, 700);
-
-window.dkMemoChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(db,'users',uid,'decks',id), { memo:v });
-}, 800);
-
-window.delDeck = async (id) => {
-  const dk = decks.find(d=>d.id===id);
-  if (!confirm(`「${dk?.name}」を削除しますか？`)) return;
-  setSyncDot('sync');
-  await deleteDoc(doc(db,'users',uid,'decks',id));
-  if (selDkId === id) selDkId = null;
-  toast('デッキを削除しました');
-};
-
-window.openModal  = (id) => document.getElementById(id).classList.add('on');
-window.closeModal = (id) => document.getElementById(id).classList.remove('on');
-document.querySelectorAll('.overlay').forEach(o =>
-  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); })
-);
-
-let _tt = null;
-function toast(msg, isErr=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'toast' + (isErr?' err':'');
-  t.classList.add('show');
-  clearTimeout(_tt);
-  _tt = setTimeout(()=>t.classList.remove('show'), 2600);
-}
 </script>
 </body>
 </html>

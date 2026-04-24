@@ -82,7 +82,7 @@ a{color:inherit;text-decoration:none}
 .pg.on{display:flex}
 
 /* ═══════════════════════════════
-   PAGE: REPORT (NEW!)
+   PAGE: REPORT
 ═══════════════════════════════ */
 #pg-report{padding:20px; overflow-y:auto; background:var(--bg);}
 .rep-header { margin-bottom: 20px; }
@@ -632,7 +632,7 @@ function startListeners() {
     renderGrid();
     renderDeckSearch();
     updateBadges();
-    renderReport(); // ★データ更新時にレポートも更新
+    renderReport();
     setSyncDot('ok');
   }, () => setSyncDot('err'));
 
@@ -642,7 +642,7 @@ function startListeners() {
     renderDkList();
     renderGrid(); 
     updateBadges();
-    renderReport(); // ★データ更新時にレポートも更新
+    renderReport();
     setSyncDot('ok');
   }, () => setSyncDot('err'));
 }
@@ -651,7 +651,6 @@ function setSyncDot(s) {
   document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:'');
 }
 
-// ★ レポート用タブ追加
 window.goPage = (p) => {
   ['inv','deck','report'].forEach(x=>{
     const pg = document.getElementById('pg-'+x);
@@ -663,15 +662,12 @@ window.goPage = (p) => {
   if (p==='report') { renderReport(); }
 };
 
-// ★ レポートの計算＆描画機能
 function renderReport() {
-  // 在庫資産の計算
   let totalAsset = 0;
   items.forEach(item => {
     totalAsset += (item.stock || 0) * (item.cost || 0);
   });
 
-  // 売上の計算（statusがsoldのものだけ）
   let totalSales = 0;
   let totalFees = 0;
   let totalProfit = 0;
@@ -696,7 +692,6 @@ function renderReport() {
 
   const margin = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) : 0;
 
-  // 画面に反映
   document.getElementById('rep-asset').textContent = `¥${totalAsset.toLocaleString()}`;
   document.getElementById('rep-sales').textContent = `¥${totalSales.toLocaleString()}`;
   document.getElementById('rep-fees').textContent = `¥${totalFees.toLocaleString()}`;
@@ -1158,12 +1153,12 @@ function renderDkMain(id) {
         <div class="pf"><label>送料（円）</label><input type="number" id="dk-inp-ship-${id}" value="${dk.shippingCost ?? 210}" placeholder="210" min="0" oninput="dkShipChange('${id}',this.value)"></div>
       </div>
       <div class="profit-box">
-        <div class="prow"><span class="lbl">販売価格</span><span class="val">¥${sell?sell.toLocaleString():'—'}</span></div>
+        <div class="prow"><span class="lbl">販売価格</span><span class="val">${sell?'¥'+sell.toLocaleString():'—'}</span></div>
         <div class="prow"><span class="lbl">手数料 (${dk.feePercent ?? 10}%)</span><span class="val dg">${sell?`−¥${fee.toLocaleString()}`:'—'}</span></div>
         <div class="prow"><span class="lbl">送料</span><span class="val dg">−¥${ship.toLocaleString()}</span></div>
         <hr class="phr">
         <div class="prow"><span class="lbl">手取り金額</span><span class="val ac pbig">${net!==null?'¥'+net.toLocaleString():'—'}</span></div>
-        <div class="prow"><span class="lbl">仕入れ原価</span><span class="val dg">−¥${cost.toLocaleString()}</span></div>
+        <div class="prow"><span class="lbl">仕入れ原価</span><span class="val dg">${cost>0?`−¥${cost.toLocaleString()}`:'—'}</span></div>
         <hr class="phr">
         <div class="prow"><span class="lbl" style="font-weight:700">利益</span><span class="val ${pCol(profit)} pbig">${profit!==null?(profit>=0?'+':'')+`¥${profit.toLocaleString()}`:'—'}</span></div>
       </div>
@@ -1269,8 +1264,11 @@ window.dkStatusChange = async (id, v) => {
   await updateDoc(doc(db,'users',uid,'decks',id), { status:v });
 };
 
+// ★ ここがエラーの原因でした（doc(doc(...)) を doc(...) に修正しました）
 window.dkSellChange = mkDebounce(async (id, v) => {
-  await updateDoc(doc(doc(db,'users',uid,'decks',id)), { sellPrice:parseInt(v)||0 });
+  let num = parseInt(v);
+  if (isNaN(num) || num < 0) num = 0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice: num });
 }, 700);
 
 window.dkFeeChange = mkDebounce(async (id, v) => {

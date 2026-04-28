@@ -110,6 +110,7 @@ a{color:inherit;text-decoration:none}
 .inv-scroll::-webkit-scrollbar{width:4px}.inv-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px}
 .icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;animation:cIn .18s ease}
+@keyframes cIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 .icard-img{width:100%;height:110px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
 .icard-name{font-family:var(--fd);font-weight:700;font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;min-height:36px;}
 .icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
@@ -168,7 +169,7 @@ a{color:inherit;text-decoration:none}
 .dsr-name{font-size:13px;font-weight:700;font-family:var(--fd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0}
 
-/* ★★★ ビジュアルデッキグリッド対応 ★★★ */
+/* ★★★ ビジュアルデッキグリッド対応（横8列固定） ★★★ */
 .dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
 .dk-ca-head{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
 .dk-ca-scroll{flex:1;overflow-y:auto;padding:14px; align-content:start;}
@@ -176,17 +177,17 @@ a{color:inherit;text-decoration:none}
 
 .visual-deck-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
-  gap: 6px;
-  padding: 10px;
+  grid-template-columns: repeat(8, 1fr); /* 常に8列をキープ！ */
+  gap: 3px;
+  padding: 8px;
   background: var(--sf);
   border: 1px solid var(--bd);
   border-radius: var(--rs);
-  min-height: 200px;
   align-content: start;
+  min-height: 120px;
 }
 @media(min-width: 600px) {
-  .visual-deck-grid { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+  .visual-deck-grid { gap: 6px; padding: 12px; }
 }
 .vd-card {
   position: relative;
@@ -197,27 +198,33 @@ a{color:inherit;text-decoration:none}
   background-size: cover;
   background-position: center;
   cursor: grab;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .vd-card:active { cursor: grabbing; }
 .vd-card.fallback {
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px; color: var(--txm); text-align: center; padding: 2px; word-break: break-all; font-weight:bold;
+  font-size: 8px; color: var(--txm); text-align: center; padding: 2px; word-break: break-all; font-weight:bold; line-height: 1.2;
 }
-.vd-remove {
+
+/* ＋と×ボタンを並べる */
+.vd-actions {
   position: absolute;
-  top: -6px; right: -6px;
-  width: 20px; height: 20px;
-  background: var(--dg);
-  color: #fff;
+  top: -5px; right: -5px;
+  display: flex; gap: 2px;
+  z-index: 5;
+}
+.vd-btn {
+  width: 18px; height: 18px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: bold;
-  cursor: pointer;
-  z-index: 5;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  font-size: 13px; font-weight: bold;
+  cursor: pointer; border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  padding: 0; line-height: 1;
 }
-.sortable-ghost { opacity: 0.4; }
+.vd-btn.add { background: var(--ac); color: #000; }
+.vd-btn.rm { background: var(--dg); color: #fff; }
+.sortable-ghost { opacity: 0.3; transform: scale(0.95); }
 
 .dk-bottom{padding:14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:12px;max-height:38vh;overflow-y:auto}
 .price-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -473,7 +480,7 @@ let unsubItems = null, unsubDecks = null;
 let dkSrchQ = '';
 let currentItemImage = null;
 
-// ★データ構造を「1枚1枚独立」に変換する裏技★
+// データ構造を「1枚1枚独立」に変換する関数
 function getFlatCards(dk) {
   let flat = [];
   (dk.cards||[]).forEach(c => {
@@ -482,7 +489,6 @@ function getFlatCards(dk) {
   return flat;
 }
 
-// Auth Functions
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
   document.getElementById('sec-login').classList.toggle('on', t==='login');
@@ -552,7 +558,6 @@ window.goPage = (p) => {
   if (p==='report') { window.renderReport(); }
 };
 
-// Report logic
 window.renderReport = () => {
   const monthSet = new Set();
   decks.forEach(dk => {
@@ -601,7 +606,6 @@ window.renderReport = () => {
   document.getElementById('rep-margin').textContent = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) + '%' : '0%';
 };
 
-// Inventory logic
 window.renderGrid = () => {
   const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
   const grid = document.getElementById('inv-grid');
@@ -612,24 +616,17 @@ window.renderGrid = () => {
     return;
   }
   grid.innerHTML = list.map(item => {
-    // 修正: usedInDecksの計算
     const usedCount = decks.reduce((s,dk) => s + (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0), 0);
     const avail = Math.max(0, (item.stock||0) - usedCount);
-    const usage = decks.flatMap(dk=>{
-        const cnt = (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0);
-        return cnt>0 ? [{name:dk.name, qty:cnt}] : [];
-    });
-    
     const imgHtml = item.image ? `<div class="icard-img" style="background-image:url(${item.image})"></div>` : `<div class="icard-img">🃏</div>`;
 
-    return `<div class="icard ${usage.length?'used':''}">
+    return `<div class="icard ${usedCount>0?'used':''}">
       ${imgHtml}
       <div class="icard-name">${hl(item.name,q)}</div>
       <div class="icard-row">
         <span class="icard-cost">¥${(item.cost||0).toLocaleString()}</span>
         <span class="stk-bdg ${avail===0?'stk-empty':'stk-ok'}">残${avail}枚</span>
       </div>
-      <div class="deck-tags">${usage.map(u=>`<span class="dk-tag">${u.name}×${u.qty}</span>`).join('')}</div>
       <div class="icard-qty">
         <button class="qb" onclick="window.chgStock('${item.id}',-1)">−</button>
         <span class="qn">${item.stock||0}</span>
@@ -746,7 +743,7 @@ window.renderDeckSearch = () => {
 window.addToDk = async (itemId) => {
   const dk = decks.find(d=>d.id===selDkId); if(!dk) return;
   let flat = getFlatCards(dk);
-  flat.push({itemId, qty:1}); // 1枚独立のカードとして末尾に追加
+  flat.push({itemId, qty:1}); 
   setSyncDot('sync');
   await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards: flat });
   window.renderDeckSearch();
@@ -755,7 +752,7 @@ window.addToDk = async (itemId) => {
 window.rmDkCardIdx = async (dkId, index) => {
   const dk = decks.find(d=>d.id===dkId); if(!dk) return;
   let flat = getFlatCards(dk);
-  flat.splice(index, 1); // インデックス指定で1枚だけ正確に消す
+  flat.splice(index, 1); 
   setSyncDot('sync');
   await updateDoc(doc(db,'users',uid,'decks',dkId), { cards: flat });
 };
@@ -770,7 +767,6 @@ function renderDkMain(id) {
   const net = sell - fee - ship;
   const profit = sell ? net - cost : 0;
   
-  // 状態の正規化（旧データ構造の統合）
   const flatCards = getFlatCards(dk);
 
   document.getElementById('dk-main').innerHTML = `
@@ -798,24 +794,25 @@ function renderDkMain(id) {
       <div class="dk-card-area">
         <div class="dk-ca-scroll">
           <div id="deck-grid-${id}" class="visual-deck-grid">
-            ${flatCards.map((c, index) => {
+            ${flatCards.length > 0 ? flatCards.map((c, index) => {
               const item = items.find(i=>i.id===c.itemId);
-              if(!item) return '';
-              if (item.image) {
-                return `<div class="vd-card" data-id="${item.id}" style="background-image:url(${item.image})">
-                          <div class="vd-remove" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</div>
-                        </div>`;
-              } else {
-                return `<div class="vd-card fallback" data-id="${item.id}">
-                          ${item.name}
-                          <div class="vd-remove" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</div>
-                        </div>`;
-              }
-            }).join('') || '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--txm);font-size:12px;">検索からカードを追加してください<br>追加したカードはドラッグで並び替えできます</div>'}
+              if(!item) return `<div class="vd-card fallback" data-id="${c.itemId}">削除済<div class="vd-actions"><button class="vd-btn rm" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</button></div></div>`;
+              const bg = item.image ? `background-image:url(${item.image})` : '';
+              const fallbackTxt = item.image ? '' : item.name;
+              return `
+                <div class="vd-card ${item.image?'':'fallback'}" data-id="${item.id}" style="${bg}">
+                  ${fallbackTxt}
+                  <div class="vd-actions">
+                    <button class="vd-btn add" onclick="event.stopPropagation(); window.addToDk('${item.id}')">＋</button>
+                    <button class="vd-btn rm" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</button>
+                  </div>
+                </div>`;
+            }).join('') : '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--txm);font-size:12px;">商品検索からカードを追加してください<br>追加後は長押し＆スワイプで並び替えできます</div>'}
           </div>
         </div>
       </div>
-      </div>
+
+    </div>
     <div class="dk-bottom">
       <div class="price-section">
         <div class="price-box">
@@ -832,16 +829,18 @@ function renderDkMain(id) {
   `;
   window.renderDeckSearch();
 
-  // ★Sortable.jsを使ったドラッグ＆ドロップの有効化★
+  // ドラッグ＆ドロップ機能の有効化
   setTimeout(() => {
     const gridEl = document.getElementById(`deck-grid-${id}`);
-    if (gridEl && gridEl.children.length > 0 && !gridEl.querySelector('.empty')) {
+    if (gridEl && gridEl.children.length > 0 && !gridEl.innerHTML.includes('商品検索から')) {
       Sortable.create(gridEl, {
         animation: 150,
+        filter: '.vd-btn',
+        preventOnFilter: false,
         ghostClass: 'sortable-ghost',
-        delay: 100, // スマホのスクロールとドラッグの誤爆を防ぐ
-        delayOnTouchOnly: true, // スマホのみ長押しでドラッグ開始
-        onEnd: async function (evt) {
+        delay: 150, // スマホ誤爆防止用長押し
+        delayOnTouchOnly: true,
+        onEnd: async function () {
           const newCards = [];
           gridEl.querySelectorAll('.vd-card').forEach(el => {
             newCards.push({ itemId: el.dataset.id, qty: 1 });
@@ -860,7 +859,6 @@ window.delDeck = async (id) => { if(confirm('削除しますか？')) await dele
 
 // Utility
 function dkCost(dk){ return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId); return s+(i?(i.cost||0)*(c.qty||1):0)},0); }
-function dkCount(dk){ return (dk.cards||[]).reduce((s,c)=>s+(c.qty||1), 0); }
 function updateBadges(){ document.getElementById('nb-inv').textContent=items.length; document.getElementById('nb-deck').textContent=decks.length; document.getElementById('inv-cnt').textContent=items.length; document.getElementById('dk-cnt').textContent=decks.length; }
 function hl(t,q){ if(!q) return t; const i=t.toLowerCase().indexOf(q.toLowerCase()); if(i<0) return t; return t.slice(0,i)+`<mark>${t.slice(i,i+q.length)}</mark>`+t.slice(i+q.length); }
 window.openModal = (id) => document.getElementById(id).classList.add('on');

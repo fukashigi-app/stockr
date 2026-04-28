@@ -169,9 +169,8 @@ a{color:inherit;text-decoration:none}
 .dsr-name{font-size:13px;font-weight:700;font-family:var(--fd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0}
 
-/* ★★★ ビジュアルデッキグリッド (共通・スマホベース) ★★★ */
+/* ★★★ ビジュアルデッキグリッド ★★★ */
 .dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
-.dk-ca-head{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
 .dk-ca-scroll{flex:1;overflow-y:auto;padding:14px; align-content:start;}
 .dk-ca-scroll::-webkit-scrollbar{width:4px}.dk-ca-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
@@ -203,7 +202,7 @@ a{color:inherit;text-decoration:none}
   font-size: 8px; color: var(--txm); text-align: center; padding: 2px; word-break: break-all; font-weight:bold; line-height: 1.2;
 }
 
-/* ボタンを並べる */
+/* ＋と×ボタンを並べる */
 .vd-actions {
   position: absolute;
   top: -5px; right: -5px;
@@ -223,19 +222,12 @@ a{color:inherit;text-decoration:none}
 .vd-btn.rm { background: var(--dg); color: #fff; }
 .sortable-ghost { opacity: 0.3; transform: scale(0.95); }
 
-.dk-bottom{padding:14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:12px;max-height:38vh;overflow-y:auto}
-.price-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.price-box{background:var(--sf2);border-radius:var(--rs);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+/* ★★★ 下部パネル（横一列化・スッキリ化） ★★★ */
+.dk-bottom{padding:12px 14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;}
+.price-box{background:var(--sf2);border-radius:var(--rs);padding:10px 14px;display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;}
 .pf{display:flex;flex-direction:column;gap:4px}
 .pf label{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
 .pf input{background:var(--sf3);border:1.5px solid var(--bd);color:var(--tx);padding:9px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;transition:border-color .18s;-webkit-appearance:none;width:100%}
-.profit-box{background:var(--acd2);border:1.5px solid rgba(126,232,162,.12);border-radius:var(--rs);padding:14px;display:flex;flex-direction:column;gap:6px}
-.prow{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
-.prow .val{font-family:var(--fd);font-weight:700}
-.prow .val.ac{color:var(--ac)}.prow .val.ok{color:var(--ok)}.prow .val.dg{color:var(--dg)}
-.phr{border:none;border-top:1px solid var(--bd);margin:4px 0}
-.memo-box textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;resize:none;line-height:1.6;-webkit-appearance:none}
-.no-sel{display:flex;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--txm)}
 
 .btn{padding:10px 16px;border-radius:var(--rs);font-family:var(--fd);font-size:14px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
 .btn-ac{background:var(--ac);color:#07080b}
@@ -267,20 +259,20 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 /* ★★★ PC限定のレスポンシブスタイル ★★★ */
 @media(min-width: 681px) {
   .visual-deck-grid {
-    max-width: 720px; /* PCではカードが広がりすぎないように最大幅を固定 */
-    margin: 0 auto;   /* 中央寄せ */
+    max-width: 720px; 
+    margin: 0 auto;   
     gap: 6px;
     padding: 12px;
   }
   .vd-actions {
-    opacity: 0; /* PCではマウスを乗せるまで非表示にしてスッキリ見せる */
+    opacity: 0; 
     transition: opacity 0.15s;
   }
   .vd-card:hover .vd-actions {
-    opacity: 1; /* マウスホバーで表示 */
+    opacity: 1; 
   }
   .vd-btn {
-    width: 22px; height: 22px; font-size: 14px; /* PCでは少しだけ大きく押しやすく */
+    width: 22px; height: 22px; font-size: 14px; 
   }
 }
 
@@ -309,8 +301,10 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   .dk-card-area { overflow: visible; border-bottom: 2px solid var(--bd); }
   .dk-ca-scroll { overflow: visible; padding-bottom: 20px; }
   
-  .dk-bottom { max-height: none; overflow: visible; padding-bottom: 60px; }
-  .price-section { grid-template-columns: 1fr; }
+  .dk-bottom { overflow: visible; padding-bottom: 60px; }
+  
+  /* スマホでの入力欄のレイアウト調整（横幅が厳しければ少し調整） */
+  .price-box { gap: 8px; padding: 10px; }
 }
 </style>
 </head>
@@ -773,6 +767,25 @@ window.rmDkCardIdx = async (dkId, index) => {
   await updateDoc(doc(db,'users',uid,'decks',dkId), { cards: flat });
 };
 
+// 入力イベントのタイマー（重さ解消＆フォーカス外れ防止）
+const mkDebounce = (fn, ms=600) => {
+  let t;
+  return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
+};
+
+window.dkSellChange = mkDebounce(async (id, v) => {
+  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice: num });
+}, 700);
+window.dkFeeChange = mkDebounce(async (id, v) => {
+  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent: num });
+}, 700);
+window.dkShipChange = mkDebounce(async (id, v) => {
+  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
+  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost: num });
+}, 700);
+
 function renderDkMain(id) {
   const dk = decks.find(d=>d.id===id); if(!dk) return;
   const cost = dkCost(dk);
@@ -830,16 +843,10 @@ function renderDkMain(id) {
 
     </div>
     <div class="dk-bottom">
-      <div class="price-section">
-        <div class="price-box">
-          <div class="pf"><label>販売価格</label><input type="number" value="${sell||''}" oninput="window.dkUpdate('${id}','sellPrice',parseInt(this.value)||0)"></div>
-          <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent ?? 10}" oninput="window.dkUpdate('${id}','feePercent',parseInt(this.value)||0)"></div>
-          <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost ?? 210}" oninput="window.dkUpdate('${id}','shippingCost',parseInt(this.value)||0)"></div>
-        </div>
-        <div class="profit-box">
-          <div class="prow"><span>手取り</span><span class="val ac">¥${sell?net.toLocaleString():'—'}</span></div>
-          <div class="prow"><span>利益</span><span class="val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</span></div>
-        </div>
+      <div class="price-box">
+        <div class="pf"><label>販売価格</label><input type="number" value="${sell||''}" oninput="window.dkSellChange('${id}',this.value)"></div>
+        <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent ?? 10}" oninput="window.dkFeeChange('${id}',this.value)"></div>
+        <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost ?? 210}" oninput="window.dkShipChange('${id}',this.value)"></div>
       </div>
     </div>
   `;

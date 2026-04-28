@@ -152,11 +152,55 @@ a{color:inherit;text-decoration:none}
 .dk-name-in{background:none;border:none;color:var(--tx);font-family:var(--fd);font-size:16px !important;font-weight:700;outline:none;flex:1;min-width:0}
 .status-sel{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:6px;font-family:var(--fb);font-size:13px;outline:none;cursor:pointer}
 
-.dk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
-.stat-box{background:var(--sf2);border-radius:var(--rs);padding:10px 12px}
-.stat-lbl{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.04em;margin-bottom:4px}
-.stat-val{font-family:var(--fd);font-size:14px;font-weight:800}
-.stat-val.ac{color:var(--ac)}.stat-val.ok{color:var(--ok)}.stat-val.dg{color:var(--dg)}
+/* ★★★ スマートな設定バー（横一列に統合） ★★★ */
+.dk-stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--bd);
+  background: var(--sf);
+  align-items: center;
+  flex-shrink: 0;
+}
+.dk-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dk-stat-item label {
+  font-size: 10px;
+  color: var(--txm);
+  font-family: var(--fd);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.dk-stat-val {
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.dk-stat-val.ac { color: var(--ac); }
+.dk-stat-val.ok { color: var(--ok); }
+.dk-stat-val.dg { color: var(--dg); }
+.dk-stat-input {
+  background: var(--sf3);
+  border: 1px solid var(--bd);
+  color: var(--tx);
+  padding: 6px 8px;
+  border-radius: var(--rs);
+  font-size: 14px !important;
+  outline: none;
+  transition: border-color .18s;
+  -webkit-appearance: none;
+  width: 70px;
+  text-align: right;
+  font-family: var(--fd);
+  font-weight: 700;
+}
+.dk-stat-input:focus { border-color: var(--ac); }
 
 .dk-body{display:flex;flex:1;overflow:hidden}
 .dk-search-col{width:260px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
@@ -222,13 +266,6 @@ a{color:inherit;text-decoration:none}
 .vd-btn.rm { background: var(--dg); color: #fff; }
 .sortable-ghost { opacity: 0.3; transform: scale(0.95); }
 
-/* ★★★ 下部パネル（横一列化・スッキリ化） ★★★ */
-.dk-bottom{padding:12px 14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;}
-.price-box{background:var(--sf2);border-radius:var(--rs);padding:10px 14px;display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;}
-.pf{display:flex;flex-direction:column;gap:4px}
-.pf label{font-size:10px;color:var(--txm);font-family:var(--fd);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
-.pf input{background:var(--sf3);border:1.5px solid var(--bd);color:var(--tx);padding:9px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;transition:border-color .18s;-webkit-appearance:none;width:100%}
-
 .btn{padding:10px 16px;border-radius:var(--rs);font-family:var(--fd);font-size:14px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
 .btn-ac{background:var(--ac);color:#07080b}
 .btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}
@@ -259,20 +296,20 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
 /* ★★★ PC限定のレスポンシブスタイル ★★★ */
 @media(min-width: 681px) {
   .visual-deck-grid {
-    max-width: 720px; 
+    max-width: 800px; /* PCではデッキが綺麗に収まるように幅を最適化 */
     margin: 0 auto;   
     gap: 6px;
     padding: 12px;
   }
   .vd-actions {
-    opacity: 0; 
+    opacity: 0; /* PCではマウスを乗せるまでボタンを隠す！ */
     transition: opacity 0.15s;
   }
   .vd-card:hover .vd-actions {
-    opacity: 1; 
+    opacity: 1; /* マウスホバーで表示 */
   }
   .vd-btn {
-    width: 22px; height: 22px; font-size: 14px; 
+    width: 22px; height: 22px; font-size: 14px; /* PCでは少しだけ大きく押しやすく */
   }
 }
 
@@ -292,7 +329,6 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   .dk-scroll { max-height: 200px; }
   
   .dk-main { overflow: visible; }
-  .dk-stats { grid-template-columns: 1fr 1fr; }
   .dk-body { flex-direction: column; overflow: visible; }
   
   .dk-search-col { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
@@ -301,10 +337,9 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   .dk-card-area { overflow: visible; border-bottom: 2px solid var(--bd); }
   .dk-ca-scroll { overflow: visible; padding-bottom: 20px; }
   
-  .dk-bottom { overflow: visible; padding-bottom: 60px; }
-  
-  /* スマホでの入力欄のレイアウト調整（横幅が厳しければ少し調整） */
-  .price-box { gap: 8px; padding: 10px; }
+  /* スマホでの設定バーのレイアウト調整 */
+  .dk-stats-bar { gap: 8px 12px; }
+  .dk-stat-input { width: 60px; }
 }
 </style>
 </head>
@@ -490,6 +525,10 @@ let selDkId = null;
 let unsubItems = null, unsubDecks = null;
 let dkSrchQ = '';
 let currentItemImage = null;
+
+// ★ スクロール位置を記憶する変数 ★
+let lastDkScrollTop = 0;
+let lastWindowScrollTop = 0;
 
 function getFlatCards(dk) {
   let flat = [];
@@ -718,7 +757,6 @@ window.searchMarket = (s) => {
   if(s==='yahoo') window.open(`https://auctions.yahoo.co.jp/search/search?p=${k}`, '_blank');
 };
 
-// Deck logic
 window.newDeck = async () => {
   const ref = await addDoc(collection(db,'users',uid,'decks'), { name:'新規デッキ', status:'draft', cards:[], sellPrice:0, feePercent:10, shippingCost:210, memo:'', createdAt:serverTimestamp() });
   selDkId = ref.id; renderDkList();
@@ -738,6 +776,7 @@ function renderDkList() {
 }
 window.selDeck = (id) => { selDkId=id; renderDkList(); };
 
+// ★ 検索状態がリセットされるバグを修正
 window.renderDeckSearch = () => {
   const el = document.getElementById('dk-srch-results'); if(!el) return;
   const q = dkSrchQ.toLowerCase();
@@ -756,7 +795,6 @@ window.addToDk = async (itemId) => {
   flat.push({itemId, qty:1}); 
   setSyncDot('sync');
   await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards: flat });
-  window.renderDeckSearch();
 };
 
 window.rmDkCardIdx = async (dkId, index) => {
@@ -767,7 +805,6 @@ window.rmDkCardIdx = async (dkId, index) => {
   await updateDoc(doc(db,'users',uid,'decks',dkId), { cards: flat });
 };
 
-// 入力イベントのタイマー（重さ解消＆フォーカス外れ防止）
 const mkDebounce = (fn, ms=600) => {
   let t;
   return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
@@ -788,6 +825,24 @@ window.dkShipChange = mkDebounce(async (id, v) => {
 
 function renderDkMain(id) {
   const dk = decks.find(d=>d.id===id); if(!dk) return;
+  
+  // ★ 再描画直前のスクロール位置とフォーカスを記憶！
+  const scrollEl = document.querySelector('.dk-ca-scroll');
+  if (scrollEl) lastDkScrollTop = scrollEl.scrollTop;
+  lastWindowScrollTop = window.scrollY || document.documentElement.scrollTop;
+
+  const activeEl = document.activeElement;
+  const activeId = activeEl ? activeEl.id : null;
+  let sStart = null, sEnd = null;
+  if (activeId && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+    try {
+      if (activeEl.type !== 'number') {
+        sStart = activeEl.selectionStart;
+        sEnd = activeEl.selectionEnd;
+      }
+    } catch(e) {}
+  }
+
   const cost = dkCost(dk);
   const sell = dk.sellPrice||0;
   const feePct = (dk.feePercent ?? 10) / 100;
@@ -808,15 +863,20 @@ function renderDkMain(id) {
       </select>
       <button class="btn btn-dg btn-sm" onclick="window.delDeck('${id}')">削除</button>
     </div>
-    <div class="dk-stats">
-      <div class="stat-box"><div class="stat-lbl">枚数</div><div class="stat-val">${flatCards.length}枚</div></div>
-      <div class="stat-box"><div class="stat-lbl">原価</div><div class="stat-val ac">¥${cost.toLocaleString()}</div></div>
-      <div class="stat-box"><div class="stat-lbl">手取り</div><div class="stat-val">¥${sell?net.toLocaleString():'—'}</div></div>
-      <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</div></div>
+    
+    <div class="dk-stats-bar">
+      <div class="dk-stat-item"><label>枚数</label><span class="dk-stat-val">${flatCards.length}枚</span></div>
+      <div class="dk-stat-item"><label>原価</label><span class="dk-stat-val ac">¥${cost.toLocaleString()}</span></div>
+      <div class="dk-stat-item"><label>販売価格</label><input type="number" class="dk-stat-input" id="dk-inp-sell-${id}" value="${sell||''}" placeholder="例:5000" oninput="window.dkSellChange('${id}',this.value)"></div>
+      <div class="dk-stat-item"><label>手数料%</label><input type="number" class="dk-stat-input" id="dk-inp-fee-${id}" value="${dk.feePercent ?? 10}" oninput="window.dkFeeChange('${id}',this.value)"></div>
+      <div class="dk-stat-item"><label>送料</label><input type="number" class="dk-stat-input" id="dk-inp-ship-${id}" value="${dk.shippingCost ?? 210}" oninput="window.dkShipChange('${id}',this.value)"></div>
+      <div class="dk-stat-item"><label>手取り</label><span class="dk-stat-val">¥${sell?net.toLocaleString():'—'}</span></div>
+      <div class="dk-stat-item"><label>利益</label><span class="dk-stat-val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</span></div>
     </div>
+
     <div class="dk-body">
       <div class="dk-search-col">
-        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" placeholder="商品検索…" oninput="dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
+        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" id="dk-inp-srch-${id}" value="${dkSrchQ}" placeholder="商品検索…" oninput="dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
         <div class="dsc-results" id="dk-srch-results"></div>
       </div>
       
@@ -842,17 +902,24 @@ function renderDkMain(id) {
       </div>
 
     </div>
-    <div class="dk-bottom">
-      <div class="price-box">
-        <div class="pf"><label>販売価格</label><input type="number" value="${sell||''}" oninput="window.dkSellChange('${id}',this.value)"></div>
-        <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent ?? 10}" oninput="window.dkFeeChange('${id}',this.value)"></div>
-        <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost ?? 210}" oninput="window.dkShipChange('${id}',this.value)"></div>
-      </div>
-    </div>
   `;
   window.renderDeckSearch();
 
+  // ★ 記憶しておいたスクロール位置とフォーカスを一瞬で復元！
   setTimeout(() => {
+    const newScrollEl = document.querySelector('.dk-ca-scroll');
+    if (newScrollEl) newScrollEl.scrollTop = lastDkScrollTop;
+    window.scrollTo(0, lastWindowScrollTop);
+
+    if (activeId) {
+      const el = document.getElementById(activeId);
+      if (el) {
+        el.focus();
+        if (sStart !== null) { try { el.setSelectionRange(sStart, sEnd); } catch(e) {} }
+      }
+    }
+
+    // ドラッグ＆ドロップ機能
     const gridEl = document.getElementById(`deck-grid-${id}`);
     if (gridEl && gridEl.children.length > 0 && !gridEl.innerHTML.includes('商品検索から')) {
       Sortable.create(gridEl, {
@@ -872,7 +939,7 @@ function renderDkMain(id) {
         }
       });
     }
-  }, 50);
+  }, 10);
 }
 
 window.dkUpdate = async (id, key, val) => { const d={}; d[key]=val; await updateDoc(doc(db,'users',uid,'decks',id), d); };

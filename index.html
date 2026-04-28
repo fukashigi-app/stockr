@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STOCKR - トレカ特化型クラウド在庫管理ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  background: #07080b; /* アプリ本体の背景色に統一 */
+  color: #dce5f0;
+  font-family: 'Noto Sans JP', sans-serif;
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 1000px;
+  margin: auto;
+  padding: 80px 20px;
+  text-align: center; /* 全体を中央揃えに */
+}
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 56px;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+h1 span {
+  color: #7ee8a2;
+}
+p.lead {
+  color: #7a88a6;
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+.btn {
+  display: inline-block;
+  padding: 16px 36px;
+  background: #7ee8a2;
+  color: #07080b;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.2s ease; /* アニメーション追加 */
+}
+.btn:hover {
+  background: #6ad48e;
+  transform: translateY(-2px); /* 浮き上がる動き */
+  box-shadow: 0 6px 16px rgba(126, 232, 162, 0.2); /* 光る影 */
+}
+
+/* グリッドレイアウト */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 80px;
+  text-align: left; /* カードの中身は左揃え */
+}
+.card {
+  background: #161b26;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #222b3e; /* 枠線を追加して締める */
+  transition: all 0.2s ease;
+}
+.card:hover {
+  border-color: #7ee8a2; /* ホバーで枠線が光る */
+  transform: translateY(-4px);
+}
+.card-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.card-desc {
+  font-size: 13px;
+  color: #7a88a6;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <h1>STOCK<span>R</span></h1>
+  <p class="lead">カード販売者のための特化型クラウド在庫・利益管理ツール</p>
+
+  <a href="app.html" class="btn">無料で始める</a>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">📦</div>
+      <div class="card-title">在庫管理</div>
+      <div class="card-desc">仕入れ値や枚数をスマホでサクサク登録。現在の手持ち資産を正確に把握できます。</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🃏</div>
+      <div class="card-title">デッキ販売</div>
+      <div class="card-desc">在庫を組み合わせてデッキを作成。メルカリやmagiの相場検索もワンタップ。</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💰</div>
+      <div class="card-title">利益計算</div>
+      <div class="card-desc">各サイトの手数料や送料を差し引いた「本当の手取り額と利益」を自動算出します。</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <div class="card-title">売上分析</div>
+      <div class="card-desc">月ごとの売上総額や純利益率をダッシュボードで可視化。ビジネスの成長を実感できます。</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

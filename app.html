@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>STOCKR — クラウド在庫管理</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <style>
 :root{
@@ -93,7 +94,7 @@ a{color:inherit;text-decoration:none}
 .rep-val.dg { color: var(--dg); }
 
 /* ═══════════════════════════════
-   PAGE: INVENTORY (CART REMOVED)
+   PAGE: INVENTORY
 ═══════════════════════════════ */
 #pg-inv{flex-direction:column}
 .inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;}
@@ -167,19 +168,56 @@ a{color:inherit;text-decoration:none}
 .dsr-name{font-size:13px;font-weight:700;font-family:var(--fd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0}
 
+/* ★★★ ビジュアルデッキグリッド対応 ★★★ */
 .dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
 .dk-ca-head{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--sf)}
-.dk-ca-scroll{flex:1;overflow-y:auto;padding:14px}
-.dk-card-grid{display:flex;flex-direction:column;gap:12px}
-.dk-cg{display:flex;flex-direction:column;gap:6px}
-.dk-cg-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.dk-cg-qty{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--ac);min-width:30px;text-align:center}
-.dk-thumbs{display:flex;flex-wrap:wrap;gap:6px}
-.dk-thumb{position:relative;width:62px;flex-shrink:0}
-.dk-thumb-ph{width:62px;height:86px;border-radius:6px;background:var(--sf2);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--bd);border:2px solid transparent}
-.dk-thumb-rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:var(--dg);border:none;border-radius:4px;color:#fff;font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
-.dk-thumb:hover .dk-thumb-rm{display:flex}
-.dk-ca-footer{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--bd);margin-top:6px}
+.dk-ca-scroll{flex:1;overflow-y:auto;padding:14px; align-content:start;}
+.dk-ca-scroll::-webkit-scrollbar{width:4px}.dk-ca-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+.visual-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 6px;
+  padding: 10px;
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  min-height: 200px;
+  align-content: start;
+}
+@media(min-width: 600px) {
+  .visual-deck-grid { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+}
+.vd-card {
+  position: relative;
+  aspect-ratio: 63 / 88; /* トレカの黄金比 */
+  background-color: var(--sf2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  cursor: grab;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.vd-card:active { cursor: grabbing; }
+.vd-card.fallback {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--txm); text-align: center; padding: 2px; word-break: break-all; font-weight:bold;
+}
+.vd-remove {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 20px; height: 20px;
+  background: var(--dg);
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: bold;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.sortable-ghost { opacity: 0.4; }
 
 .dk-bottom{padding:14px;border-top:1px solid var(--bd);background:var(--sf);flex-shrink:0;display:flex;flex-direction:column;gap:12px;max-height:38vh;overflow-y:auto}
 .price-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -234,14 +272,15 @@ mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-sty
   
   #pg-deck { flex-direction: column; }
   .dk-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
-  .dk-scroll { max-height: 240px; }
+  .dk-scroll { max-height: 200px; }
   
   .dk-main { overflow: visible; }
   .dk-stats { grid-template-columns: 1fr 1fr; }
   .dk-body { flex-direction: column; overflow: visible; }
   
+  /* スマホの時は検索結果エリアを少し小さくして、デッキグリッドを見やすくする */
   .dk-search-col { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
-  .dsc-results { max-height: 240px; }
+  .dsc-results { max-height: 180px; }
   
   .dk-card-area { overflow: visible; border-bottom: 2px solid var(--bd); }
   .dk-ca-scroll { overflow: visible; padding-bottom: 20px; }
@@ -434,6 +473,15 @@ let unsubItems = null, unsubDecks = null;
 let dkSrchQ = '';
 let currentItemImage = null;
 
+// ★データ構造を「1枚1枚独立」に変換する裏技★
+function getFlatCards(dk) {
+  let flat = [];
+  (dk.cards||[]).forEach(c => {
+    for(let i=0; i<(c.qty||1); i++) flat.push({itemId: c.itemId, qty: 1});
+  });
+  return flat;
+}
+
 // Auth Functions
 window.authTab = (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
@@ -564,8 +612,14 @@ window.renderGrid = () => {
     return;
   }
   grid.innerHTML = list.map(item => {
-    const avail = Math.max(0, (item.stock||0) - decks.reduce((s,dk)=>s+((dk.cards||[]).find(c=>c.itemId===item.id)?.qty||0),0));
-    const usage = decks.flatMap(dk=>{const c=(dk.cards||[]).find(c=>c.itemId===item.id);return c?[{name:dk.name,qty:c.qty}]:[]});
+    // 修正: usedInDecksの計算
+    const usedCount = decks.reduce((s,dk) => s + (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0), 0);
+    const avail = Math.max(0, (item.stock||0) - usedCount);
+    const usage = decks.flatMap(dk=>{
+        const cnt = (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0);
+        return cnt>0 ? [{name:dk.name, qty:cnt}] : [];
+    });
+    
     const imgHtml = item.image ? `<div class="icard-img" style="background-image:url(${item.image})"></div>` : `<div class="icard-img">🃏</div>`;
 
     return `<div class="icard ${usage.length?'used':''}">
@@ -600,7 +654,7 @@ window.openItemModal = (id) => {
   currentItemImage = item?.image || null;
   const pv = document.getElementById('item-img-preview');
   pv.style.backgroundImage = currentItemImage ? `url(${currentItemImage})` : 'none';
-  pv.innerHTML = currentItemImage ? '' : '📱 タップして画像を選択・撮影';
+  pv.innerHTML = currentItemImage ? '' : '📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはCtrl+V可)</span>';
   window.openModal('modal-item');
 };
 
@@ -619,6 +673,7 @@ window.handleImageUpload = (e) => {
       currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
       const pv = document.getElementById('item-img-preview');
       pv.style.backgroundImage = `url(${currentItemImage})`; pv.innerHTML = '';
+      toast('画像を読み込みました！');
     };
     img.src = event.target.result;
   };
@@ -681,7 +736,8 @@ window.renderDeckSearch = () => {
   const q = dkSrchQ.toLowerCase();
   const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
   el.innerHTML = list.map(item=>{
-    const avail = Math.max(0, (item.stock||0) - decks.reduce((s,dk)=>s+((dk.cards||[]).find(c=>c.itemId===item.id)?.qty||0),0));
+    const usedCount = decks.reduce((s,dk) => s + (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0), 0);
+    const avail = Math.max(0, (item.stock||0) - usedCount);
     return `<div class="dsr"><div class="dsr-info"><div class="dsr-name">${item.name}</div><div style="font-size:10px;color:var(--txm)">在庫:${avail}</div></div>
       <button class="dsr-add" onclick="window.addToDk('${item.id}')" ${avail<=0?'disabled':''}>追加</button></div>`;
   }).join('');
@@ -689,19 +745,33 @@ window.renderDeckSearch = () => {
 
 window.addToDk = async (itemId) => {
   const dk = decks.find(d=>d.id===selDkId); if(!dk) return;
-  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
-  const ex = cards.find(c=>c.itemId===itemId);
-  if(ex) ex.qty++; else cards.push({itemId, qty:1});
-  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards });
+  let flat = getFlatCards(dk);
+  flat.push({itemId, qty:1}); // 1枚独立のカードとして末尾に追加
+  setSyncDot('sync');
+  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards: flat });
+  window.renderDeckSearch();
+};
+
+window.rmDkCardIdx = async (dkId, index) => {
+  const dk = decks.find(d=>d.id===dkId); if(!dk) return;
+  let flat = getFlatCards(dk);
+  flat.splice(index, 1); // インデックス指定で1枚だけ正確に消す
+  setSyncDot('sync');
+  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards: flat });
 };
 
 function renderDkMain(id) {
   const dk = decks.find(d=>d.id===id); if(!dk) return;
   const cost = dkCost(dk);
   const sell = dk.sellPrice||0;
-  const fee = Math.round(sell * (dk.feePercent/100));
-  const net = sell - fee - dk.shippingCost;
-  const profit = net - cost;
+  const feePct = (dk.feePercent ?? 10) / 100;
+  const fee = Math.round(sell * feePct);
+  const ship = dk.shippingCost ?? 210;
+  const net = sell - fee - ship;
+  const profit = sell ? net - cost : 0;
+  
+  // 状態の正規化（旧データ構造の統合）
+  const flatCards = getFlatCards(dk);
 
   document.getElementById('dk-main').innerHTML = `
     <div class="dk-hbar">
@@ -714,58 +784,83 @@ function renderDkMain(id) {
       <button class="btn btn-dg btn-sm" onclick="window.delDeck('${id}')">削除</button>
     </div>
     <div class="dk-stats">
+      <div class="stat-box"><div class="stat-lbl">枚数</div><div class="stat-val">${flatCards.length}枚</div></div>
       <div class="stat-box"><div class="stat-lbl">原価</div><div class="stat-val ac">¥${cost.toLocaleString()}</div></div>
-      <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${profit>=0?'ok':'dg'}">¥${profit.toLocaleString()}</div></div>
+      <div class="stat-box"><div class="stat-lbl">手取り</div><div class="stat-val">¥${sell?net.toLocaleString():'—'}</div></div>
+      <div class="stat-box"><div class="stat-lbl">利益</div><div class="stat-val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</div></div>
     </div>
     <div class="dk-body">
       <div class="dk-search-col">
-        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" placeholder="検索…" oninput="dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
+        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" placeholder="商品検索…" oninput="dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
         <div class="dsc-results" id="dk-srch-results"></div>
       </div>
+      
       <div class="dk-card-area">
-        <div class="dk-ca-scroll">${buildCardGrid(dk)}</div>
+        <div class="dk-ca-scroll">
+          <div id="deck-grid-${id}" class="visual-deck-grid">
+            ${flatCards.map((c, index) => {
+              const item = items.find(i=>i.id===c.itemId);
+              if(!item) return '';
+              if (item.image) {
+                return `<div class="vd-card" data-id="${item.id}" style="background-image:url(${item.image})">
+                          <div class="vd-remove" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</div>
+                        </div>`;
+              } else {
+                return `<div class="vd-card fallback" data-id="${item.id}">
+                          ${item.name}
+                          <div class="vd-remove" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</div>
+                        </div>`;
+              }
+            }).join('') || '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--txm);font-size:12px;">検索からカードを追加してください<br>追加したカードはドラッグで並び替えできます</div>'}
+          </div>
+        </div>
       </div>
-    </div>
+      </div>
     <div class="dk-bottom">
       <div class="price-section">
         <div class="price-box">
           <div class="pf"><label>販売価格</label><input type="number" value="${sell||''}" oninput="window.dkUpdate('${id}','sellPrice',parseInt(this.value)||0)"></div>
-          <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent}" oninput="window.dkUpdate('${id}','feePercent',parseInt(this.value)||0)"></div>
-          <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost}" oninput="window.dkUpdate('${id}','shippingCost',parseInt(this.value)||0)"></div>
+          <div class="pf"><label>手数料%</label><input type="number" value="${dk.feePercent ?? 10}" oninput="window.dkUpdate('${id}','feePercent',parseInt(this.value)||0)"></div>
+          <div class="pf"><label>送料</label><input type="number" value="${dk.shippingCost ?? 210}" oninput="window.dkUpdate('${id}','shippingCost',parseInt(this.value)||0)"></div>
         </div>
         <div class="profit-box">
-          <div class="prow"><span>手取り</span><span class="val ac">¥${net.toLocaleString()}</span></div>
-          <div class="prow"><span>利益</span><span class="val ${profit>=0?'ok':'dg'}">¥${profit.toLocaleString()}</span></div>
+          <div class="prow"><span>手取り</span><span class="val ac">¥${sell?net.toLocaleString():'—'}</span></div>
+          <div class="prow"><span>利益</span><span class="val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</span></div>
         </div>
       </div>
     </div>
   `;
   window.renderDeckSearch();
-}
 
-function buildCardGrid(dk) {
-  return `<div class="dk-card-grid">` + (dk.cards||[]).map(c=>{
-    const item = items.find(i=>i.id===c.itemId); if(!item) return '';
-    const imgHtml = item.image ? `<div class="dk-thumb-ph" style="background-image:url(${item.image})"></div>` : `<div class="dk-thumb-ph">🃏</div>`;
-    return `<div class="dk-cg"><div class="dk-cg-row"><span>${item.name}</span><div class="dk-cg-ctrl">
-      <button class="qb" onclick="window.dkChgQ('${dk.id}','${item.id}',-1)">−</button><span class="dk-cg-qty">${c.qty}</span><button class="qb" onclick="window.dkChgQ('${dk.id}','${item.id}',1)">＋</button>
-    </div></div><div class="dk-thumbs">${Array(c.qty).fill(`<div class="dk-thumb">${imgHtml}</div>`).join('')}</div></div>`;
-  }).join('') + `</div>`;
+  // ★Sortable.jsを使ったドラッグ＆ドロップの有効化★
+  setTimeout(() => {
+    const gridEl = document.getElementById(`deck-grid-${id}`);
+    if (gridEl && gridEl.children.length > 0 && !gridEl.querySelector('.empty')) {
+      Sortable.create(gridEl, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        delay: 100, // スマホのスクロールとドラッグの誤爆を防ぐ
+        delayOnTouchOnly: true, // スマホのみ長押しでドラッグ開始
+        onEnd: async function (evt) {
+          const newCards = [];
+          gridEl.querySelectorAll('.vd-card').forEach(el => {
+            newCards.push({ itemId: el.dataset.id, qty: 1 });
+          });
+          setSyncDot('sync');
+          await updateDoc(doc(db,'users',uid,'decks',id), { cards: newCards });
+        }
+      });
+    }
+  }, 50);
 }
 
 window.dkUpdate = async (id, key, val) => { const d={}; d[key]=val; await updateDoc(doc(db,'users',uid,'decks',id), d); };
 window.dkStatusChange = async (id, v) => { const d={status:v}; if(v==='sold') d.soldAt=Date.now(); await updateDoc(doc(db,'users',uid,'decks',id), d); };
-window.dkChgQ = async (dkId, itemId, delta) => {
-  const dk = decks.find(d=>d.id===dkId); if(!dk) return;
-  const cards = JSON.parse(JSON.stringify(dk.cards||[]));
-  const c = cards.find(c=>c.itemId===itemId); if(!c) return;
-  c.qty += delta; if(c.qty<=0) cards.splice(cards.indexOf(c),1);
-  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards });
-};
 window.delDeck = async (id) => { if(confirm('削除しますか？')) await deleteDoc(doc(db,'users',uid,'decks',id)); };
 
 // Utility
-function dkCost(dk){ return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId); return s+(i?(i.cost||0)*c.qty:0)},0); }
+function dkCost(dk){ return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId); return s+(i?(i.cost||0)*(c.qty||1):0)},0); }
+function dkCount(dk){ return (dk.cards||[]).reduce((s,c)=>s+(c.qty||1), 0); }
 function updateBadges(){ document.getElementById('nb-inv').textContent=items.length; document.getElementById('nb-deck').textContent=decks.length; document.getElementById('inv-cnt').textContent=items.length; document.getElementById('dk-cnt').textContent=decks.length; }
 function hl(t,q){ if(!q) return t; const i=t.toLowerCase().indexOf(q.toLowerCase()); if(i<0) return t; return t.slice(0,i)+`<mark>${t.slice(i,i+q.length)}</mark>`+t.slice(i+q.length); }
 window.openModal = (id) => document.getElementById(id).classList.add('on');

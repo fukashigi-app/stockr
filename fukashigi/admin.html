@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>FUKASHIGI ADMIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== 管理ヘッダー ========== -->
+<header class="admin-header">
+  <div class="logo">🔐 FUKASHIGI ADMIN</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a href="app.html" class="btn btn-outline btn-sm">← アプリへ</a>
+    <button class="btn btn-outline btn-sm" onclick="doLogout()">ログアウト</button>
+  </div>
+</header>
+
+<!-- ========== ナビゲーション ========== -->
+<div class="admin-nav">
+  <button class="admin-nav-btn active" onclick="switchSection('dashboard')">ダッシュボード</button>
+  <button class="admin-nav-btn" onclick="switchSection('members')">メンバー</button>
+  <button class="admin-nav-btn" onclick="switchSection('events')">イベント</button>
+  <button class="admin-nav-btn" onclick="switchSection('checkins')">チェックイン</button>
+  <button class="admin-nav-btn" onclick="switchSection('points')">ポイント</button>
+  <button class="admin-nav-btn" onclick="switchSection('notices')">お知らせ</button>
+  <button class="admin-nav-btn" onclick="switchSection('qr')">QR表示</button>
+</div>
+
+<!-- ========== メインコンテンツ ========== -->
+<div style="padding-bottom:24px;">
+
+  <!-- ===== ダッシュボード ===== -->
+  <div id="sec-dashboard" class="admin-section active">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        概要
+      </div>
+      <div class="summary-grid" id="dashStats">
+        <div class="summary-card"><div class="s-val" id="dashMembers">—</div><div class="s-label">メンバー数</div></div>
+        <div class="summary-card"><div class="s-val" id="dashEvents">—</div><div class="s-label">イベント数</div></div>
+        <div class="summary-card"><div class="s-val" id="dashCheckins">—</div><div class="s-label">総チェックイン</div></div>
+        <div class="summary-card"><div class="s-val" id="dashTodayCheckins">—</div><div class="s-label">本日来店</div></div>
+      </div>
+
+      <div class="section-title">📅 直近のイベント</div>
+      <div id="dashEvents2"></div>
+    </div>
+  </div>
+
+  <!-- ===== メンバー管理 ===== -->
+  <div id="sec-members" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        メンバー管理
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="form-input" id="memberSearch" placeholder="名前で検索…" oninput="filterMembers()" style="padding-left:36px;">
+      </div>
+
+      <div id="memberList">
+        <div class="loading"><div class="spinner"></div> 読み込み中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== イベント管理 ===== -->
+  <div id="sec-events" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:20px;font-weight:900;color:var(--text-bright);">イベント管理</div>
+        <button class="btn btn-gold btn-sm" onclick="showCreateEventForm()">＋ 新規作成</button>
+      </div>
+
+      <!-- イベント作成フォーム -->
+      <div id="createEventForm" class="card" style="display:none;">
+        <div style="font-size:16px;font-weight:700;margin-bottom:16px;color:var(--gold);">新規イベント作成</div>
+        <div class="form-group">
+          <label class="form-label">イベント名 *</label>
+          <input type="text" class="form-input" id="evTitle" placeholder="第○回ポーカー大会">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">開催日 *</label>
+            <input type="date" class="form-input" id="evDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">カテゴリ *</label>
+            <div class="select-wrap">
+              <select class="form-select" id="evCategory">
+                <option value="poker">ポーカー</option>
+                <option value="smash">スマブラ</option>
+                <option value="fishing">釣り</option>
+                <option value="card">カード</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">開始時間</label>
+            <input type="time" class="form-input" id="evStartTime">
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了時間</label>
+            <input type="time" class="form-input" id="evEndTime">
+          </div>
+          <div class="form-group">
+            <label class="form-label">参加費（円）</label>
+            <input type="number" class="form-input" id="evFee" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">定員（0=無制限）</label>
+            <input type="number" class="form-input" id="evCapacity" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明</label>
+          <textarea class="form-textarea" id="evDescription" placeholder="イベントの説明を入力…"></textarea>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="evPublic" checked style="width:auto;">
+            <span style="font-size:14px;color:var(--text);">公開する</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-gold btn-block" onclick="createEvent()">作成する</button>
+          <button class="btn btn-outline" onclick="document.getElementById('createEventForm').style.display='none'">キャンセル</button>
+        </div>
+      </div>
+
+      <div id="adminEventsList">
+        <div class="loading"><div class="spinner"></div> 読み込み中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== チェックイン履歴 ===== -->
+  <div id="sec-checkins" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        チェックイン履歴
+      </div>
+      <div id="checkinHistory">
+        <div class="loading"><div class="spinner"></div> 読み込み中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ポイント管理 ===== -->
+  <div id="sec-points" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        ポイント管理
+      </div>
+
+      <!-- ポイント付与フォーム -->
+      <div class="card card-glow" style="margin-bottom:20px;">
+        <div style="font-size:15px;font-weight:700;color:var(--neon-blue);margin-bottom:14px;">ポイント付与 / 減算</div>
+        <div class="form-group">
+          <label class="form-label">メンバー選択</label>
+          <div class="select-wrap">
+            <select class="form-select" id="ptMember"></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">種別</label>
+            <div class="select-wrap">
+              <select class="form-select" id="ptType">
+                <option value="point_add">ポイント付与</option>
+                <option value="point_sub">ポイント減算</option>
+                <option value="chip_add">チップ付与</option>
+                <option value="chip_sub">チップ減算</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">数量</label>
+            <input type="number" class="form-input" id="ptAmount" min="1" placeholder="100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">理由・メモ</label>
+          <input type="text" class="form-input" id="ptReason" placeholder="例：イベント優勝ボーナス">
+        </div>
+        <button class="btn btn-gold btn-block" onclick="applyPoints()">実行する</button>
+      </div>
+
+      <!-- ポイントログ -->
+      <div class="section-title">📜 変更履歴</div>
+      <div id="pointLogList">
+        <div class="loading"><div class="spinner"></div> 読み込み中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== お知らせ管理 ===== -->
+  <div id="sec-notices" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        お知らせ管理
+      </div>
+
+      <!-- 投稿フォーム -->
+      <div class="card card-gold" style="margin-bottom:20px;">
+        <div style="font-size:15px;font-weight:700;color:var(--gold);margin-bottom:14px;">新規お知らせ投稿</div>
+        <div class="form-group">
+          <label class="form-label">タイトル *</label>
+          <input type="text" class="form-input" id="noticeTitle" placeholder="お知らせタイトル">
+        </div>
+        <div class="form-group">
+          <label class="form-label">本文 *</label>
+          <textarea class="form-textarea" id="noticeBody" placeholder="お知らせの内容を入力…" style="min-height:120px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="noticePinned" style="width:auto;">
+            <span style="font-size:14px;color:var(--text);">📌 固定表示にする</span>
+          </label>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="postNotice()">投稿する</button>
+      </div>
+
+      <!-- お知らせ一覧 -->
+      <div id="noticeList">
+        <div class="loading"><div class="spinner"></div> 読み込み中…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QR表示 ===== -->
+  <div id="sec-qr" class="admin-section">
+    <div class="admin-content">
+      <div style="padding:8px 0 16px;font-size:20px;font-weight:900;color:var(--text-bright);">
+        本日のQRコード
+      </div>
+      <div class="card" style="text-align:center;padding:32px 20px;">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+          このQRコードを会場に掲示してください。<br>メンバーがスキャンするとチェックインされます。
+        </p>
+        <div style="display:flex;justify-content:center;margin-bottom:16px;">
+          <div class="qr-display" id="qrCodeDisplay"></div>
+        </div>
+        <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:16px;" id="qrCodeText"></div>
+        <p style="font-size:12px;color:var(--text-muted);">
+          ※ このコードは本日のみ有効です。毎日自動的に更新されます。
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ========== メンバー詳細モーダル ========== -->
+<div class="modal-overlay" id="memberModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="memberModalTitle"></div>
+      <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    </div>
+    <div id="memberModalContent"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<!-- QRコード生成 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="firebase.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

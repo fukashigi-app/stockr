@@ -1,992 +1,1164 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>STOCKR — クラウド在庫管理</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stella 占い</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#07080b;--sf:#0f1219;--sf2:#161b26;--sf3:#1c2233;
-  --bd:#222b3e;--bd2:#2a3550;
-  --ac:#7ee8a2;--acd:rgba(126,232,162,.11);--acd2:rgba(126,232,162,.05);
-  --tx:#dce5f0;--txm:#475068;--txd:#7a88a6;
-  --ok:#7ee8a2;--okd:rgba(126,232,162,.1);
-  --dg:#ff6b6b;--dgd:rgba(255,107,107,.1);
-  --warn:#ffd166;--warnd:rgba(255,209,102,.1);
-  --r:12px;--rs:8px;
-  --fd:'Syne',sans-serif;--fb:'Noto Sans JP',sans-serif;
-  --hdr:52px;
+:root {
+  --ink: #0f0a1a;
+  --parchment: #faf7f2;
+  --gold: #b8933f;
+  --gold-light: #e8c97a;
+  --gold-pale: #f5edd8;
+  --purple-deep: #1a0a2e;
+  --purple-mid: #2d1454;
+  --purple-accent: #7c3aed;
+  --cream: #f8f4ec;
+  --muted: #8a7a6a;
+  --border: rgba(184,147,63,0.25);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;overflow:hidden}
-input,textarea,select,button{font-family:var(--fb)}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
 
-/* ═══ LOADING ═══ */
-#loading{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
-#loading.hide{opacity:0;pointer-events:none}
-.spinner{width:30px;height:30px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loading p{font-size:11px;color:var(--txm)}
+* { margin:0; padding:0; box-sizing:border-box; }
 
-/* ═══ AUTH ═══ */
-#auth{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-#auth.on{display:flex}
-.auth-wrap{width:100%;max-width:380px;padding:8px 0;animation:fadeUp .35s cubic-bezier(.34,1.4,.64,1)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.auth-logo{text-align:center;margin-bottom:28px}
-.auth-logo-txt{font-family:var(--fd);font-size:34px;font-weight:800;letter-spacing:-1px}
-.auth-logo-txt em{color:var(--ac);font-style:normal}
-.auth-logo-sub{font-size:11px;color:var(--txm);margin-top:5px;letter-spacing:.06em}
-.auth-tabs{display:flex;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:22px}
-.auth-tab{flex:1;padding:11px;text-align:center;font-family:var(--fd);font-size:11px;font-weight:700;color:var(--txm);border:none;background:none;transition:all .2s;letter-spacing:.05em;cursor:pointer}
-.auth-tab.on{background:var(--acd);color:var(--ac)}
-.auth-sec{display:none;flex-direction:column;gap:13px}.auth-sec.on{display:flex}
-.f{display:flex;flex-direction:column;gap:5px}
-.f label{font-size:10px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.f input{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:13px 14px;border-radius:var(--rs);font-size:16px;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
-.f input:focus{border-color:var(--ac)}
-.auth-btn{width:100%;padding:13px;background:var(--ac);color:#07080b;border:none;border-radius:var(--rs);font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.04em;transition:all .18s;margin-top:2px}
-.auth-err{min-height:18px;font-size:12px;color:var(--dg);text-align:center}
+html { scroll-behavior: smooth; }
 
-/* ═══ APP SHELL ═══ */
-#app{display:none;flex-direction:column;height:100%}
-#app.on{display:flex}
-.hdr{height:var(--hdr);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;position:relative;z-index:50}
-.hdr-logo{font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;flex-shrink:0}
-.hdr-logo em{color:var(--ac);font-style:normal}
-.nav{display:flex;align-items:stretch;flex:1;overflow-x:auto;margin:0 4px}
-.nav::-webkit-scrollbar{display:none}
-.ntab{display:flex;align-items:center;gap:5px;padding:0 12px;height:var(--hdr);font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--txm);border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.ntab.on{color:var(--ac);border-bottom-color:var(--ac)}
-.nbdg{background:var(--acd);color:var(--ac);font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700}
-.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--bd);flex-shrink:0}
-.sync-dot.ok{background:var(--ok)}.sync-dot.sync{background:var(--warn);animation:blink .7s infinite alternate}.sync-dot.err{background:var(--dg)}
-@keyframes blink{from{opacity:.3}to{opacity:1}}
-.logout-btn{font-size:11px;color:var(--txm);background:none;border:1px solid var(--bd);padding:5px 12px;border-radius:5px;font-family:var(--fd);font-weight:700;transition:all .15s}
+body {
+  font-family: 'Noto Serif JP', serif;
+  background: var(--ink);
+  color: var(--parchment);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-/* PAGES */
-.pages{flex:1;overflow:hidden;position:relative}
-.pg{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
-.pg.on{display:flex}
+/* ─── CANVAS BG ─── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
 
-/* ═══════════════════════════════
-   PAGE: REPORT
-═══════════════════════════════ */
-#pg-report{padding:20px; overflow-y:auto; background:var(--bg);}
-.rep-header { margin-bottom: 20px; }
-.rep-title { font-family: var(--fd); font-size: 18px; font-weight: 800; color: var(--tx); }
-.rep-desc { font-size: 12px; color: var(--txm); margin-top: 4px; }
-.rep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.rep-box { background: var(--sf); border: 1.5px solid var(--bd); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-.rep-box.highlight { border-color: var(--ac); background: var(--acd2); }
-.rep-box.highlight2 { border-color: var(--ok); background: var(--okd); }
-.rep-lbl { font-size: 11px; color: var(--txm); font-family: var(--fd); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-.rep-val { font-size: 28px; font-weight: 800; font-family: var(--fd); line-height: 1; }
-.rep-val.ac { color: var(--ac); }
-.rep-val.ok { color: var(--ok); }
-.rep-val.dg { color: var(--dg); }
-
-/* ═══════════════════════════════
-   PAGE: INVENTORY
-═══════════════════════════════ */
-#pg-inv{flex-direction:column}
-.inv-panel{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;}
-.inv-toolbar{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.ptitle{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txm)}
-.count-bdg{background:var(--acd);color:var(--ac);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;font-family:var(--fd)}
-.srch-wrap{position:relative;flex:1;min-width:120px;max-width:280px}
-.srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--txm);width:14px;height:14px;pointer-events:none}
-.srch-in{width:100%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:9px 10px 9px 32px;border-radius:var(--rs);font-size:16px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-.srch-in:focus{border-color:var(--ac)}.srch-in::placeholder{color:var(--txm)}
-
-.inv-scroll{overflow-y:auto;flex:1;padding:14px}
-.inv-scroll::-webkit-scrollbar{width:4px}.inv-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px}
-.icard{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;animation:cIn .18s ease}
-@keyframes cIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
-.icard-img{width:100%;height:110px;background-color:var(--sf2);border-radius:var(--rs);background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--bd2);margin-bottom:2px}
-.icard-name{font-family:var(--fd);font-weight:700;font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;min-height:36px;}
-.icard-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
-.icard-cost{font-size:13px;color:var(--ac);font-family:var(--fd);font-weight:700}
-.stk-bdg{font-size:11px;font-weight:700;font-family:var(--fd);padding:3px 8px;border-radius:20px}
-.stk-ok{background:var(--okd);color:var(--ok)}
-.stk-warn{background:var(--warnd);color:var(--warn)}
-.stk-empty{background:var(--dgd);color:var(--dg)}
-.icard-qty{display:flex;align-items:center;gap:6px; margin-top:auto;}
-.qb{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bd);background:none;color:var(--txd);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .13s}
-.qn{font-size:14px;font-weight:700;font-family:var(--fd);min-width:28px;text-align:center}
-.dk-tag{background:var(--acd);color:var(--ac);padding:3px 7px;border-radius:4px;font-family:var(--fd);font-size:10px;font-weight:700}
-.icard-acts{display:flex;gap:6px}
-.ab{flex:1;padding:8px 4px;border-radius:6px;border:1.5px solid var(--bd);background:none;font-size:12px;color:var(--txm);transition:all .13s; white-space:nowrap;}
-.ab.del{color:var(--dg);border-color:transparent}.ab.del:hover{border-color:var(--dg);background:var(--dgd)}
-
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:10px;color:var(--txm);grid-column:1/-1;text-align:center}
-.empty-ico{font-size:36px;opacity:.25}
-
-/* ═══════════════════════════════
-   PAGE: DECK
-═══════════════════════════════ */
-#pg-deck{flex-direction:row}
-.dk-sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);overflow:hidden}
-.dk-sidebar-head{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.dk-scroll{overflow-y:auto;flex:1;padding:10px;display:flex;flex-direction:column;gap:6px}
-.dk-scroll::-webkit-scrollbar{width:4px}.dk-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.dk-item{padding:10px 12px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .13s}
-.dk-item.sel{border-color:var(--ac);background:var(--acd2)}
-.dk-item-name{font-family:var(--fd);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
-.dk-item-meta{font-size:10px;color:var(--txm);display:flex;gap:6px;flex-wrap:wrap}
-.dsbdg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;font-family:var(--fd)}
-.dsb-draft{background:rgba(74,80,104,.2);color:var(--txm)}
-.dsb-active{background:var(--acd);color:var(--ac)}
-.dsb-sold{background:var(--okd);color:var(--ok)}
-
-.dk-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.dk-hbar{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--sf)}
-.dk-name-in{background:none;border:none;color:var(--tx);font-family:var(--fd);font-size:16px !important;font-weight:700;outline:none;flex:1;min-width:0}
-.status-sel{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:6px;font-family:var(--fb);font-size:13px;outline:none;cursor:pointer}
-
-/* ★★★ スマートな設定バー ★★★ */
-.dk-stats-bar {
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--bd);
-  background: var(--sf);
   align-items: center;
-  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 1.25rem 3rem;
+  border-bottom: 1px solid rgba(184,147,63,0.15);
+  background: rgba(15,10,26,0.85);
+  backdrop-filter: blur(12px);
 }
-.dk-stat-item {
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: var(--gold-light);
+}
+
+.nav-logo em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: rgba(250,247,242,0.45);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: var(--gold-light); }
+
+.nav-cta {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  background: transparent;
+  padding: 0.5rem 1.4rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-cta:hover {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
 }
-.dk-stat-item label {
-  font-size: 10px;
-  color: var(--txm);
-  font-family: var(--fd);
-  letter-spacing: .05em;
+
+.hero-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
   text-transform: uppercase;
-  font-weight: 700;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: riseIn 1s ease forwards 0.3s;
 }
-.dk-stat-val {
-  font-family: var(--fd);
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-.dk-stat-val.ac { color: var(--ac); }
-.dk-stat-val.ok { color: var(--ok); }
-.dk-stat-val.dg { color: var(--dg); }
-.dk-stat-input {
-  background: var(--sf3);
-  border: 1px solid var(--bd);
-  color: var(--tx);
-  padding: 6px 8px;
-  border-radius: var(--rs);
-  font-size: 14px !important;
-  outline: none;
-  transition: border-color .18s;
-  -webkit-appearance: none;
-  width: 70px;
-  text-align: right;
-  font-family: var(--fd);
-  font-weight: 700;
-}
-.dk-stat-input:focus { border-color: var(--ac); }
 
-.dk-body{display:flex;flex:1;overflow:hidden}
-.dk-search-col{width:260px;flex-shrink:0;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.dsc-head{padding:10px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
-.dsc-srch{display:flex;align-items:center;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden;transition:border-color .18s}
-.dsc-srch-in{flex:1;background:none;border:none;color:var(--tx);padding:10px 4px;font-size:16px !important;outline:none}
-.dsc-results{flex:1;overflow-y:auto}
-.dsr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd)}
-.dsr-info{flex:1;min-width:0}
-.dsr-name{font-size:13px;font-weight:700;font-family:var(--fd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dsr-add{padding:8px 12px;background:var(--ac);color:#07080b;border:none;border-radius:5px;font-family:var(--fd);font-size:12px;font-weight:700;flex-shrink:0}
-
-/* ★★★ ビジュアルデッキグリッド ★★★ */
-.dk-card-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
-.dk-ca-scroll{flex:1;overflow-y:auto;padding:14px; align-content:start;}
-.dk-ca-scroll::-webkit-scrollbar{width:4px}.dk-ca-scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-
-.visual-deck-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 3px;
-  padding: 8px;
-  background: var(--sf);
-  border: 1px solid var(--bd);
-  border-radius: var(--rs);
-  align-content: start;
-  min-height: 120px;
-}
-.vd-card {
+.hero-orb {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 2.5rem;
   position: relative;
-  aspect-ratio: 63 / 88;
-  background-color: var(--sf2);
-  border: 1px solid var(--bd);
-  border-radius: 4px;
-  background-size: cover;
-  background-position: center;
-  cursor: grab;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-.vd-card:active { cursor: grabbing; }
-.vd-card.fallback {
-  display: flex; align-items: center; justify-content: center;
-  font-size: 8px; color: var(--txm); text-align: center; padding: 2px; word-break: break-all; font-weight:bold; line-height: 1.2;
+  opacity: 0;
+  animation: riseIn 1.2s ease forwards 0.5s;
 }
 
-.vd-actions {
-  position: absolute;
-  top: -5px; right: -5px;
-  display: flex; gap: 2px;
-  z-index: 5;
-}
-.vd-btn {
-  width: 18px; height: 18px;
+.orb-inner {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: bold;
-  cursor: pointer; border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
-  padding: 0; line-height: 1;
-}
-.vd-btn.add { background: var(--ac); color: #000; }
-.vd-btn.rm { background: var(--dg); color: #fff; }
-.sortable-ghost { opacity: 0.3; transform: scale(0.95); }
-
-.btn{padding:10px 16px;border-radius:var(--rs);font-family:var(--fd);font-size:14px;font-weight:700;border:none;transition:all .15s;cursor:pointer;line-height:1}
-.btn-ac{background:var(--ac);color:#07080b}
-.btn-ghost{background:none;color:var(--txm);border:1.5px solid var(--bd)}
-.btn-dg{background:none;color:var(--dg);border:1.5px solid var(--dg)}
-.btn-sm{padding:6px 12px;font-size:12px}
-
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
-.overlay.on{display:flex}
-.modal{background:var(--sf);border:1.5px solid var(--bd2);border-radius:14px;padding:20px;width:100%;max-width:420px;animation:mIn .18s ease; margin:auto;}
-@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal-title{font-family:var(--fd);font-size:16px;font-weight:700;margin-bottom:16px}
-.mfields{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
-.mf{display:flex;flex-direction:column;gap:6px}
-.mf label{font-size:11px;color:var(--txd);font-family:var(--fd);font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-.mf input,.mf textarea,.mf select{background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--rs);font-size:16px !important;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
-.mf input:focus,.mf textarea:focus,.mf select:focus{border-color:var(--ac)}
-.mf textarea{resize:none;line-height:1.6}
-.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mactions{display:flex;gap:10px;justify-content:flex-end}
-
-.img-preview{width:100%;height:160px;background:var(--sf3);border:2px dashed var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:13px;text-align:center;background-size:contain;background-position:center;background-repeat:no-repeat;cursor:pointer;line-height:1.5;margin-bottom:12px}
-
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--tx);color:var(--bg);padding:10px 22px;border-radius:50px;font-size:14px;font-weight:700;font-family:var(--fd);z-index:600;transition:all .28s;opacity:0;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.err{background:var(--dg);color:#fff}
-mark{background:rgba(126,232,162,.22);color:var(--ac);border-radius:2px;font-style:normal}
-
-/* ★★★ PC限定のレスポンシブスタイル ★★★ */
-@media(min-width: 681px) {
-  .visual-deck-grid {
-    max-width: 800px; 
-    margin: 0 auto;   
-    gap: 6px;
-    padding: 12px;
-  }
-  .vd-actions {
-    opacity: 0; 
-    transition: opacity 0.15s;
-  }
-  .vd-card:hover .vd-actions {
-    opacity: 1; 
-  }
-  .vd-btn {
-    width: 22px; height: 22px; font-size: 14px; 
-  }
+  background: radial-gradient(circle at 38% 35%, #c97bff 0%, #5a1ea0 45%, #1a0535 80%);
+  box-shadow:
+    0 0 60px rgba(124,58,237,0.5),
+    0 0 120px rgba(124,58,237,0.2),
+    inset 0 0 30px rgba(255,255,255,0.06);
+  animation: orbPulse 4s ease-in-out infinite;
 }
 
-/* スマホ用スタイル */
-@media(max-width:680px){
-  body { overflow-y: auto; }
-  #app { height: auto; min-height: 100vh; display: flex; flex-direction: column; }
-  .pages { flex: 1; overflow: visible; display: flex; flex-direction: column; }
-  .pg { position: relative; inset: auto; flex: 1; display: none; flex-direction: column; overflow: visible; }
-  .pg.on { display: flex; }
-  
-  .inv-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
-  .inv-scroll { overflow-y: visible; padding-bottom: 40px; }
-  
-  #pg-deck { flex-direction: column; }
-  .dk-sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
-  .dk-scroll { max-height: 200px; }
-  
-  .dk-main { overflow: visible; }
-  .dk-body { flex-direction: column; overflow: visible; }
-  
-  .dk-search-col { width: 100%; border-right: none; border-bottom: 2px solid var(--bd); max-height: none; }
-  .dsc-results { max-height: 180px; }
-  
-  .dk-card-area { overflow: visible; border-bottom: 2px solid var(--bd); }
-  .dk-ca-scroll { overflow: visible; padding-bottom: 20px; }
-  
-  .dk-stats-bar { gap: 8px 12px; }
-  .dk-stat-input { width: 60px; }
+@keyframes orbPulse {
+  0%,100% { transform: scale(1); box-shadow: 0 0 60px rgba(124,58,237,0.5), 0 0 120px rgba(124,58,237,0.2); }
+  50% { transform: scale(1.04); box-shadow: 0 0 80px rgba(124,58,237,0.7), 0 0 160px rgba(124,58,237,0.3); }
+}
+
+.orb-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1px solid rgba(184,147,63,0.4);
+  animation: ringRotate 12s linear infinite;
+}
+
+.orb-ring::before {
+  content: '✦';
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--gold);
+}
+
+@keyframes ringRotate { to { transform: rotate(360deg); } }
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 300;
+  line-height: 1.15;
+  color: var(--parchment);
+  margin-bottom: 1.25rem;
+  opacity: 0;
+  animation: riseIn 1.2s ease forwards 0.7s;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.hero-sub {
+  font-size: 0.88rem;
+  line-height: 2;
+  color: rgba(250,247,242,0.5);
+  max-width: 420px;
+  font-weight: 300;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: riseIn 1.2s ease forwards 0.9s;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-btn {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  padding: 0.9rem 3rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  opacity: 0;
+  animation: riseIn 1.2s ease forwards 1.1s;
+}
+
+.hero-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(184,147,63,0.4);
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: riseIn 1s ease forwards 1.5s;
+}
+
+.scroll-hint span {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: rgba(250,247,242,0.3);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ─── SECTION COMMON ─── */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+.section-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 300;
+  color: var(--parchment);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.gold-divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 1.5rem auto;
+}
+
+/* ─── HOW IT WORKS ─── */
+.how-section {
+  padding: 8rem 0;
+  background: rgba(26,10,46,0.4);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  margin-top: 4rem;
+}
+
+.step-item {
+  text-align: center;
+}
+
+.step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 300;
+  color: rgba(184,147,63,0.3);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.step-icon {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--gold-light);
+  margin-bottom: 0.75rem;
+}
+
+.step-desc {
+  font-size: 0.82rem;
+  line-height: 1.9;
+  color: rgba(250,247,242,0.45);
+  font-weight: 300;
+}
+
+/* ─── PLANS ─── */
+.plans-section {
+  padding: 8rem 0;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  max-width: 680px;
+  margin: 4rem auto 0;
+}
+
+.plan-card {
+  border: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+  cursor: pointer;
+  transition: all 0.35s;
+  background: rgba(255,255,255,0.02);
+  position: relative;
+  text-align: center;
+}
+
+.plan-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(184,147,63,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+.plan-card:hover::before,
+.plan-card.selected::before { opacity: 1; }
+
+.plan-card:hover,
+.plan-card.selected {
+  border-color: rgba(184,147,63,0.6);
+}
+
+.plan-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 0.15rem 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.plan-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--parchment);
+  margin-bottom: 0.75rem;
+}
+
+.plan-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 300;
+  color: var(--gold-light);
+  margin-bottom: 0.25rem;
+}
+
+.plan-price sub {
+  font-size: 0.85rem;
+  color: rgba(250,247,242,0.4);
+}
+
+.plan-desc {
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: rgba(250,247,242,0.45);
+  font-weight: 300;
+  margin-top: 0.75rem;
+}
+
+/* ─── FORTUNE FLOW (APP) ─── */
+.app-section {
+  padding: 8rem 0;
+  background: rgba(26,10,46,0.4);
+  border-top: 1px solid var(--border);
+}
+
+.app-wrap {
+  max-width: 560px;
+  margin: 4rem auto 0;
+}
+
+/* SCREEN */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.45s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* STEP DOTS */
+.step-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 2.5rem;
+}
+
+.sdot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(184,147,63,0.2);
+  transition: all 0.3s;
+}
+
+.sdot.active { background: var(--gold); width: 20px; border-radius: 3px; }
+.sdot.done   { background: rgba(184,147,63,0.45); }
+
+/* FORM ELEMENTS */
+.f-label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: rgba(250,247,242,0.4);
+  margin-bottom: 0.45rem;
+}
+
+.f-input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(184,147,63,0.2);
+  padding: 0.8rem 1rem;
+  color: var(--parchment);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.25s;
+  margin-bottom: 1.1rem;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
+.f-input:focus { border-color: rgba(184,147,63,0.6); }
+.f-input::placeholder { color: rgba(250,247,242,0.2); }
+select.f-input option { background: #1a0a2e; }
+
+/* CATEGORY GRID */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.cat-btn {
+  border: 1px solid rgba(184,147,63,0.2);
+  padding: 1rem;
+  cursor: pointer;
+  background: rgba(255,255,255,0.02);
+  color: var(--parchment);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.25s;
+  text-align: left;
+}
+
+.cat-btn:hover, .cat-btn.selected {
+  border-color: rgba(184,147,63,0.7);
+  background: rgba(184,147,63,0.07);
+}
+
+.cat-btn .ci { font-size: 1.1rem; }
+
+/* BUTTONS */
+.btn-gold {
+  width: 100%;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 0.75rem;
+}
+
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(184,147,63,0.35);
+}
+
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-back {
+  background: transparent;
+  border: 1px solid rgba(184,147,63,0.2);
+  color: rgba(250,247,242,0.4);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.78rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  border-color: rgba(184,147,63,0.5);
+  color: var(--parchment);
+}
+
+.btn-ghost {
+  width: 100%;
+  padding: 0.85rem;
+  background: transparent;
+  border: 1px solid rgba(184,147,63,0.25);
+  color: rgba(250,247,242,0.55);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(184,147,63,0.5);
+  color: var(--parchment);
+}
+
+/* DIVIDER */
+.f-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184,147,63,0.2), transparent);
+  margin: 1.5rem 0;
+}
+
+/* SUMMARY */
+.summary-box {
+  border: 1px solid rgba(184,147,63,0.2);
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(184,147,63,0.08);
+  font-size: 0.84rem;
+}
+
+.summary-row:last-child { border-bottom: none; }
+.summary-row .s-lbl { color: rgba(250,247,242,0.4); }
+.summary-row .s-val { color: var(--parchment); }
+.summary-row .s-total {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--gold-light);
+}
+
+/* LOADING */
+.loading-wrap {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.loading-orb {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #c97bff, #5a1ea0 60%, #1a0535);
+  margin: 0 auto 2rem;
+  box-shadow: 0 0 40px rgba(124,58,237,0.5);
+  animation: orbPulse 2s ease-in-out infinite;
+}
+
+.loading-text {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(250,247,242,0.4);
+  letter-spacing: 0.05em;
+  transition: opacity 0.5s;
+}
+
+/* RESULT */
+.result-orb-sm {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #c97bff, #5a1ea0 60%, #1a0535);
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 0 40px rgba(124,58,237,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.result-card {
+  border: 1px solid rgba(184,147,63,0.25);
+  padding: 2rem;
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), transparent);
+}
+
+.result-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  border: 1px solid rgba(184,147,63,0.35);
+  padding: 0.18rem 0.7rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.result-name-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--gold-light);
+  margin-bottom: 1rem;
+}
+
+.result-body {
+  font-size: 0.88rem;
+  line-height: 2;
+  color: rgba(250,247,242,0.8);
+  font-weight: 300;
+  white-space: pre-wrap;
+}
+
+.payment-note {
+  text-align: center;
+  font-size: 0.68rem;
+  color: rgba(250,247,242,0.25);
+  margin-top: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.error-box {
+  border: 1px solid rgba(240,149,149,0.25);
+  background: rgba(240,149,149,0.05);
+  color: #f09595;
+  font-size: 0.8rem;
+  padding: 0.85rem 1rem;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: var(--gold-light);
+  margin-bottom: 1rem;
+}
+
+.footer-note {
+  font-size: 0.72rem;
+  color: rgba(250,247,242,0.2);
+  line-height: 1.8;
+}
+
+/* ─── SCREEN LABELS ─── */
+.sc-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.sc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 300;
+  color: var(--parchment);
+  text-align: center;
+  margin-bottom: 2rem;
 }
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="spinner"></div>
-  <p>読み込み中…</p>
-</div>
+<canvas id="bg-canvas"></canvas>
 
-<div id="auth">
-  <div class="auth-wrap">
-    <div class="auth-logo">
-      <div class="auth-logo-txt">STOCK<em>R</em></div>
-      <div class="auth-logo-sub">在庫管理 &amp; デッキ販売ツール</div>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab on" onclick="authTab('login')">ログイン</button>
-      <button class="auth-tab" onclick="authTab('signup')">新規登録</button>
-    </div>
-    <div class="auth-sec on" id="sec-login">
-      <div class="f"><label>メールアドレス</label><input type="email" id="l-email" placeholder="example@email.com"></div>
-      <div class="f"><label>パスワード</label><input type="password" id="l-pw" placeholder="パスワード" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="auth-btn" onclick="doLogin()">ログイン</button>
-    </div>
-    <div class="auth-sec" id="sec-signup">
-      <div class="f"><label>メールアドレス</label><input type="email" id="s-email" placeholder="example@email.com"></div>
-      <div class="f"><label>パスワード（6文字以上）</label><input type="password" id="s-pw" placeholder="パスワード"></div>
-      <div class="f"><label>パスワード確認</label><input type="password" id="s-pw2" placeholder="再入力" onkeydown="if(event.key==='Enter')doSignup()"></div>
-      <button class="auth-btn" onclick="doSignup()">アカウントを作成</button>
-    </div>
-    <div class="auth-err" id="auth-err"></div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Stella <em>占い</em></div>
+  <ul class="nav-links">
+    <li><a href="#how">鑑定について</a></li>
+    <li><a href="#plans">料金</a></li>
+    <li><a href="#fortune">今すぐ占う</a></li>
+  </ul>
+  <button class="nav-cta" onclick="scrollToFortune()">鑑定を始める</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Celestial Fortune Telling</p>
+  <div class="hero-orb">
+    <div class="orb-inner"></div>
+    <div class="orb-ring"></div>
+  </div>
+  <h1>星が紡ぐ、<br><em>あなただけの</em><br>物語</h1>
+  <p class="hero-sub">
+    生年月日と名前から、宇宙の叡智が<br>
+    あなたの運命を読み解きます。
+  </p>
+  <button class="hero-btn" onclick="scrollToFortune()">今すぐ鑑定を受ける</button>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
   </div>
 </div>
 
-<div id="app">
-  <div class="hdr">
-    <div class="hdr-logo">STOCK<em>R</em></div>
-    <nav class="nav">
-      <button class="ntab on" id="ntab-inv" onclick="goPage('inv')">在庫管理 <span class="nbdg" id="nb-inv">0</span></button>
-      <button class="ntab" id="ntab-deck" onclick="goPage('deck')">デッキ販売 <span class="nbdg" id="nb-deck">0</span></button>
-      <button class="ntab" id="ntab-report" onclick="goPage('report')">📊 売上レポート</button>
-    </nav>
-    <div class="hdr-right">
-      <div class="sync-dot" id="sync-dot"></div>
-      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
-    </div>
-  </div>
-
-  <div class="pages">
-    
-    <div class="pg" id="pg-report">
-      <div class="rep-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
-        <div>
-          <div class="rep-title">売上＆資産レポート</div>
-          <div class="rep-desc">売却済デッキの実績を集計しています。</div>
-        </div>
-        <select id="rep-month-sel" class="status-sel" style="min-width:140px; font-size:14px; padding:8px 12px;" onchange="window.renderReport()"></select>
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-wrap">
+    <p class="section-eyebrow">How It Works</p>
+    <h2 class="section-title">鑑定の流れ</h2>
+    <div class="gold-divider"></div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-num">01</div>
+        <span class="step-icon">✦</span>
+        <div class="step-title">情報を入力</div>
+        <p class="step-desc">お名前と生年月日を入力。あなただけの星の配置を読み解く準備をします。</p>
       </div>
-      
-      <div class="rep-grid">
-        <div class="rep-box">
-          <div class="rep-lbl">現在の在庫資産（原価）</div>
-          <div class="rep-val" id="rep-asset">¥0</div>
-        </div>
+      <div class="step-item">
+        <div class="step-num">02</div>
+        <span class="step-icon">◈</span>
+        <div class="step-title">テーマを選択</div>
+        <p class="step-desc">仕事・恋愛・健康・家庭の中から、今最も気になるテーマを一つ選びます。</p>
       </div>
-      <div class="rep-grid">
-        <div class="rep-box highlight">
-          <div class="rep-lbl">売上総額</div>
-          <div class="rep-val ac" id="rep-sales">¥0</div>
-        </div>
-        <div class="rep-box highlight2">
-          <div class="rep-lbl">純利益</div>
-          <div class="rep-val ok" id="rep-profit">¥0</div>
-        </div>
-      </div>
-      <div class="rep-grid">
-        <div class="rep-box">
-          <div class="rep-lbl">経費・手数料合計</div>
-          <div class="rep-val" id="rep-fees">¥0</div>
-        </div>
-        <div class="rep-box">
-          <div class="rep-lbl">販売件数 / 利益率</div>
-          <div class="rep-val" id="rep-margin">0%</div>
-          <div class="rep-sub" id="rep-sold-cnt">販売 0件</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pg on" id="pg-inv">
-      <div class="inv-panel">
-        <div class="inv-toolbar">
-          <span class="ptitle">在庫</span>
-          <span class="count-bdg" id="inv-cnt">0</span>
-          <div class="srch-wrap">
-            <svg class="srch-ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
-            <input class="srch-in" id="inv-srch" placeholder="商品名で検索…" oninput="window.renderGrid()">
-          </div>
-          <button class="btn btn-ac btn-sm" onclick="window.openItemModal(null)">＋ 商品登録</button>
-        </div>
-        <div class="inv-scroll"><div class="inv-grid" id="inv-grid"></div></div>
-      </div>
-    </div>
-
-    <div class="pg" id="pg-deck">
-      <div class="dk-sidebar">
-        <div class="dk-sidebar-head">
-          <span class="ptitle">デッキ <span class="count-bdg" id="dk-cnt">0</span></span>
-          <button class="btn btn-ac btn-sm" onclick="window.newDeck()">＋ 新規</button>
-        </div>
-        <div class="dk-scroll" id="dk-list"></div>
-      </div>
-      <div class="dk-main" id="dk-main">
-        <div class="no-sel"><div class="no-sel-ico">📦</div><p>デッキを選択してください。</p></div>
+      <div class="step-item">
+        <div class="step-num">03</div>
+        <span class="step-icon">☽</span>
+        <div class="step-title">鑑定を受ける</div>
+        <p class="step-desc">星の導きが、あなただけの言葉で紡ぎ出されます。</p>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="overlay" id="modal-item">
-  <div class="modal">
-    <div class="modal-title" id="item-modal-title">商品を登録</div>
-    <div class="mfields">
-      <input type="hidden" id="item-eid">
-      <input type="file" id="item-img-upload" accept="image/*" style="display:none;" onchange="window.handleImageUpload(event)">
-      <div id="item-img-preview" class="img-preview" onclick="document.getElementById('item-img-upload').click()">
-        📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはCtrl+V可)</span>
+<!-- PLANS -->
+<section class="plans-section" id="plans">
+  <div class="section-wrap">
+    <p class="section-eyebrow">Readings</p>
+    <h2 class="section-title">鑑定プラン</h2>
+    <div class="gold-divider"></div>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-name">スタンダード</div>
+        <div class="plan-price">¥100<sub> / 回</sub></div>
+        <div class="plan-desc">お名前と生年月日をもとに、<br>選んだテーマを丁寧に鑑定します。</div>
       </div>
-
-      <div class="mf">
-        <label>商品名 *</label>
-        <div style="display:flex; gap:6px; margin-bottom: 6px;">
-          <input type="text" id="item-name" placeholder="例: ボルシャック・ドラゴン" style="flex:1; min-width:0;">
-          <button type="button" class="btn btn-ghost" onclick="window.searchOfficial()" style="flex-shrink:0; padding:0 12px;">🔍 公式</button>
-        </div>
-        <div style="display:flex; gap:6px;">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('mercari')" style="flex:1; border-color:#e63232; color:#e63232;">メルカリ</button>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('magi')" style="flex:1; border-color:#2a70ff; color:#2a70ff;">magi</button>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="window.searchMarket('yahoo')" style="flex:1; border-color:#f5b000; color:#f5b000;">ヤフオク</button>
-        </div>
+      <div class="plan-card">
+        <div class="plan-badge">SPECIAL</div>
+        <div class="plan-name">スペシャル</div>
+        <div class="plan-price">¥500<sub> / 回</sub></div>
+        <div class="plan-desc">お悩みの詳細も加えて、より深く<br>3ヶ月先の展望まで読み解きます。</div>
       </div>
-
-      <div class="mrow">
-        <div class="mf"><label>在庫数 *</label><input type="number" id="item-stock" placeholder="0" min="0"></div>
-        <div class="mf"><label>仕入れ値（円）</label><input type="number" id="item-cost" placeholder="0" min="0"></div>
-      </div>
-      <div class="mf"><label>販売価格（円）</label><input type="number" id="item-sell" placeholder="0" min="0"></div>
-      <div class="mf"><label>メモ</label><textarea id="item-memo" rows="2" placeholder="自由記入…"></textarea></div>
-    </div>
-    <div class="mactions">
-      <button class="btn btn-ghost" onclick="window.closeModal('modal-item')">キャンセル</button>
-      <button class="btn btn-ac" onclick="window.saveItem()">保存する</button>
     </div>
   </div>
-</div>
+</section>
 
-<div class="toast" id="toast"></div>
+<!-- FORTUNE APP -->
+<section class="app-section" id="fortune">
+  <div class="section-wrap">
+    <p class="section-eyebrow">Your Reading</p>
+    <h2 class="section-title">鑑定を始める</h2>
+    <div class="gold-divider"></div>
+  </div>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+  <div class="app-wrap">
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCN0lhT5A95s4UTjpMJgOZmcRg-aHwNpak",
-  authDomain: "zaiko2-d1fef.firebaseapp.com",
-  projectId: "zaiko2-d1fef",
-  storageBucket: "zaiko2-d1fef.firebasestorage.app",
-  messagingSenderId: "699514971368",
-  appId: "1:699514971368:web:417196f4ac40bb6a0e555d"
-};
-
-const fbApp  = initializeApp(firebaseConfig);
-const auth   = getAuth(fbApp);
-const db     = getFirestore(fbApp);
-
-try { await setPersistence(auth, browserLocalPersistence); } catch(e) {}
-
-let uid = null;
-let items  = [];   
-let decks  = [];   
-let selDkId = null;
-let unsubItems = null, unsubDecks = null;
-let currentItemImage = null;
-
-// ★検索文字を確実に保持する全域変数
-window.dkSrchQ = ''; 
-
-// スクロール・フォーカスの記憶用
-let lastDkScrollTop = 0;
-let lastWindowScrollTop = 0;
-
-function getFlatCards(dk) {
-  let flat = [];
-  (dk.cards||[]).forEach(c => {
-    for(let i=0; i<(c.qty||1); i++) flat.push({itemId: c.itemId, qty: 1});
-  });
-  return flat;
-}
-
-window.authTab = (t) => {
-  document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('on', i===(t==='login'?0:1)));
-  document.getElementById('sec-login').classList.toggle('on', t==='login');
-  document.getElementById('sec-signup').classList.toggle('on', t==='signup');
-  document.getElementById('auth-err').textContent = '';
-};
-window.doLogin = async () => {
-  const email = document.getElementById('l-email').value.trim();
-  const pw    = document.getElementById('l-pw').value;
-  try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { document.getElementById('auth-err').textContent = 'ログインに失敗しました'; }
-};
-window.doSignup = async () => {
-  const email = document.getElementById('s-email').value.trim();
-  const pw    = document.getElementById('s-pw').value;
-  const pw2   = document.getElementById('s-pw2').value;
-  if (pw !== pw2) { document.getElementById('auth-err').textContent = 'パスワードが一致しません'; return; }
-  try { await createUserWithEmailAndPassword(auth, email, pw); } catch(e) { document.getElementById('auth-err').textContent = '登録に失敗しました'; }
-};
-window.doLogout = async () => { if(unsubItems) unsubItems(); if(unsubDecks) unsubDecks(); await signOut(auth); };
-
-onAuthStateChanged(auth, user => {
-  document.getElementById('loading').classList.add('hide');
-  if (user) {
-    uid = user.uid;
-    document.getElementById('auth').classList.remove('on');
-    document.getElementById('app').classList.add('on');
-    startListeners();
-  } else {
-    uid = null;
-    document.getElementById('app').classList.remove('on');
-    document.getElementById('auth').classList.add('on');
-  }
-});
-
-function startListeners() {
-  setSyncDot('sync');
-  unsubItems = onSnapshot(collection(db,'users',uid,'items'), snap => {
-    items = snap.docs.map(d=>({id:d.id,...d.data()}));
-    items.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-    window.renderGrid();
-    window.renderDeckSearch();
-    updateBadges();
-    window.renderReport();
-    setSyncDot('ok');
-  });
-  unsubDecks = onSnapshot(collection(db,'users',uid,'decks'), snap => {
-    decks = snap.docs.map(d=>({id:d.id,...d.data()}));
-    decks.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-    renderDkList();
-    window.renderGrid(); 
-    updateBadges();
-    window.renderReport();
-    setSyncDot('ok');
-  });
-}
-
-function setSyncDot(s) { document.getElementById('sync-dot').className = 'sync-dot' + (s?' '+s:''); }
-
-window.goPage = (p) => {
-  ['inv','deck','report'].forEach(x=>{
-    const pg = document.getElementById('pg-'+x);
-    const tab = document.getElementById('ntab-'+x);
-    if(pg) pg.classList.toggle('on', x===p);
-    if(tab) tab.classList.toggle('on', x===p);
-  });
-  if (p==='deck') { renderDkList(); window.renderDeckSearch(); }
-  if (p==='report') { window.renderReport(); }
-};
-
-window.renderReport = () => {
-  const monthSet = new Set();
-  decks.forEach(dk => {
-    if (dk.status === 'sold') {
-      const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
-      const d = new Date(t);
-      const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
-      monthSet.add(mStr);
-    }
-  });
-  const monthArr = Array.from(monthSet).sort().reverse();
-  const selEl = document.getElementById('rep-month-sel');
-  const currentSel = selEl.value || 'all';
-  let opts = `<option value="all"${currentSel==='all'?' selected':''}>全期間（累計）</option>`;
-  monthArr.forEach(m => { opts += `<option value="${m}"${currentSel===m?' selected':''}>${m}</option>`; });
-  selEl.innerHTML = opts;
-  const targetMonth = selEl.value;
-
-  let totalAsset = 0;
-  items.forEach(item => { totalAsset += (item.stock || 0) * (item.cost || 0); });
-
-  let totalSales = 0, totalFees = 0, totalProfit = 0, soldCount = 0;
-  decks.forEach(dk => {
-    if (dk.status === 'sold') {
-      const t = dk.soldAt || (dk.createdAt?.seconds ? dk.createdAt.seconds * 1000 : Date.now());
-      const d = new Date(t);
-      const mStr = d.getFullYear() + '年' + String(d.getMonth() + 1).padStart(2, '0') + '月';
-      if (targetMonth !== 'all' && targetMonth !== mStr) return;
-      soldCount++;
-      const cost = dkCost(dk);
-      const sell = Number(dk.sellPrice) || 0;
-      const feePct = (dk.feePercent ?? 10) / 100;
-      const ship = dk.shippingCost ?? 210;
-      const fee = sell ? Math.round(sell * feePct) : 0;
-      const net = sell ? Math.round(sell * (1 - feePct)) - ship : 0;
-      totalSales += sell; totalFees += (fee + (sell ? ship : 0)); totalProfit += (sell ? net - cost : 0);
-    }
-  });
-  document.getElementById('rep-asset').textContent = `¥${totalAsset.toLocaleString()}`;
-  document.getElementById('rep-sales').textContent = `¥${totalSales.toLocaleString()}`;
-  document.getElementById('rep-fees').textContent = `¥${totalFees.toLocaleString()}`;
-  const pEl = document.getElementById('rep-profit');
-  pEl.textContent = `${totalProfit >= 0 ? '+' : ''}¥${totalProfit.toLocaleString()}`;
-  pEl.className = 'rep-val ' + (totalProfit >= 0 ? 'ok' : 'dg');
-  document.getElementById('rep-sold-cnt').textContent = `販売 ${soldCount}件`;
-  document.getElementById('rep-margin').textContent = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) + '%' : '0%';
-};
-
-window.renderGrid = () => {
-  const q    = document.getElementById('inv-srch')?.value.trim().toLowerCase()||'';
-  const grid = document.getElementById('inv-grid');
-  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
-
-  if (!items.length) {
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><p>まだ商品がありません。</p></div>`;
-    return;
-  }
-  grid.innerHTML = list.map(item => {
-    const usedCount = decks.reduce((s,dk) => s + (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0), 0);
-    const avail = Math.max(0, (item.stock||0) - usedCount);
-    const imgHtml = item.image ? `<div class="icard-img" style="background-image:url(${item.image})"></div>` : `<div class="icard-img">🃏</div>`;
-
-    return `<div class="icard ${usedCount>0?'used':''}">
-      ${imgHtml}
-      <div class="icard-name">${hl(item.name,q)}</div>
-      <div class="icard-row">
-        <span class="icard-cost">¥${(item.cost||0).toLocaleString()}</span>
-        <span class="stk-bdg ${avail===0?'stk-empty':'stk-ok'}">残${avail}枚</span>
+    <!-- S1: プロフィール -->
+    <div class="screen active" id="s-profile">
+      <div class="step-dots">
+        <div class="sdot active"></div>
+        <div class="sdot"></div>
+        <div class="sdot"></div>
+        <div class="sdot"></div>
       </div>
-      <div class="icard-qty">
-        <button class="qb" onclick="window.chgStock('${item.id}',-1)">−</button>
-        <span class="qn">${item.stock||0}</span>
-        <button class="qb" onclick="window.chgStock('${item.id}',1)">＋</button>
-      </div>
-      <div class="icard-acts">
-        <button class="ab" onclick="window.openItemModal('${item.id}')">編集</button>
-        <button class="ab del" onclick="window.delItem('${item.id}')">削除</button>
-      </div>
-    </div>`;
-  }).join('');
-};
+      <p class="sc-eyebrow">Step 1</p>
+      <h3 class="sc-title">あなたのことを教えて</h3>
 
-window.openItemModal = (id) => {
-  const item = id ? items.find(i=>i.id===id) : null;
-  document.getElementById('item-eid').value = id||'';
-  document.getElementById('item-name').value = item?.name||'';
-  document.getElementById('item-stock').value = item?.stock??'';
-  document.getElementById('item-cost').value = item?.cost??'';
-  document.getElementById('item-sell').value = item?.sell??'';
-  document.getElementById('item-memo').value = item?.memo||'';
-  currentItemImage = item?.image || null;
-  const pv = document.getElementById('item-img-preview');
-  pv.style.backgroundImage = currentItemImage ? `url(${currentItemImage})` : 'none';
-  pv.innerHTML = currentItemImage ? '' : '📱 タップして画像を選択・撮影<br><span style="font-size:10px;color:var(--txd)">(PCはCtrl+V可)</span>';
-  window.openModal('modal-item');
-};
+      <label class="f-label">お名前</label>
+      <input class="f-input" id="inp-name" type="text" placeholder="例：田中 さくら">
 
-window.handleImageUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const MAX = 300; let w=img.width, h=img.height;
-      if(w>h && w>MAX){h*=MAX/w; w=MAX;} else if(h>MAX){w*=MAX/h; h=MAX;}
-      canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
-      const pv = document.getElementById('item-img-preview');
-      pv.style.backgroundImage = `url(${currentItemImage})`; pv.innerHTML = '';
-      toast('画像を読み込みました！');
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-};
+      <label class="f-label">生年月日</label>
+      <input class="f-input" id="inp-dob" type="date">
 
-window.saveItem = async () => {
-  const id = document.getElementById('item-eid').value;
-  const name = document.getElementById('item-name').value.trim();
-  const stock = parseInt(document.getElementById('item-stock').value)||0;
-  if (!name) return;
-  const data = { name, stock, cost:parseInt(document.getElementById('item-cost').value)||0, sell:parseInt(document.getElementById('item-sell').value)||0, memo:document.getElementById('item-memo').value, image:currentItemImage };
-  if (id) await updateDoc(doc(db,'users',uid,'items',id), data);
-  else await addDoc(collection(db,'users',uid,'items'), {...data, createdAt:serverTimestamp()});
-  window.closeModal('modal-item');
-};
-
-window.chgStock = async (id, d) => {
-  const item = items.find(i=>i.id===id);
-  if (item) await updateDoc(doc(db,'users',uid,'items',id), { stock: Math.max(0, (item.stock||0)+d) });
-};
-
-window.delItem = async (id) => { if(confirm('削除しますか？')) await deleteDoc(doc(db,'users',uid,'items',id)); };
-
-window.searchOfficial = () => {
-  const n = document.getElementById('item-name').value.trim();
-  if(n) window.open(`https://dm.takaratomy.co.jp/card/?keyword=${encodeURIComponent(n)}`, '_blank');
-};
-window.searchMarket = (s) => {
-  const n = document.getElementById('item-name').value.trim();
-  if(!n) return;
-  const k = encodeURIComponent(n);
-  if(s==='mercari') window.open(`https://jp.mercari.com/search?keyword=${k}`, '_blank');
-  if(s==='magi') window.open(`https://magi.camp/items/search?keyword=${k}`, '_blank');
-  if(s==='yahoo') window.open(`https://auctions.yahoo.co.jp/search/search?p=${k}`, '_blank');
-};
-
-window.newDeck = async () => {
-  const ref = await addDoc(collection(db,'users',uid,'decks'), { name:'新規デッキ', status:'draft', cards:[], sellPrice:0, feePercent:10, shippingCost:210, memo:'', createdAt:serverTimestamp() });
-  selDkId = ref.id; 
-  window.dkSrchQ = ''; 
-  renderDkList();
-};
-
-function renderDkList() {
-  const el = document.getElementById('dk-list');
-  el.innerHTML = decks.map(dk=>{
-    const cost = dkCost(dk);
-    const sCls = {draft:'dsb-draft',active:'dsb-active',sold:'dsb-sold'}[dk.status];
-    return `<div class="dk-item ${selDkId===dk.id?'sel':''}" onclick="window.selDeck('${dk.id}')">
-      <div class="dk-item-name">${dk.name}</div>
-      <div class="dk-item-meta"><span>¥${cost.toLocaleString()}</span><span class="dsbdg ${sCls}">${dk.status}</span></div>
-    </div>`;
-  }).join('');
-  if (selDkId) renderDkMain(selDkId);
-}
-
-// デッキ切り替え時に検索文字をリセット
-window.selDeck = (id) => { 
-  selDkId = id; 
-  window.dkSrchQ = ''; 
-  renderDkList(); 
-};
-
-// ★ 検索機能完全修正版 ★
-window.renderDeckSearch = () => {
-  const el = document.getElementById('dk-srch-results'); if(!el) return;
-  const q = window.dkSrchQ.toLowerCase();
-  const list = q ? items.filter(i=>i.name.toLowerCase().includes(q)) : items;
-  el.innerHTML = list.map(item=>{
-    const usedCount = decks.reduce((s,dk) => s + (dk.cards||[]).filter(c=>c.itemId===item.id).reduce((sum,c)=>sum+(c.qty||1),0), 0);
-    const avail = Math.max(0, (item.stock||0) - usedCount);
-    return `<div class="dsr"><div class="dsr-info"><div class="dsr-name">${hl(item.name,q)}</div><div style="font-size:10px;color:var(--txm)">在庫:${avail}</div></div>
-      <button class="dsr-add" onclick="window.addToDk('${item.id}')" ${avail<=0?'disabled':''}>追加</button></div>`;
-  }).join('');
-};
-
-window.addToDk = async (itemId) => {
-  const dk = decks.find(d=>d.id===selDkId); if(!dk) return;
-  let flat = getFlatCards(dk);
-  flat.push({itemId, qty:1}); 
-  setSyncDot('sync');
-  await updateDoc(doc(db,'users',uid,'decks',selDkId), { cards: flat });
-};
-
-window.rmDkCardIdx = async (dkId, index) => {
-  const dk = decks.find(d=>d.id===dkId); if(!dk) return;
-  let flat = getFlatCards(dk);
-  flat.splice(index, 1); 
-  setSyncDot('sync');
-  await updateDoc(doc(db,'users',uid,'decks',dkId), { cards: flat });
-};
-
-const mkDebounce = (fn, ms=600) => {
-  let t;
-  return (...args) => { clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
-};
-
-window.dkSellChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { sellPrice: num });
-}, 700);
-window.dkFeeChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { feePercent: num });
-}, 700);
-window.dkShipChange = mkDebounce(async (id, v) => {
-  let num = parseInt(v); if(isNaN(num)||num<0) num=0;
-  await updateDoc(doc(db,'users',uid,'decks',id), { shippingCost: num });
-}, 700);
-
-function renderDkMain(id) {
-  const dk = decks.find(d=>d.id===id); if(!dk) return;
-  
-  // ★ 再描画直前のスクロール位置とフォーカスを記憶！
-  const scrollEl = document.querySelector('.dk-ca-scroll');
-  if (scrollEl) lastDkScrollTop = scrollEl.scrollTop;
-  lastWindowScrollTop = window.scrollY || document.documentElement.scrollTop;
-
-  const activeEl = document.activeElement;
-  const activeId = activeEl ? activeEl.id : null;
-  let sStart = null, sEnd = null;
-  if (activeId && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-    try {
-      if (activeEl.type !== 'number') {
-        sStart = activeEl.selectionStart;
-        sEnd = activeEl.selectionEnd;
-      }
-    } catch(e) {}
-  }
-
-  const cost = dkCost(dk);
-  const sell = dk.sellPrice||0;
-  const feePct = (dk.feePercent ?? 10) / 100;
-  const fee = Math.round(sell * feePct);
-  const ship = dk.shippingCost ?? 210;
-  const net = sell - fee - ship;
-  const profit = sell ? net - cost : 0;
-  
-  const flatCards = getFlatCards(dk);
-
-  document.getElementById('dk-main').innerHTML = `
-    <div class="dk-hbar">
-      <input class="dk-name-in" value="${dk.name}" oninput="window.dkUpdate('${id}','name',this.value)">
-      <select class="status-sel" onchange="window.dkStatusChange('${id}',this.value)">
-        <option value="draft" ${dk.status==='draft'?'selected':''}>下書き</option>
-        <option value="active" ${dk.status==='active'?'selected':''}>出品中</option>
-        <option value="sold" ${dk.status==='sold'?'selected':''}>売却済</option>
+      <label class="f-label">性別（任意）</label>
+      <select class="f-input" id="inp-gender">
+        <option value="">選択しない</option>
+        <option value="女性">女性</option>
+        <option value="男性">男性</option>
+        <option value="その他">その他</option>
       </select>
-      <button class="btn btn-dg btn-sm" onclick="window.delDeck('${id}')">削除</button>
-    </div>
-    
-    <div class="dk-stats-bar">
-      <div class="dk-stat-item"><label>枚数</label><span class="dk-stat-val">${flatCards.length}枚</span></div>
-      <div class="dk-stat-item"><label>原価</label><span class="dk-stat-val ac">¥${cost.toLocaleString()}</span></div>
-      <div class="dk-stat-item"><label>販売価格</label><input type="number" class="dk-stat-input" id="dk-inp-sell-${id}" value="${sell||''}" placeholder="例:5000" oninput="window.dkSellChange('${id}',this.value)"></div>
-      <div class="dk-stat-item"><label>手数料%</label><input type="number" class="dk-stat-input" id="dk-inp-fee-${id}" value="${dk.feePercent ?? 10}" oninput="window.dkFeeChange('${id}',this.value)"></div>
-      <div class="dk-stat-item"><label>送料</label><input type="number" class="dk-stat-input" id="dk-inp-ship-${id}" value="${dk.shippingCost ?? 210}" oninput="window.dkShipChange('${id}',this.value)"></div>
-      <div class="dk-stat-item"><label>手取り</label><span class="dk-stat-val">¥${sell?net.toLocaleString():'—'}</span></div>
-      <div class="dk-stat-item"><label>利益</label><span class="dk-stat-val ${profit>=0?'ok':'dg'}">${sell?'¥'+profit.toLocaleString():'—'}</span></div>
+
+      <button class="btn-gold" onclick="goStep2()">次へ進む →</button>
     </div>
 
-    <div class="dk-body">
-      <div class="dk-search-col">
-        <div class="dsc-head"><div class="dsc-srch"><input class="dsc-srch-in" id="dk-inp-srch-${id}" value="${window.dkSrchQ}" placeholder="商品検索…" oninput="window.dkSrchQ=this.value;window.renderDeckSearch()"></div></div>
-        <div class="dsc-results" id="dk-srch-results"></div>
+    <!-- S2: プラン＆テーマ -->
+    <div class="screen" id="s-plan">
+      <div class="step-dots">
+        <div class="sdot done"></div>
+        <div class="sdot active"></div>
+        <div class="sdot"></div>
+        <div class="sdot"></div>
       </div>
-      
-      <div class="dk-card-area">
-        <div class="dk-ca-scroll">
-          <div id="deck-grid-${id}" class="visual-deck-grid">
-            ${flatCards.length > 0 ? flatCards.map((c, index) => {
-              const item = items.find(i=>i.id===c.itemId);
-              if(!item) return `<div class="vd-card fallback" data-id="${c.itemId}">削除済<div class="vd-actions"><button class="vd-btn rm" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</button></div></div>`;
-              const bg = item.image ? `background-image:url(${item.image})` : '';
-              const fallbackTxt = item.image ? '' : item.name;
-              return `
-                <div class="vd-card ${item.image?'':'fallback'}" data-id="${item.id}" style="${bg}">
-                  ${fallbackTxt}
-                  <div class="vd-actions">
-                    <button class="vd-btn add" onclick="event.stopPropagation(); window.addToDk('${item.id}')">＋</button>
-                    <button class="vd-btn rm" onclick="event.stopPropagation(); window.rmDkCardIdx('${id}', ${index})">×</button>
-                  </div>
-                </div>`;
-            }).join('') : '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--txm);font-size:12px;">商品検索からカードを追加してください<br>追加後は長押し＆スワイプで並び替えできます</div>'}
-          </div>
+      <button class="btn-back" onclick="show('s-profile')">← 戻る</button>
+      <p class="sc-eyebrow">Step 2</p>
+      <h3 class="sc-title">プランとテーマを選ぶ</h3>
+
+      <div class="plans-grid" style="max-width:100%;margin:0 0 1.5rem;">
+        <div class="plan-card" id="pc-std" onclick="setPlan('standard')" style="text-align:center;">
+          <div class="plan-name" style="font-size:1.1rem;">スタンダード</div>
+          <div class="plan-price" style="font-size:1.8rem;">¥100<sub> / 回</sub></div>
+        </div>
+        <div class="plan-card" id="pc-spl" onclick="setPlan('special')" style="text-align:center;">
+          <div class="plan-badge">SPECIAL</div>
+          <div class="plan-name" style="font-size:1.1rem;">スペシャル</div>
+          <div class="plan-price" style="font-size:1.8rem;">¥500<sub> / 回</sub></div>
         </div>
       </div>
 
+      <div class="f-divider"></div>
+      <p class="sc-eyebrow" style="margin-bottom:0.75rem;">テーマを選ぶ</p>
+
+      <div class="cat-grid">
+        <button class="cat-btn" id="c0" onclick="setCat(0,'仕事・キャリア')"><span class="ci">💼</span>仕事・キャリア</button>
+        <button class="cat-btn" id="c1" onclick="setCat(1,'恋愛・パートナー')"><span class="ci">🌹</span>恋愛・パートナー</button>
+        <button class="cat-btn" id="c2" onclick="setCat(2,'健康・体調')"><span class="ci">🌿</span>健康・体調</button>
+        <button class="cat-btn" id="c3" onclick="setCat(3,'家庭・家族')"><span class="ci">🏡</span>家庭・家族</button>
+      </div>
+
+      <div id="spl-extra" style="display:none;">
+        <div class="f-divider"></div>
+        <label class="f-label">お悩みの詳細</label>
+        <textarea class="f-input" id="inp-worry" style="min-height:80px;resize:vertical;" placeholder="具体的なお悩みを教えてください…"></textarea>
+      </div>
+
+      <button class="btn-gold" onclick="goStep3()">確認へ進む →</button>
     </div>
-  `;
-  window.renderDeckSearch();
 
-  // ★ 記憶しておいたスクロール位置とフォーカスを一瞬で復元！
-  setTimeout(() => {
-    const newScrollEl = document.querySelector('.dk-ca-scroll');
-    if (newScrollEl) newScrollEl.scrollTop = lastDkScrollTop;
-    window.scrollTo(0, lastWindowScrollTop);
+    <!-- S3: 確認 -->
+    <div class="screen" id="s-confirm">
+      <div class="step-dots">
+        <div class="sdot done"></div>
+        <div class="sdot done"></div>
+        <div class="sdot active"></div>
+        <div class="sdot"></div>
+      </div>
+      <button class="btn-back" onclick="show('s-plan')">← 戻る</button>
+      <p class="sc-eyebrow">Step 3</p>
+      <h3 class="sc-title">内容の確認</h3>
 
-    if (activeId) {
-      const el = document.getElementById(activeId);
-      if (el) {
-        el.focus();
-        if (sStart !== null) { try { el.setSelectionRange(sStart, sEnd); } catch(e) {} }
-      }
-    }
+      <div class="summary-box">
+        <div class="summary-row"><span class="s-lbl">お名前</span><span class="s-val" id="cf-name"></span></div>
+        <div class="summary-row"><span class="s-lbl">生年月日</span><span class="s-val" id="cf-dob"></span></div>
+        <div class="summary-row"><span class="s-lbl">プラン</span><span class="s-val" id="cf-plan"></span></div>
+        <div class="summary-row"><span class="s-lbl">テーマ</span><span class="s-val" id="cf-cat"></span></div>
+        <div class="summary-row"><span class="s-lbl">合計</span><span class="s-total" id="cf-total"></span></div>
+      </div>
 
-    // ドラッグ＆ドロップ機能
-    const gridEl = document.getElementById(`deck-grid-${id}`);
-    if (gridEl && gridEl.children.length > 0 && !gridEl.innerHTML.includes('商品検索から')) {
-      Sortable.create(gridEl, {
-        animation: 150,
-        filter: '.vd-btn',
-        preventOnFilter: false,
-        ghostClass: 'sortable-ghost',
-        delay: 150,
-        delayOnTouchOnly: true,
-        onEnd: async function () {
-          const newCards = [];
-          gridEl.querySelectorAll('.vd-card').forEach(el => {
-            newCards.push({ itemId: el.dataset.id, qty: 1 });
-          });
-          setSyncDot('sync');
-          await updateDoc(doc(db,'users',uid,'decks',id), { cards: newCards });
-        }
-      });
-    }
-  }, 10);
+      <button class="btn-gold" id="start-btn" onclick="startFortune()">鑑定を始める →</button>
+      <p class="payment-note">🔒 実装時は Stripe で安全に決済</p>
+      <div id="err-box"></div>
+    </div>
+
+    <!-- S4: ローディング -->
+    <div class="screen" id="s-loading">
+      <div class="loading-wrap">
+        <div class="loading-orb"></div>
+        <p class="loading-text" id="load-txt">星の導きを読み解いています…</p>
+      </div>
+    </div>
+
+    <!-- S5: 結果 -->
+    <div class="screen" id="s-result">
+      <div class="step-dots">
+        <div class="sdot done"></div>
+        <div class="sdot done"></div>
+        <div class="sdot done"></div>
+        <div class="sdot active"></div>
+      </div>
+      <p class="sc-eyebrow">鑑定完了</p>
+      <h3 class="sc-title">あなたへの鑑定結果</h3>
+      <div style="text-align:center;"><div class="result-orb-sm">✦</div></div>
+      <div class="result-card">
+        <div class="result-tag" id="res-tag"></div>
+        <div class="result-name-line" id="res-name"></div>
+        <div class="result-body" id="res-body"></div>
+      </div>
+      <button class="btn-ghost" onclick="restart()">もう一度占う</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Stella <em style="font-family:'Cormorant Garamond',serif;font-style:italic;">占い</em></div>
+  <p class="footer-note">© 2025 Stella 占い　|　星の導きをあなたへ</p>
+</footer>
+
+<script>
+(function(){
+
+// ─── STARFIELD CANVAS ───
+var canvas = document.getElementById('bg-canvas');
+var ctx = canvas.getContext('2d');
+var stars = [];
+
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 
-window.dkUpdate = async (id, key, val) => { const d={}; d[key]=val; await updateDoc(doc(db,'users',uid,'decks',id), d); };
-window.dkStatusChange = async (id, v) => { const d={status:v}; if(v==='sold') d.soldAt=Date.now(); await updateDoc(doc(db,'users',uid,'decks',id), d); };
-window.delDeck = async (id) => { if(confirm('削除しますか？')) await deleteDoc(doc(db,'users',uid,'decks',id)); };
-
-// Utility
-function dkCost(dk){ return (dk.cards||[]).reduce((s,c)=>{const i=items.find(x=>x.id===c.itemId); return s+(i?(i.cost||0)*(c.qty||1):0)},0); }
-function updateBadges(){ document.getElementById('nb-inv').textContent=items.length; document.getElementById('nb-deck').textContent=decks.length; document.getElementById('inv-cnt').textContent=items.length; document.getElementById('dk-cnt').textContent=decks.length; }
-function hl(t,q){ if(!q) return t; const i=t.toLowerCase().indexOf(q.toLowerCase()); if(i<0) return t; return t.slice(0,i)+`<mark>${t.slice(i,i+q.length)}</mark>`+t.slice(i+q.length); }
-window.openModal = (id) => document.getElementById(id).classList.add('on');
-window.closeModal = (id) => document.getElementById(id).classList.remove('on');
-function toast(m,e=false){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast'+(e?' err':'')+' show'; setTimeout(()=>t.classList.remove('show'),2600); }
-
-document.addEventListener('paste', (e) => {
-  if(!document.getElementById('modal-item').classList.contains('on')) return;
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-  for (let item of items) {
-    if (item.type.indexOf('image') === 0) {
-      const file = item.getAsFile();
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX = 300; let w=img.width, h=img.height;
-          if(w>h && w>MAX){h*=MAX/w; w=MAX;} else if(h>MAX){w*=MAX/h; h=MAX;}
-          canvas.width=w; canvas.height=h;
-          canvas.getContext('2d').drawImage(img,0,0,w,h);
-          currentItemImage = canvas.toDataURL('image/jpeg', 0.8);
-          const pv = document.getElementById('item-img-preview');
-          pv.style.backgroundImage = `url(${currentItemImage})`; pv.innerHTML = '';
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+function initStars(){
+  stars = [];
+  for(var i=0;i<160;i++){
+    stars.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.2+0.2,
+      a: Math.random(),
+      da: (Math.random()-0.5)*0.008,
+      speed: Math.random()*0.15+0.05
+    });
   }
-});
+}
+
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(function(s){
+    s.a += s.da;
+    if(s.a<=0||s.a>=1) s.da *= -1;
+    s.y -= s.speed;
+    if(s.y < 0) s.y = canvas.height;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,'+s.a.toFixed(2)+')';
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+
+resize();
+initStars();
+drawStars();
+window.addEventListener('resize', function(){ resize(); initStars(); });
+
+// ─── STATE ───
+var state = {name:'',dob:'',gender:'',plan:'standard',cat:'仕事・キャリア',worry:''};
+var selectedCatIdx = -1;
+var phraseTimer = null;
+
+// ─── UTILS ───
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.getElementById('fortune').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+window.scrollToFortune = function(){
+  document.getElementById('fortune').scrollIntoView({behavior:'smooth'});
+};
+
+function fmtDob(dob){
+  var d = new Date(dob);
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
+}
+
+function calcAge(dob){
+  var d = new Date(dob);
+  return Math.floor((Date.now()-d.getTime())/(365.25*24*3600*1000));
+}
+
+// ─── STEP NAVIGATION ───
+window.goStep2 = function(){
+  var name = document.getElementById('inp-name').value.trim();
+  var dob  = document.getElementById('inp-dob').value;
+  if(!name){ alert('お名前を入力してください'); return; }
+  if(!dob){  alert('生年月日を入力してください'); return; }
+  state.name   = name;
+  state.dob    = dob;
+  state.gender = document.getElementById('inp-gender').value;
+  // デフォルト選択
+  if(selectedCatIdx < 0){ setCat(0,'仕事・キャリア'); }
+  setPlan('standard');
+  show('s-plan');
+};
+
+window.goStep3 = function(){
+  state.worry = (document.getElementById('inp-worry')||{}).value||'';
+  document.getElementById('cf-name').textContent  = state.name;
+  document.getElementById('cf-dob').textContent   = fmtDob(state.dob);
+  document.getElementById('cf-plan').textContent  = state.plan==='special'?'スペシャル鑑定':'スタンダード鑑定';
+  document.getElementById('cf-cat').textContent   = state.cat;
+  document.getElementById('cf-total').textContent = state.plan==='special'?'¥500':'¥100';
+  document.getElementById('err-box').innerHTML    = '';
+  show('s-confirm');
+};
+
+window.show = show;
+
+window.setPlan = function(plan){
+  state.plan = plan;
+  document.getElementById('pc-std').classList.toggle('selected', plan==='standard');
+  document.getElementById('pc-spl').classList.toggle('selected', plan==='special');
+  document.getElementById('spl-extra').style.display = plan==='special'?'':'none';
+};
+
+window.setCat = function(idx,cat){
+  selectedCatIdx = idx;
+  state.cat = cat;
+  for(var i=0;i<4;i++) document.getElementById('c'+i).classList.remove('selected');
+  document.getElementById('c'+idx).classList.add('selected');
+};
+
+window.restart = function(){
+  state = {name:'',dob:'',gender:'',plan:'standard',cat:'仕事・キャリア',worry:''};
+  selectedCatIdx = -1;
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-dob').value='';
+  document.getElementById('inp-gender').value='';
+  show('s-profile');
+};
+
+// ─── FORTUNE ───
+var phrases = [
+  '星の配置を読み解いています…',
+  '生まれた日の宿命を辿っています…',
+  '宇宙の声に耳を傾けています…',
+  'あなたへのメッセージを紡いでいます…'
+];
+var phraseIdx = 0;
+
+window.startFortune = function(){
+  document.getElementById('err-box').innerHTML = '';
+  show('s-loading');
+  phraseIdx = 0;
+  document.getElementById('load-txt').textContent = phrases[0];
+  phraseTimer = setInterval(function(){
+    phraseIdx = (phraseIdx+1)%phrases.length;
+    document.getElementById('load-txt').textContent = phrases[phraseIdx];
+  },1800);
+  callApi();
+};
+
+function callApi(){
+  var body = JSON.stringify({
+    name:   state.name,
+    dob:    state.dob,
+    gender: state.gender,
+    plan:   state.plan,
+    cat:    state.cat,
+    worry:  state.worry
+  });
+
+  fetch('/api/fortune',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: body
+  })
+  .then(function(res){
+    if(!res.ok){ return res.json().then(function(d){ throw new Error(d.error||'HTTP '+res.status); }); }
+    return res.json();
+  })
+  .then(function(data){
+    clearInterval(phraseTimer);
+    var age = calcAge(state.dob);
+    document.getElementById('res-tag').textContent      = state.cat;
+    document.getElementById('res-name').textContent     = state.name+'様（'+age+'歳）の鑑定';
+    document.getElementById('res-body').textContent     = data.result;
+    show('s-result');
+  })
+  .catch(function(e){
+    clearInterval(phraseTimer);
+    show('s-confirm');
+    document.getElementById('err-box').innerHTML =
+      '<div class="error-box">⚠️ 鑑定中にエラーが発生しました。しばらくしてから再度お試しください。</div>';
+    console.error(e);
+  });
+}
+
+// init
+setPlan('standard');
+
+})();
 </script>
 </body>
 </html>

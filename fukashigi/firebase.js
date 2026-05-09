@@ -1,36 +1,41 @@
 // ========================================
 // Firebase 設定ファイル
 // ========================================
-// Firebaseコンソール（https://console.firebase.google.com/）で
-// プロジェクトを作成し、以下の値を設定してください。
+// CDNを使用してFirebaseの最新モジュール（v9以降）をインポートします
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// FUKASHIGIプロジェクトの設定値
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDt2LBQ7W_k2XGOYw273AozZ2-sY2i4z6k",
+  authDomain: "fukashigi-1.firebaseapp.com",
+  projectId: "fukashigi-1",
+  storageBucket: "fukashigi-1.firebasestorage.app",
+  messagingSenderId: "130242994746",
+  appId: "1:130242994746:web:0dd04ccf2f0c74dbeb8b03",
+  measurementId: "G-7S8QM44H4Q"
 };
 
 // Firebase 初期化
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db   = firebase.firestore();
+// 他のファイルから import できるように export を付けます
+export const auth = getAuth(app);
+export const db   = getFirestore(app);
 
 // ========================================
 // 共通ユーティリティ
 // ========================================
 
 // 今日の日付文字列 (YYYYMMDD)
-function todayStr() {
+export function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
 }
 
 // タイムスタンプ → 日本語日時文字列
-function formatDate(ts) {
+export function formatDate(ts) {
   if (!ts) return '—';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString('ja-JP', {
@@ -40,20 +45,20 @@ function formatDate(ts) {
 }
 
 // 日付のみ
-function formatDateOnly(ts) {
+export function formatDateOnly(ts) {
   if (!ts) return '—';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'});
 }
 
 // イベントカテゴリラベル
-function categoryLabel(cat) {
+export function categoryLabel(cat) {
   const map = { poker:'ポーカー', smash:'スマブラ', fishing:'釣り', card:'カード', other:'その他' };
   return map[cat] || cat;
 }
 
 // ランク計算（来店回数ベース）
-function calcRank(checkInCount) {
+export function calcRank(checkInCount) {
   if (checkInCount >= 50) return { rank:'LEGEND', color:'#D4AF37' };
   if (checkInCount >= 30) return { rank:'MASTER', color:'#E8C860' };
   if (checkInCount >= 15) return { rank:'VETERAN', color:'#CCCCCC' };
@@ -62,7 +67,7 @@ function calcRank(checkInCount) {
 }
 
 // 称号計算
-function calcTitle(checkInCount, eventJoinCount) {
+export function calcTitle(checkInCount, eventJoinCount) {
   if (checkInCount >= 50)  return '不可思議の住人';
   if (checkInCount >= 30)  return '幹部候補';
   if (checkInCount >= 20)  return 'レジスタンスメンバー';
@@ -73,6 +78,6 @@ function calcTitle(checkInCount, eventJoinCount) {
 }
 
 // 今日のQRチェックインコード
-function todayCheckinCode() {
+export function todayCheckinCode() {
   return `FUKASHIGI-CHECKIN-${todayStr()}`;
 }

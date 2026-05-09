@@ -114,11 +114,14 @@
       btn.textContent = 'ログイン';
       const msgs = {
         'auth/user-not-found':    'このメールアドレスは登録されていません',
-        'auth/wrong-password':    'パスワードが違います',
-        'auth/invalid-email':     'メールアドレスの形式が正しくありません',
-        'auth/too-many-requests': 'しばらく待ってから再試行してください',
+        'auth/wrong-password':        'パスワードが違います',
+        'auth/invalid-email':         'メールアドレスの形式が正しくありません',
+        'auth/invalid-credential':    'メールアドレスまたはパスワードが違います',
+        'auth/too-many-requests':     'しばらく待ってから再試行してください',
+        'auth/operation-not-allowed': 'Firebaseコンソールでメール/パスワード認証を有効にしてください',
+        'auth/network-request-failed':'ネットワークエラーが発生しました',
       };
-      showErr(errEl, msgs[e.code] || 'ログインに失敗しました');
+      showErr(errEl, msgs[e.code] || `ログインに失敗しました (${e.code})`);
     }
   }
 
@@ -157,11 +160,13 @@
       btn.disabled = false;
       btn.textContent = 'メンバー登録';
       const msgs = {
-        'auth/email-already-in-use': 'このメールアドレスはすでに使用されています',
-        'auth/invalid-email':        'メールアドレスの形式が正しくありません',
+        'auth/email-already-in-use':  'このメールアドレスはすでに使用されています',
+        'auth/invalid-email':         'メールアドレスの形式が正しくありません',
+        'auth/operation-not-allowed': 'Firebaseコンソールでメール/パスワード認証を有効にしてください（Authentication → Sign-in method）',
+        'auth/network-request-failed':'ネットワークエラーが発生しました',
         'auth/weak-password':        'パスワードが弱すぎます',
       };
-      showErr(errEl, msgs[e.code] || '登録に失敗しました');
+      showErr(errEl, msgs[e.code] || `登録に失敗しました (${e.code})`);
     }
   }
 

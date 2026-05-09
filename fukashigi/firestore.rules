@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuth() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isSelf(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // ユーザー
+    match /users/{uid} {
+      allow read: if isAuth();
+      allow create: if isSelf(uid);
+      allow update: if isSelf(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // イベント
+    match /events/{eventId} {
+      allow read: if isAuth();
+      // 管理者は全フィールド更新可、一般ユーザーは participants のみ更新可
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() ||
+        (isAuth() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']));
+    }
+
+    // チャット
+    match /chats/{msgId} {
+      allow read: if isAuth();
+      allow create: if isAuth() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.deleted == false;
+      // 論理削除: 管理者のみ
+      allow update: if isAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deleted']);
+      allow delete: if isAdmin();
+    }
+
+    // ポイント履歴
+    match /pointLogs/{logId} {
+      allow read: if isAdmin() ||
+        (isAuth() && resource.data.uid == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // お知らせ
+    match /notices/{noticeId} {
+      allow read: if isAuth();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // チェックイン
+    match /checkins/{checkinId} {
+      allow read: if isAuth();
+      allow create: if isAuth() &&
+        request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+  }
+}

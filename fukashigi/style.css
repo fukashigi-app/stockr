@@ -20,6 +20,7 @@
   --danger:       #C0392B;
   --warning:      #C9853A;
   --nav-h:        64px;
+  --header-h:     50px;
 
   /* 旧ネオン変数を金・グレーに再マップ（JSテンプレート互換） */
   --neon-blue:    #D4AF37;
@@ -1049,3 +1050,413 @@ body {
 /* ランクチップ（calcRankの色は変数で上書き） */
 .rank-chip { padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif; }
 .rank-badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* ========================================
+   チャット
+======================================== */
+
+/* チャットタブはビューポート全体を占有 */
+#tab-chat {
+  display: none;
+  position: fixed;
+  top: var(--header-h);
+  bottom: var(--nav-h);
+  left: 0; right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 5;
+  overflow: hidden;
+}
+#tab-chat.active { display: flex; }
+
+/* ルーム選択バー */
+.chat-rooms-bar {
+  flex-shrink: 0;
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-main);
+  scrollbar-width: none;
+}
+.chat-rooms-bar::-webkit-scrollbar { display: none; }
+.chat-room-btn {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+.chat-room-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.chat-room-btn:hover  { color: var(--text-sub); }
+
+/* メッセージエリア */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* メッセージ行 */
+.chat-bubble-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.chat-bubble-wrap.sent {
+  flex-direction: row-reverse;
+}
+
+/* アバター（小） */
+.chat-avatar-sm {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.chat-msg-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chat-bubble-wrap.sent .chat-msg-group { align-items: flex-end; }
+
+.chat-sender-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  padding-left: 2px;
+  font-family: 'Inter', sans-serif;
+}
+
+.chat-bubble {
+  display: inline-block;
+  max-width: min(280px, 72vw);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 13px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-sub);
+  word-break: break-word;
+}
+.chat-bubble.sent {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #000;
+  border-radius: 12px 12px 4px 12px;
+}
+.chat-bubble.received { border-radius: 12px 12px 12px 4px; }
+
+.chat-bubble img {
+  max-width: 200px;
+  border-radius: 6px;
+  display: block;
+  margin-top: 4px;
+}
+
+.chat-time {
+  font-size: 10px;
+  color: rgba(0,0,0,0.4);
+  margin-top: 4px;
+  font-family: 'Inter', sans-serif;
+}
+.chat-bubble:not(.sent) .chat-time { color: var(--text-muted); }
+
+.chat-delete-btn {
+  font-size: 10px;
+  color: var(--danger);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-top: 2px;
+  opacity: 0.6;
+  font-family: inherit;
+}
+.chat-delete-btn:hover { opacity: 1; }
+
+/* 日付セパレーター */
+.chat-date-sep {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 8px 0;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+}
+.chat-date-sep::before, .chat-date-sep::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: var(--border);
+}
+.chat-date-sep::before { left: 0; }
+.chat-date-sep::after  { right: 0; }
+
+/* 入力エリア */
+.chat-input-wrap {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-main);
+  padding: 10px 12px;
+}
+.chat-image-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  background: var(--bg-card2);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.chat-image-preview img {
+  width: 48px; height: 48px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.chat-preview-clear {
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 16px; padding: 4px; margin-left: auto;
+}
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chat-attach-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px 10px;
+  transition: border-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+.chat-attach-btn:hover { border-color: var(--gold); color: var(--gold); }
+.chat-text-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 12px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.chat-text-input:focus { outline: none; border-color: var(--gold); }
+.chat-text-input::placeholder { color: var(--text-muted); }
+.chat-send-btn {
+  flex-shrink: 0;
+  background: var(--gold);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.chat-send-btn:hover { background: var(--gold-light); }
+.chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* チャット空状態 */
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-empty .chat-empty-icon { font-size: 40px; opacity: 0.3; }
+
+/* ========================================
+   プロフィール編集モーダル
+======================================== */
+
+.profile-edit-avatar-wrap {
+  position: relative;
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+}
+.profile-edit-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: pointer;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.15s;
+}
+.profile-edit-avatar:hover { opacity: 0.8; }
+.avatar-edit-badge {
+  position: absolute;
+  bottom: 0; right: 0;
+  background: var(--gold);
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  color: #000;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* ========================================
+   画像アップロード共通
+======================================== */
+
+.img-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 32px 20px;
+  border: 1px dashed var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.img-upload-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.img-preview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.img-preview img { width: 100%; display: block; max-height: 200px; object-fit: cover; }
+.img-preview-clear {
+  position: absolute;
+  top: 6px; right: 6px;
+  background: rgba(0,0,0,0.7);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 14px;
+  width: 26px; height: 26px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ========================================
+   ユーザー停止バッジ
+======================================== */
+
+.badge-suspended {
+  background: rgba(192,57,43,0.12);
+  color: var(--danger);
+  border: 1px solid rgba(192,57,43,0.3);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ========================================
+   通知バッジ
+======================================== */
+
+.nav-badge {
+  position: absolute;
+  top: 4px; right: 20%;
+  background: var(--danger);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  font-family: 'Inter', sans-serif;
+}
+.nav-item { position: relative; }
+
+/* ========================================
+   イベント画像
+======================================== */
+
+.event-image {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  display: block;
+}
+.event-card-with-image { flex-direction: column; }
+.event-card-with-image .event-date-col { display: none; }
+.event-card-with-image .event-info-col { padding: 14px 16px; }
+
+/* ========================================
+   アップロード進捗
+======================================== */
+
+.upload-progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+  display: none;
+}
+.upload-progress-bar {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.3s;
+  width: 0%;
+}
+.upload-progress.show { display: block; }

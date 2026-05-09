@@ -12,31 +12,30 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ヘッダー -->
 <header class="admin-header">
   <div class="logo">FUKASHIGI ADMIN</div>
-  <div style="display:flex;align-items:center;gap:8px;">
+  <div style="display:flex;gap:8px;align-items:center;">
     <a href="app.html" class="btn btn-outline btn-sm">アプリへ</a>
     <button class="btn btn-outline btn-sm" onclick="doLogout()">ログアウト</button>
   </div>
 </header>
 
-<!-- ナビゲーション -->
-<div class="admin-nav">
+<div class="admin-nav" id="adminNavBar">
   <button class="admin-nav-btn active" onclick="switchSection('dashboard',this)">ダッシュボード</button>
   <button class="admin-nav-btn" onclick="switchSection('members',this)">メンバー</button>
   <button class="admin-nav-btn" onclick="switchSection('events',this)">イベント</button>
   <button class="admin-nav-btn" onclick="switchSection('checkins',this)">チェックイン</button>
   <button class="admin-nav-btn" onclick="switchSection('points',this)">ポイント</button>
   <button class="admin-nav-btn" onclick="switchSection('notices',this)">お知らせ</button>
+  <button class="admin-nav-btn" onclick="switchSection('chat',this)">チャット管理</button>
   <button class="admin-nav-btn" onclick="switchSection('qr',this)">QRコード</button>
 </div>
 
-<!-- ===== ダッシュボード ===== -->
+<!-- ダッシュボード -->
 <div id="sec-dashboard" class="admin-section active">
   <div class="admin-content">
     <div class="page-title">ダッシュボード</div>
-    <div class="summary-grid" id="dashStats">
+    <div class="summary-grid">
       <div class="summary-card"><div class="s-val" id="dashMembers">—</div><div class="s-label">メンバー数</div></div>
       <div class="summary-card"><div class="s-val" id="dashEvents">—</div><div class="s-label">イベント数</div></div>
       <div class="summary-card"><div class="s-val" id="dashCheckins">—</div><div class="s-label">総チェックイン</div></div>
@@ -47,7 +46,7 @@
   </div>
 </div>
 
-<!-- ===== メンバー管理 ===== -->
+<!-- メンバー管理 -->
 <div id="sec-members" class="admin-section">
   <div class="admin-content">
     <div class="page-title">メンバー管理</div>
@@ -55,11 +54,17 @@
       <span class="search-icon">🔍</span>
       <input type="text" class="form-input" id="memberSearch" placeholder="名前・メールで検索…" oninput="filterMembers()">
     </div>
-    <div id="memberList"><div class="loading"><div class="spinner"></div> 読み込み中…</div></div>
+    <!-- フィルター -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="tag-btn active" id="filterAll" onclick="setMemberFilter('all',this)">全員</button>
+      <button class="tag-btn" id="filterActive" onclick="setMemberFilter('active',this)">有効</button>
+      <button class="tag-btn" id="filterSuspended" onclick="setMemberFilter('suspended',this)">停止中</button>
+    </div>
+    <div id="memberList"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ===== イベント管理 ===== -->
+<!-- イベント管理 -->
 <div id="sec-events" class="admin-section">
   <div class="admin-content">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -67,9 +72,8 @@
       <button class="btn btn-gold btn-sm" onclick="showCreateEventForm()">＋ 新規作成</button>
     </div>
 
-    <!-- 作成フォーム -->
     <div id="createEventForm" class="card" style="display:none;margin-bottom:20px;">
-      <div style="font-size:15px;font-weight:700;color:var(--gold);margin-bottom:20px;letter-spacing:0.04em;">新規イベント作成</div>
+      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:20px;">新規イベント作成</div>
       <div class="form-group">
         <label class="form-label">イベント名 *</label>
         <input type="text" class="form-input" id="evTitle" placeholder="第○回ポーカー大会">
@@ -80,7 +84,7 @@
           <input type="date" class="form-input" id="evDate">
         </div>
         <div class="form-group">
-          <label class="form-label">カテゴリ *</label>
+          <label class="form-label">カテゴリ</label>
           <div class="select-wrap">
             <select class="form-select" id="evCategory">
               <option value="poker">ポーカー</option>
@@ -110,7 +114,11 @@
       </div>
       <div class="form-group">
         <label class="form-label">説明</label>
-        <textarea class="form-textarea" id="evDescription" placeholder="イベントの説明を入力…"></textarea>
+        <textarea class="form-textarea" id="evDescription" placeholder="イベントの説明…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">イベント画像URL（任意）</label>
+        <input type="url" class="form-input" id="evImageUrl" placeholder="https://…">
       </div>
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -124,30 +132,27 @@
       </div>
     </div>
 
-    <div id="adminEventsList"><div class="loading"><div class="spinner"></div> 読み込み中…</div></div>
+    <div id="adminEventsList"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ===== チェックイン履歴 ===== -->
+<!-- チェックイン履歴 -->
 <div id="sec-checkins" class="admin-section">
   <div class="admin-content">
     <div class="page-title">チェックイン履歴</div>
-    <div id="checkinHistory"><div class="loading"><div class="spinner"></div> 読み込み中…</div></div>
+    <div id="checkinHistory"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ===== ポイント管理 ===== -->
+<!-- ポイント管理 -->
 <div id="sec-points" class="admin-section">
   <div class="admin-content">
     <div class="page-title">ポイント管理</div>
-
     <div class="card card-glow" style="margin-bottom:24px;">
-      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;letter-spacing:0.06em;">ポイント / チップ 付与・減算</div>
+      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;">ポイント / チップ 付与・減算</div>
       <div class="form-group">
         <label class="form-label">メンバー選択</label>
-        <div class="select-wrap">
-          <select class="form-select" id="ptMember"></select>
-        </div>
+        <div class="select-wrap"><select class="form-select" id="ptMember"></select></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
@@ -172,26 +177,24 @@
       </div>
       <button class="btn btn-gold btn-block" onclick="applyPoints()">実行する</button>
     </div>
-
     <div class="section-title" style="margin-top:0;">変更履歴</div>
-    <div id="pointLogList"><div class="loading"><div class="spinner"></div> 読み込み中…</div></div>
+    <div id="pointLogList"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ===== お知らせ管理 ===== -->
+<!-- お知らせ管理 -->
 <div id="sec-notices" class="admin-section">
   <div class="admin-content">
     <div class="page-title">お知らせ管理</div>
-
     <div class="card" style="margin-bottom:24px;border-color:rgba(212,175,55,0.3);">
-      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;letter-spacing:0.06em;">新規お知らせ投稿</div>
+      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;">新規お知らせ投稿</div>
       <div class="form-group">
         <label class="form-label">タイトル *</label>
         <input type="text" class="form-input" id="noticeTitle" placeholder="お知らせタイトル">
       </div>
       <div class="form-group">
         <label class="form-label">本文 *</label>
-        <textarea class="form-textarea" id="noticeBody" placeholder="お知らせの内容を入力…" style="min-height:120px;"></textarea>
+        <textarea class="form-textarea" id="noticeBody" style="min-height:120px;" placeholder="内容を入力…"></textarea>
       </div>
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -201,26 +204,35 @@
       </div>
       <button class="btn btn-gold btn-block" onclick="postNotice()">投稿する</button>
     </div>
-
     <div class="section-title" style="margin-top:0;">投稿済みお知らせ</div>
-    <div id="noticeList"><div class="loading"><div class="spinner"></div> 読み込み中…</div></div>
+    <div id="noticeList"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ===== QRコード表示 ===== -->
+<!-- チャット管理 -->
+<div id="sec-chat" class="admin-section">
+  <div class="admin-content">
+    <div class="page-title">チャット管理</div>
+    <!-- ルーム選択 -->
+    <div class="tag-filter" id="adminChatRoomFilter">
+      <button class="tag-btn active" onclick="loadAdminChat('global',this)">全体チャット</button>
+    </div>
+    <div id="adminChatList"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- QRコード表示 -->
 <div id="sec-qr" class="admin-section">
   <div class="admin-content">
     <div class="page-title">本日のQRコード</div>
     <div class="card" style="text-align:center;padding:32px 24px;">
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.7;">
-        このQRコードを会場に掲示してください。<br>
-        メンバーがスキャンするとチェックインされます。<br>
-        コードは本日のみ有効です。
+        このQRコードを会場に掲示してください。<br>メンバーがスキャンするとチェックインされます。<br>コードは本日のみ有効です。
       </p>
       <div style="display:flex;justify-content:center;margin-bottom:20px;">
         <div class="qr-display" id="qrCodeDisplay"></div>
       </div>
-      <div style="font-family:'Inter',monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.05em;" id="qrCodeText"></div>
+      <div style="font-family:'Inter',monospace;font-size:11px;color:var(--text-muted);" id="qrCodeText"></div>
     </div>
   </div>
 </div>
@@ -241,6 +253,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="firebase.js"></script>
 <script src="admin.js"></script>

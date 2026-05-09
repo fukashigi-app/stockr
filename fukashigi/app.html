@@ -13,31 +13,28 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ヘッダー -->
-<header class="app-header">
+<header class="app-header" style="height:var(--header-h);">
   <div class="logo">FUKASHIGI</div>
   <div class="header-actions">
-    <span id="headerUserName" style="font-size:12px;color:var(--text-muted);letter-spacing:0.04em;"></span>
+    <span id="headerUserName" style="font-size:12px;color:var(--text-muted);"></span>
     <button class="btn btn-outline btn-sm" onclick="doLogout()">ログアウト</button>
   </div>
 </header>
 
-<!-- メインコンテンツ -->
+<!-- メインコンテンツ（チャット以外） -->
 <div class="main-content">
 
   <!-- ===== HOME ===== -->
   <div id="tab-home" class="tab-section active">
-
-    <!-- ユーザーカード -->
     <div class="user-card">
-      <div class="avatar">👤</div>
+      <div class="avatar" id="homeAvatar" style="background-size:cover;background-position:center;">👤</div>
       <div class="user-info">
         <div class="user-name" id="homeUserName">…</div>
         <div class="user-rank-row" id="homeRankRow"></div>
       </div>
     </div>
 
-    <!-- スタッツ（3列） -->
-    <div class="stats-row" id="homeStats">
+    <div class="stats-row">
       <div class="stat-box gold-val">
         <div class="stat-val" id="statPoints">—</div>
         <div class="stat-label">ポイント</div>
@@ -52,7 +49,6 @@
       </div>
     </div>
 
-    <!-- チェックインボタン -->
     <div class="checkin-btn-wrap">
       <button class="checkin-btn" id="checkinBtn" onclick="openQRScanner()">
         <span class="icon">📷</span> QRチェックイン
@@ -60,32 +56,23 @@
       <div id="checkinStatus" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
     </div>
 
-    <!-- 今日の来店メンバー -->
     <div class="section-title">今日の来店</div>
-    <div id="todayMembersWrap">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:4px;">
       <div class="today-members-scroll" id="todayMembers">
-        <div style="font-size:13px;color:var(--text-muted);padding:8px 0;">読み込み中…</div>
+        <div style="font-size:13px;color:var(--text-muted);">読み込み中…</div>
       </div>
     </div>
 
-    <!-- お知らせ -->
     <div class="section-title">お知らせ</div>
-    <div id="homeNotices">
-      <div class="loading"><div class="spinner"></div> 読み込み中…</div>
-    </div>
+    <div id="homeNotices"><div class="loading"><div class="spinner"></div></div></div>
 
-    <!-- 直近のイベント -->
     <div class="section-title">次回イベント</div>
-    <div id="homeEvents">
-      <div class="loading"><div class="spinner"></div> 読み込み中…</div>
-    </div>
-
-  </div><!-- /tab-home -->
+    <div id="homeEvents"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
 
   <!-- ===== EVENTS ===== -->
   <div id="tab-events" class="tab-section">
     <div class="page-title">イベント</div>
-
     <div class="tag-filter" id="categoryFilter">
       <button class="tag-btn active" onclick="filterEvents('all',this)">すべて</button>
       <button class="tag-btn" onclick="filterEvents('poker',this)">ポーカー</button>
@@ -94,78 +81,89 @@
       <button class="tag-btn" onclick="filterEvents('card',this)">カード</button>
       <button class="tag-btn" onclick="filterEvents('other',this)">その他</button>
     </div>
-
-    <div id="eventsList">
-      <div class="loading"><div class="spinner"></div> 読み込み中…</div>
-    </div>
-  </div><!-- /tab-events -->
+    <div id="eventsList"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
 
   <!-- ===== MYPAGE ===== -->
   <div id="tab-mypage" class="tab-section">
-
-    <!-- プロフィールヘッダー -->
     <div class="profile-header">
-      <div class="avatar" id="mypageAvatar">👤</div>
+      <div class="avatar" id="mypageAvatar" style="background-size:cover;background-position:center;">👤</div>
       <div class="profile-name" id="mypageName"></div>
       <div class="profile-id" id="mypageMemberNo"></div>
-      <div class="profile-rank-row" id="mypageRankRow"></div>
+      <div class="profile-rank-row" id="mypageRankRow" style="margin-bottom:14px;"></div>
+      <button class="btn btn-outline btn-sm" onclick="openEditProfile()">プロフィール編集</button>
     </div>
 
-    <!-- ステータス詳細 -->
     <div class="section-title" style="margin-top:0;">ステータス</div>
     <div class="detail-list">
-      <div class="detail-row">
-        <span class="label">現在ポイント</span>
-        <span class="value gold" id="mypagePoints">—</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">累計ポイント</span>
-        <span class="value" id="mypageTotalPoints">—</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">チップ</span>
-        <span class="value" id="mypageChips">—</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">来店回数</span>
-        <span class="value" id="mypageCheckins">—</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">イベント参加数</span>
-        <span class="value" id="mypageEventJoins">—</span>
-      </div>
+      <div class="detail-row"><span class="label">現在ポイント</span><span class="value gold" id="mypagePoints">—</span></div>
+      <div class="detail-row"><span class="label">累計ポイント</span><span class="value" id="mypageTotalPoints">—</span></div>
+      <div class="detail-row"><span class="label">チップ</span><span class="value" id="mypageChips">—</span></div>
+      <div class="detail-row"><span class="label">来店回数</span><span class="value" id="mypageCheckins">—</span></div>
+      <div class="detail-row"><span class="label">イベント参加数</span><span class="value" id="mypageEventJoins">—</span></div>
     </div>
 
-    <!-- バッジ -->
+    <!-- 自己紹介 -->
+    <div class="section-title">自己紹介</div>
+    <div id="mypageComment" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:14px;color:var(--text-sub);line-height:1.7;margin-bottom:4px;min-height:60px;white-space:pre-line;"></div>
+
     <div class="section-title">バッジ</div>
     <div class="badge-grid" id="mypageBadges"></div>
 
-    <!-- ポイント履歴 -->
     <div class="section-title">ポイント履歴</div>
-    <div id="mypagePointLogs">
-      <div class="loading"><div class="spinner"></div> 読み込み中…</div>
-    </div>
-  </div><!-- /tab-mypage -->
+    <div id="mypagePointLogs"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
 
 </div><!-- /main-content -->
 
-<!-- ボトムナビ -->
+<!-- ===== CHAT タブ（fixed レイアウト） ===== -->
+<div id="tab-chat" class="tab-section">
+  <!-- ルーム選択 -->
+  <div class="chat-rooms-bar" id="chatRoomsBar"></div>
+  <!-- メッセージ -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-empty">
+      <div class="chat-empty-icon">💬</div>
+      <div>読み込み中…</div>
+    </div>
+  </div>
+  <!-- 入力エリア -->
+  <div class="chat-input-wrap">
+    <div class="chat-image-preview" id="chatImagePreview" style="display:none;">
+      <img id="chatImageThumb" src="" alt="添付画像">
+      <button class="chat-preview-clear" onclick="clearImageAttach()">✕</button>
+    </div>
+    <div class="chat-input-row">
+      <button class="chat-attach-btn" onclick="document.getElementById('chatFileInput').click()" title="画像を添付">📎</button>
+      <input type="file" id="chatFileInput" accept="image/*" style="display:none;" onchange="attachImage(event)">
+      <input type="text" class="chat-text-input" id="chatTextInput" placeholder="メッセージを入力…"
+             onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMessage();event.preventDefault();}">
+      <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">送信</button>
+    </div>
+    <div class="upload-progress" id="chatUploadProgress">
+      <div class="upload-progress-bar" id="chatUploadProgressBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ボトムナビ（4タブ） -->
 <nav class="bottom-nav">
   <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
-    <span class="nav-icon">🏠</span>
-    <span>ホーム</span>
+    <span class="nav-icon">🏠</span><span>ホーム</span>
   </button>
   <button class="nav-item" id="nav-events" onclick="switchTab('events')">
-    <span class="nav-icon">📅</span>
-    <span>イベント</span>
+    <span class="nav-icon">📅</span><span>イベント</span>
+  </button>
+  <button class="nav-item" id="nav-chat" onclick="switchTab('chat')">
+    <span class="nav-icon">💬</span><span>チャット</span>
+    <span class="nav-badge" id="chatBadge" style="display:none;"></span>
   </button>
   <button class="nav-item" id="nav-mypage" onclick="switchTab('mypage')">
-    <span class="nav-icon">👤</span>
-    <span>マイページ</span>
+    <span class="nav-icon">👤</span><span>マイページ</span>
   </button>
 </nav>
 
-<!-- QRスキャナーモーダル -->
+<!-- ===== QRスキャナーモーダル ===== -->
 <div class="modal-overlay" id="qrModal">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -178,13 +176,10 @@
     </p>
     <div class="qr-scanner-wrap">
       <div id="qr-reader"></div>
-      <!-- 四隅フレーム -->
       <div class="qr-corner-overlay">
         <div class="qr-corners">
-          <span class="qr-corner tl"></span>
-          <span class="qr-corner tr"></span>
-          <span class="qr-corner bl"></span>
-          <span class="qr-corner br"></span>
+          <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
+          <span class="qr-corner bl"></span><span class="qr-corner br"></span>
         </div>
       </div>
     </div>
@@ -193,7 +188,7 @@
   </div>
 </div>
 
-<!-- イベント詳細モーダル -->
+<!-- ===== イベント詳細モーダル ===== -->
 <div class="modal-overlay" id="eventModal">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -205,10 +200,48 @@
   </div>
 </div>
 
+<!-- ===== プロフィール編集モーダル ===== -->
+<div class="modal-overlay" id="profileEditModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">プロフィール編集</div>
+      <button class="modal-close" onclick="closeEditProfile()">✕</button>
+    </div>
+
+    <!-- アイコン変更 -->
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="profile-edit-avatar-wrap">
+        <div class="profile-edit-avatar" id="editAvatarPreview"
+             onclick="document.getElementById('iconFileInput').click()"></div>
+        <div class="avatar-edit-badge">✎</div>
+      </div>
+      <input type="file" id="iconFileInput" accept="image/*" style="display:none;" onchange="previewIcon(event)">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">タップしてアイコンを変更</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">名前 *</label>
+      <input type="text" class="form-input" id="editName" maxlength="20" placeholder="名前を入力">
+    </div>
+    <div class="form-group">
+      <label class="form-label">自己紹介</label>
+      <textarea class="form-textarea" id="editComment" maxlength="200" placeholder="自己紹介を入力（200文字以内）" style="min-height:100px;"></textarea>
+    </div>
+    <div class="upload-progress" id="profileUploadProgress">
+      <div class="upload-progress-bar" id="profileUploadProgressBar"></div>
+    </div>
+    <button class="btn btn-gold btn-block" id="saveProfileBtn" onclick="saveProfile()" style="margin-top:8px;">
+      保存する
+    </button>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="firebase.js"></script>
 <script src="app.js"></script>

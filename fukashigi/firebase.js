@@ -1,8 +1,6 @@
 // ========================================
 // Firebase 設定ファイル（compat版）
 // ========================================
-// app.html / admin.html が読み込む CDN compat SDK と組み合わせて動作します
-// （firebase-app-compat, firebase-auth-compat, firebase-firestore-compat）
 
 const firebaseConfig = {
   apiKey:            "AIzaSyDt2LBQ7W_k2XGOYw273AozZ2-sY2i4z6k",
@@ -13,25 +11,23 @@ const firebaseConfig = {
   appId:             "1:130242994746:web:0dd04ccf2f0c74dbeb8b03"
 };
 
-// Firebase 初期化（二重初期化を防ぐ）
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const auth = firebase.auth();
-const db   = firebase.firestore();
+const auth    = firebase.auth();
+const db      = firebase.firestore();
+const storage = firebase.storage();
 
 // ========================================
 // 共通ユーティリティ
 // ========================================
 
-// 今日の日付文字列 (YYYYMMDD)
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// タイムスタンプ → 日本語日時文字列
 function formatDate(ts) {
   if (!ts) return '—';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -41,20 +37,23 @@ function formatDate(ts) {
   });
 }
 
-// 日付のみ
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+}
+
 function formatDateOnly(ts) {
   if (!ts) return '—';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'});
+  return d.toLocaleDateString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit' });
 }
 
-// イベントカテゴリラベル
 function categoryLabel(cat) {
   const map = { poker:'ポーカー', smash:'スマブラ', fishing:'釣り', card:'カード', other:'その他' };
   return map[cat] || cat;
 }
 
-// ランク計算（来店回数ベース）
 function calcRank(checkInCount) {
   if (checkInCount >= 50) return { rank:'LEGEND', color:'#D4AF37' };
   if (checkInCount >= 30) return { rank:'MASTER', color:'#E8C860' };
@@ -63,18 +62,28 @@ function calcRank(checkInCount) {
   return { rank:'ROOKIE', color:'#666666' };
 }
 
-// 称号計算
-function calcTitle(checkInCount, eventJoinCount) {
-  if (checkInCount >= 50)  return '不可思議の住人';
-  if (checkInCount >= 30)  return '幹部候補';
-  if (checkInCount >= 20)  return 'レジスタンスメンバー';
-  if (checkInCount >= 10)  return '常連';
-  if (checkInCount >= 5)   return '顔見知り';
-  if (checkInCount >= 1)   return '来店者';
+function calcTitle(checkInCount) {
+  if (checkInCount >= 50) return '不可思議の住人';
+  if (checkInCount >= 30) return '幹部候補';
+  if (checkInCount >= 20) return 'レジスタンスメンバー';
+  if (checkInCount >= 10) return '常連';
+  if (checkInCount >= 5)  return '顔見知り';
+  if (checkInCount >= 1)  return '来店者';
   return '新参者';
 }
 
-// 今日のQRチェックインコード
 function todayCheckinCode() {
   return `FUKASHIGI-CHECKIN-${todayStr()}`;
+}
+
+// 画像アップロード共通（Storage）
+async function uploadFile(path, file) {
+  const ref = storage.ref(path);
+  await ref.put(file);
+  return await ref.getDownloadURL();
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }

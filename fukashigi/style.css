@@ -1460,3 +1460,141 @@ body {
   width: 0%;
 }
 .upload-progress.show { display: block; }
+
+/* ========================================
+   ログイン — 成功メッセージ
+======================================== */
+
+.success-msg {
+  background: rgba(90,158,111,0.1);
+  border: 1px solid rgba(90,158,111,0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--success);
+  margin-bottom: 16px;
+  display: none;
+}
+.success-msg.show { display: block; }
+
+/* ========================================
+   イベント画像アップロード（管理画面）
+======================================== */
+
+.ev-img-preview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+}
+.ev-img-preview img { width: 100%; display: block; max-height: 180px; object-fit: cover; }
+.ev-img-preview-clear {
+  position: absolute;
+  top: 6px; right: 6px;
+  background: rgba(0,0,0,0.8);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 14px;
+  width: 26px; height: 26px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+
+/* ========================================
+   ユーザープロフィールカード（チャット内）
+======================================== */
+
+.user-profile-card {
+  text-align: center;
+  padding-bottom: 8px;
+}
+.user-profile-card .avatar {
+  width: 72px; height: 72px;
+  font-size: 28px;
+  margin: 0 auto 12px;
+}
+.user-profile-card .upc-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.user-profile-card .upc-id {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 10px;
+}
+.user-profile-card .upc-ranks { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+.user-profile-card .upc-comment {
+  background: var(--bg-card2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.7;
+  text-align: left;
+  white-space: pre-line;
+  margin-bottom: 14px;
+}
+
+/* ========================================
+   イベント編集モーダル
+======================================== */
+
+#eventEditModal .form-group { margin-bottom: 14px; }
+#eventEditModal .form-label { margin-bottom: 4px; }
+
+/* ========================================
+   管理画面 イベントカード（アクション付き）
+======================================== */
+
+.admin-event-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+.admin-event-card:hover { border-color: rgba(212,175,55,0.3); }
+.admin-event-card .ev-body {
+  display: flex;
+}
+.admin-event-card .ev-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-card2);
+  flex-wrap: wrap;
+}
+
+/* ========================================
+   フォームグリッド補助
+======================================== */
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ========================================
+   お知らせ詳細モーダル
+======================================== */
+
+.notice-detail-body {
+  background: var(--bg-card2);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.8;
+  white-space: pre-line;
+  margin-bottom: 16px;
+  min-height: 60px;
+}

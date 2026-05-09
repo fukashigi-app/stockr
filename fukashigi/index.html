@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>FUKASHIGI APP — ログイン</title>
+  <title>FUKASHIGI — ログイン</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -20,6 +20,9 @@
     <div class="neon-line"></div>
     <div class="app-subtitle">Members Only</div>
   </div>
+
+  <!-- システムメッセージ（suspended等） -->
+  <div id="sysMsg" style="display:none;"></div>
 
   <!-- ログインカード -->
   <div class="login-card">
@@ -76,16 +79,37 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="firebase.js"></script>
 <script>
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      db.collection('users').doc(user.uid).get().then(doc => {
-        if (doc.exists && doc.data().role === 'admin') {
-          window.location.href = 'admin.html';
-        } else {
-          window.location.href = 'app.html';
-        }
-      }).catch(() => { window.location.href = 'app.html'; });
+  // URLパラメータのメッセージ表示
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const msg    = params.get('msg');
+    const sysEl  = document.getElementById('sysMsg');
+    const map = {
+      suspended: 'このアカウントは停止されています。管理者にお問い合わせください。',
+      logout:    'ログアウトしました。',
+    };
+    if (map[msg]) {
+      sysEl.textContent = map[msg];
+      sysEl.className   = msg === 'suspended' ? 'error-msg show' : 'success-msg show';
+      sysEl.style.display = '';
     }
+  })();
+
+  auth.onAuthStateChanged(user => {
+    if (!user) return;
+    db.collection('users').doc(user.uid).get().then(doc => {
+      if (!doc.exists) { window.location.href = 'app.html'; return; }
+      const data = doc.data();
+      if (data.suspended) {
+        auth.signOut();
+        const sysEl = document.getElementById('sysMsg');
+        sysEl.textContent = 'このアカウントは停止されています。管理者にお問い合わせください。';
+        sysEl.className   = 'error-msg show';
+        sysEl.style.display = '';
+        return;
+      }
+      window.location.href = data.role === 'admin' ? 'admin.html' : 'app.html';
+    }).catch(() => { window.location.href = 'app.html'; });
   });
 
   function showTab(tab) {
@@ -94,6 +118,8 @@
     document.getElementById('registerForm').style.display = isLogin ? 'none' : '';
     document.getElementById('btnLogin').classList.toggle('active', isLogin);
     document.getElementById('btnRegister').classList.toggle('active', !isLogin);
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('registerError').classList.remove('show');
   }
 
   async function doLogin() {
@@ -113,13 +139,14 @@
       btn.disabled = false;
       btn.textContent = 'ログイン';
       const msgs = {
-        'auth/user-not-found':    'このメールアドレスは登録されていません',
+        'auth/user-not-found':        'このメールアドレスは登録されていません',
         'auth/wrong-password':        'パスワードが違います',
         'auth/invalid-email':         'メールアドレスの形式が正しくありません',
         'auth/invalid-credential':    'メールアドレスまたはパスワードが違います',
         'auth/too-many-requests':     'しばらく待ってから再試行してください',
-        'auth/operation-not-allowed': 'Firebaseコンソールでメール/パスワード認証を有効にしてください',
+        'auth/operation-not-allowed': 'Firebaseコンソールでメール/パスワード認証を有効にしてください（Authentication → Sign-in method）',
         'auth/network-request-failed':'ネットワークエラーが発生しました',
+        'auth/user-disabled':         'このアカウントは無効になっています',
       };
       showErr(errEl, msgs[e.code] || `ログインに失敗しました (${e.code})`);
     }
@@ -153,9 +180,11 @@
         rank: 'ROOKIE', title: '新参者',
         badges: [], checkInCount: 0, eventJoinCount: 0,
         comment: '',
+        suspended: false,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
+      // onAuthStateChanged がリダイレクトを処理
     } catch (e) {
       btn.disabled = false;
       btn.textContent = 'メンバー登録';
@@ -164,7 +193,7 @@
         'auth/invalid-email':         'メールアドレスの形式が正しくありません',
         'auth/operation-not-allowed': 'Firebaseコンソールでメール/パスワード認証を有効にしてください（Authentication → Sign-in method）',
         'auth/network-request-failed':'ネットワークエラーが発生しました',
-        'auth/weak-password':        'パスワードが弱すぎます',
+        'auth/weak-password':         'パスワードが弱すぎます（6文字以上必要）',
       };
       showErr(errEl, msgs[e.code] || `登録に失敗しました (${e.code})`);
     }
@@ -176,10 +205,9 @@
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const isLogin = document.getElementById('loginForm').style.display !== 'none';
-      if (isLogin) doLogin(); else doRegister();
-    }
+    if (e.key !== 'Enter') return;
+    const isLogin = document.getElementById('loginForm').style.display !== 'none';
+    if (isLogin) doLogin(); else doRegister();
   });
 </script>
 </body>

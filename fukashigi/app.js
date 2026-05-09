@@ -170,15 +170,17 @@ async function loadNotices() {
   const c = document.getElementById('homeNotices');
   try {
     const snap = await db.collection('notices')
-      .orderBy('pinned','desc').orderBy('createdAt','desc').limit(3).get();
+      .orderBy('pinned','desc').orderBy('createdAt','desc').limit(5).get();
     if (snap.empty) { c.innerHTML = '<div class="empty-state"><p>お知らせはありません</p></div>'; return; }
     c.innerHTML = snap.docs.map(doc => {
       const n = doc.data();
-      return `<div class="notice-card ${n.pinned?'pinned':''}">
+      const dateStr = formatDate(n.createdAt);
+      return `<div class="notice-card ${n.pinned?'pinned':''}" style="cursor:pointer;"
+               onclick="openNoticeDetail(${JSON.stringify(n.title)},${JSON.stringify(n.body)},${JSON.stringify(dateStr)})">
         ${n.pinned?'<span class="badge badge-gold" style="margin-bottom:8px;display:inline-block;">固定</span>':''}
         <div class="notice-title">${escHtml(n.title)}</div>
-        <div class="notice-body">${escHtml(n.body)}</div>
-        <div class="notice-meta">${formatDate(n.createdAt)}</div>
+        <div class="notice-body" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escHtml(n.body)}</div>
+        <div class="notice-meta">${dateStr}</div>
       </div>`;
     }).join('');
   } catch { c.innerHTML = '<div class="empty-state"><p>—</p></div>'; }
@@ -477,7 +479,8 @@ function renderMessage(id, msg, tsDate) {
   const timeStr = formatTime(msg.createdAt);
 
   const avatarHtml = `<div class="chat-avatar-sm"
-    style="${icon ? `background-image:url(${icon});background-size:cover;background-position:center;` : ''}">
+    style="${icon ? `background-image:url(${icon});background-size:cover;background-position:center;` : ''}"
+    onclick="openUserProfile('${msg.userId}')" title="${escHtml(msg.userName||'')}">
     ${icon ? '' : escHtml(initial)}
   </div>`;
 
@@ -735,11 +738,76 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3000);
 }
 
+// ========================================
+// お知らせ詳細
+// ========================================
+
+function openNoticeDetail(title, body, date) {
+  document.getElementById('noticeDetailTitle').textContent = title;
+  document.getElementById('noticeDetailBody').textContent  = body;
+  document.getElementById('noticeDetailDate').textContent  = date;
+  document.getElementById('noticeDetailModal').classList.add('open');
+}
+
+function closeNoticeDetail() {
+  document.getElementById('noticeDetailModal').classList.remove('open');
+}
+
+// ========================================
+// チャット：ユーザープロフィール表示
+// ========================================
+
+async function openUserProfile(uid) {
+  try {
+    const doc = await db.collection('users').doc(uid).get();
+    if (!doc.exists) return;
+    const m        = doc.data();
+    const rankInfo = calcRank(m.checkInCount||0);
+
+    document.getElementById('userProfileModalTitle').textContent = m.name||'—';
+    const content = document.getElementById('userProfileContent');
+    content.innerHTML = `
+      <div class="user-profile-card">
+        <div class="avatar" style="${m.iconUrl?`background-image:url(${m.iconUrl});background-size:cover;background-position:center;`:''}">${m.iconUrl?'':(m.name||'?').charAt(0)}</div>
+        <div class="upc-name">${escHtml(m.name||'—')}</div>
+        <div class="upc-id">MEMBER #${m.memberNumber||'—'}</div>
+        <div class="upc-ranks">
+          <span class="badge badge-gold">${rankInfo.rank}</span>
+          <span class="badge badge-gray">${m.title||'新参者'}</span>
+        </div>
+        ${m.comment ? `<div class="upc-comment">${escHtml(m.comment)}</div>` : ''}
+      </div>
+      <div class="detail-list">
+        <div class="detail-row"><span class="label">ポイント</span><span class="value gold" style="font-family:'Inter',sans-serif;">${(m.points||0).toLocaleString()} pt</span></div>
+        <div class="detail-row"><span class="label">来店回数</span><span class="value" style="font-family:'Inter',sans-serif;">${m.checkInCount||0} 回</span></div>
+        <div class="detail-row"><span class="label">イベント参加</span><span class="value" style="font-family:'Inter',sans-serif;">${m.eventJoinCount||0} 回</span></div>
+      </div>
+      ${(m.badges||[]).length ? `
+        <div class="section-title" style="margin-top:18px;">バッジ</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          ${BADGES_DEF.filter(b => (m.badges||[]).includes(b.id)).map(b =>
+            `<div style="text-align:center;min-width:48px;"><span style="font-size:22px;">${b.icon}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${b.name}</div></div>`
+          ).join('')}
+        </div>
+      ` : ''}
+    `;
+    document.getElementById('userProfileModal').classList.add('open');
+  } catch(e) { console.warn(e); }
+}
+
+function closeUserProfileModal() {
+  document.getElementById('userProfileModal').classList.remove('open');
+}
+
 // モーダル外クリックで閉じる
-['eventModal','qrModal','profileEditModal'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e) {
+['eventModal','qrModal','profileEditModal','noticeDetailModal','userProfileModal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', function(e) {
     if (e.target === this) {
       if (id === 'qrModal') closeQRScanner();
+      else if (id === 'noticeDetailModal') closeNoticeDetail();
+      else if (id === 'userProfileModal')  closeUserProfileModal();
       else this.classList.remove('open');
     }
   });

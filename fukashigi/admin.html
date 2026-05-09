@@ -117,8 +117,19 @@
         <textarea class="form-textarea" id="evDescription" placeholder="イベントの説明…"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">イベント画像URL（任意）</label>
-        <input type="url" class="form-input" id="evImageUrl" placeholder="https://…">
+        <label class="form-label">イベント画像</label>
+        <div id="evImgPreviewWrap" class="ev-img-preview" style="display:none;">
+          <img id="evImgPreviewImg" src="" alt="">
+          <button class="ev-img-preview-clear" onclick="clearEvImg()" type="button">✕</button>
+        </div>
+        <button type="button" class="img-upload-btn" onclick="document.getElementById('evImgFileInput').click()">
+          📷 画像を選択（アップロード）
+        </button>
+        <input type="file" id="evImgFileInput" accept="image/*" style="display:none;" onchange="previewEvImg(event)">
+        <div style="margin-top:8px;">
+          <input type="url" class="form-input" id="evImageUrl" placeholder="または画像URL（https://…）" style="font-size:13px;">
+        </div>
+        <div class="upload-progress" id="evImgProgress"><div class="upload-progress-bar" id="evImgProgressBar"></div></div>
       </div>
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
@@ -246,6 +257,81 @@
       <button class="modal-close" onclick="closeMemberModal()">✕</button>
     </div>
     <div id="memberModalContent"></div>
+  </div>
+</div>
+
+<!-- イベント編集モーダル -->
+<div class="modal-overlay" id="eventEditModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">イベント編集</div>
+      <button class="modal-close" onclick="closeEventEditModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">イベント名 *</label>
+      <input type="text" class="form-input" id="editEvTitle">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group">
+        <label class="form-label">開催日 *</label>
+        <input type="date" class="form-input" id="editEvDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ</label>
+        <div class="select-wrap">
+          <select class="form-select" id="editEvCategory">
+            <option value="poker">ポーカー</option>
+            <option value="smash">スマブラ</option>
+            <option value="fishing">釣り</option>
+            <option value="card">カード</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">開始時間</label>
+        <input type="time" class="form-input" id="editEvStartTime">
+      </div>
+      <div class="form-group">
+        <label class="form-label">終了時間</label>
+        <input type="time" class="form-input" id="editEvEndTime">
+      </div>
+      <div class="form-group">
+        <label class="form-label">参加費（円）</label>
+        <input type="number" class="form-input" id="editEvFee">
+      </div>
+      <div class="form-group">
+        <label class="form-label">定員（0=無制限）</label>
+        <input type="number" class="form-input" id="editEvCapacity">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">説明</label>
+      <textarea class="form-textarea" id="editEvDescription" style="min-height:100px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">イベント画像</label>
+      <div id="editEvImgPreviewWrap" class="ev-img-preview" style="display:none;">
+        <img id="editEvImgPreviewImg" src="" alt="">
+        <button class="ev-img-preview-clear" onclick="clearEditEvImg()" type="button">✕</button>
+      </div>
+      <button type="button" class="img-upload-btn" onclick="document.getElementById('editEvImgFileInput').click()">
+        📷 画像を変更
+      </button>
+      <input type="file" id="editEvImgFileInput" accept="image/*" style="display:none;" onchange="previewEditEvImg(event)">
+      <div style="margin-top:8px;">
+        <input type="url" class="form-input" id="editEvImageUrl" placeholder="または画像URL（https://…）" style="font-size:13px;">
+      </div>
+      <div class="upload-progress" id="editEvImgProgress"><div class="upload-progress-bar" id="editEvImgProgressBar"></div></div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <input type="checkbox" id="editEvPublic" style="width:auto;accent-color:var(--gold);">
+        <span style="font-size:14px;color:var(--text-sub);">公開する</span>
+      </label>
+    </div>
+    <button class="btn btn-gold btn-block" onclick="saveEventEdit()">保存する</button>
   </div>
 </div>
 

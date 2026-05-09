@@ -10,6 +10,11 @@ let memberFilter  = 'all';
 let currentSection = 'dashboard';
 let adminChatUnsub = null;
 
+// イベント編集用
+let editingEventId  = null;
+let evImgFile       = null;
+let editEvImgFile   = null;
+
 // ========================================
 // 認証
 // ========================================
@@ -77,7 +82,7 @@ async function loadDashboard() {
       .sort((a,b) => (b.date||'').localeCompare(a.date||'')).slice(0,5);
     document.getElementById('dashEvents2').innerHTML = !events.length
       ? '<div class="empty-state"><p>イベントがありません</p></div>'
-      : events.map(ev => renderAdminEventCard(ev)).join('');
+      : events.map(ev => renderAdminEventRow(ev)).join('');
   } catch(e) { console.error(e); }
 }
 
@@ -122,7 +127,7 @@ function renderMembers() {
   c.innerHTML = allMembersFiltered.map(m => {
     const rankInfo = calcRank(m.checkInCount||0);
     return `<div class="member-row" onclick="openMemberModal('${m.id}')">
-      <div class="member-avatar-sm" style="${m.iconUrl?`background-image:url(${m.iconUrl});background-size:cover;background-position:center;`:''}">${m.iconUrl?'':( (m.name||'?').charAt(0) )}</div>
+      <div class="member-avatar-sm" style="${m.iconUrl?`background-image:url(${m.iconUrl});background-size:cover;background-position:center;`:''}">${m.iconUrl?'':((m.name||'?').charAt(0))}</div>
       <div class="member-info">
         <div class="member-name">${escHtml(m.name||'—')}</div>
         <div class="member-sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -147,13 +152,16 @@ function openMemberModal(uid) {
   const rankInfo = calcRank(m.checkInCount||0);
   document.getElementById('memberModalTitle').textContent = m.name||'—';
   document.getElementById('memberModalContent').innerHTML = `
-    <div class="divider"></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
-      <span class="badge badge-gold">${rankInfo.rank}</span>
-      <span class="badge badge-gray">${m.title||'新参者'}</span>
-      <span class="badge badge-${m.role==='admin'?'gold':'gray'}">${m.role==='admin'?'管理者':'メンバー'}</span>
-      ${m.suspended?'<span class="badge-suspended">停止中</span>':''}
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="avatar" style="margin:0 auto 12px;${m.iconUrl?`background-image:url(${m.iconUrl});background-size:cover;background-position:center;`:''}">${m.iconUrl?'':((m.name||'?').charAt(0))}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:4px;">
+        <span class="badge badge-gold">${rankInfo.rank}</span>
+        <span class="badge badge-gray">${m.title||'新参者'}</span>
+        <span class="badge badge-${m.role==='admin'?'gold':'gray'}">${m.role==='admin'?'管理者':'メンバー'}</span>
+        ${m.suspended?'<span class="badge-suspended">停止中</span>':''}
+      </div>
     </div>
+    <div class="divider"></div>
     <div class="detail-list" style="margin-bottom:16px;">
       ${adminRow('会員番号', m.memberNumber||'—')}
       ${adminRow('メール', m.email||'—')}
@@ -165,14 +173,16 @@ function openMemberModal(uid) {
       ${adminRow('登録日', formatDateOnly(m.createdAt))}
     </div>
 
+    ${m.comment ? `<div style="background:var(--bg-card2);border-radius:6px;padding:12px;font-size:13px;color:var(--text-sub);line-height:1.7;white-space:pre-line;margin-bottom:16px;">${escHtml(m.comment)}</div>` : ''}
+
     <!-- 権限変更 -->
     <div class="point-form" style="margin-bottom:12px;">
       <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--gold);">権限変更</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm ${m.role!=='admin'?'btn-ghost':''}"
+        <button class="btn btn-outline btn-sm ${m.role==='admin'?'':'btn-ghost'}"
                 onclick="changeRole('${uid}','member')">一般メンバー</button>
-        <button class="btn btn-gold btn-sm ${m.role==='admin'?'':'btn-outline'}"
-                onclick="changeRole('${uid}','admin')">管理者</button>
+        <button class="btn btn-sm ${m.role==='admin'?'btn-gold':'btn-outline'}"
+                onclick="changeRole('${uid}','admin')">管理者に昇格</button>
       </div>
     </div>
 
@@ -254,32 +264,11 @@ async function loadAdminEvents() {
     const events = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     c.innerHTML = !events.length
       ? '<div class="empty-state"><p>イベントがありません</p></div>'
-      : events.map(ev => `
-          <div class="event-card" style="flex-direction:column;">
-            ${ev.imageUrl ? `<img src="${ev.imageUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:8px 8px 0 0;">` : ''}
-            <div style="display:flex;">
-              <div class="event-date-col">
-                ${ev.date ? (() => { const d=new Date(ev.date+'T00:00:00'); return `<div class="event-date-month">${d.getMonth()+1}月</div><div class="event-date-day">${d.getDate()}</div>`; })() : '<div class="event-date-day">—</div>'}
-              </div>
-              <div class="event-info-col">
-                <div class="event-card-title">${escHtml(ev.title)}</div>
-                <div class="event-card-meta">
-                  <span>${categoryLabel(ev.category)}</span>
-                  ${ev.startTime?`<span>${ev.startTime}〜${ev.endTime||''}</span>`:''}
-                  <span>👥 ${(ev.participants||[]).length}${ev.capacity?'/'+ev.capacity:''}名</span>
-                </div>
-                <span class="badge ${ev.isPublic?'badge-green':'badge-gray'}">${ev.isPublic?'公開':'非公開'}</span>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);">
-              <button class="btn btn-outline btn-sm" onclick="toggleEventPublic('${ev.id}',${ev.isPublic})">${ev.isPublic?'非公開にする':'公開する'}</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">削除</button>
-            </div>
-          </div>`).join('');
+      : events.map(ev => renderAdminEventCard(ev)).join('');
   } catch { c.innerHTML = '<div class="empty-state"><p>読み込みエラー</p></div>'; }
 }
 
-function renderAdminEventCard(ev) {
+function renderAdminEventRow(ev) {
   return `<div class="event-card" style="cursor:default;">
     <div class="event-date-col">
       ${ev.date ? (() => { const d=new Date(ev.date+'T00:00:00'); return `<div class="event-date-month">${d.getMonth()+1}月</div><div class="event-date-day">${d.getDate()}</div>`; })() : '<div class="event-date-day">—</div>'}
@@ -295,6 +284,33 @@ function renderAdminEventCard(ev) {
   </div>`;
 }
 
+function renderAdminEventCard(ev) {
+  return `<div class="admin-event-card">
+    ${ev.imageUrl ? `<img src="${ev.imageUrl}" style="width:100%;height:130px;object-fit:cover;display:block;">` : ''}
+    <div class="ev-body">
+      <div class="event-date-col">
+        ${ev.date ? (() => { const d=new Date(ev.date+'T00:00:00'); return `<div class="event-date-month">${d.getMonth()+1}月</div><div class="event-date-day">${d.getDate()}</div>`; })() : '<div class="event-date-day">—</div>'}
+      </div>
+      <div class="event-info-col">
+        <div class="event-card-title">${escHtml(ev.title)}</div>
+        <div class="event-card-meta">
+          <span>${categoryLabel(ev.category)}</span>
+          ${ev.startTime?`<span>${ev.startTime}〜${ev.endTime||''}</span>`:''}
+          <span>👥 ${(ev.participants||[]).length}${ev.capacity?'/'+ev.capacity:''}名</span>
+        </div>
+        <span class="badge ${ev.isPublic?'badge-green':'badge-gray'}">${ev.isPublic?'公開':'非公開'}</span>
+      </div>
+    </div>
+    <div class="ev-actions">
+      <button class="btn btn-outline btn-sm" onclick="openEventEditModal('${ev.id}')">✏️ 編集</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleEventPublic('${ev.id}',${ev.isPublic})">${ev.isPublic?'非公開にする':'公開する'}</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">削除</button>
+    </div>
+  </div>`;
+}
+
+// ---- 新規作成フォーム ----
+
 function showCreateEventForm() {
   const f = document.getElementById('createEventForm');
   f.style.display = f.style.display === 'none' ? '' : 'none';
@@ -302,12 +318,54 @@ function showCreateEventForm() {
     document.getElementById('evDate').value = new Date().toISOString().slice(0,10);
 }
 
+// イベント作成画像プレビュー
+function previewEvImg(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('5MB以下の画像を選択してください','error'); return; }
+  evImgFile = file;
+  const img  = document.getElementById('evImgPreviewImg');
+  const wrap = document.getElementById('evImgPreviewWrap');
+  img.src = URL.createObjectURL(file);
+  wrap.style.display = '';
+  document.getElementById('evImageUrl').value = '';
+  event.target.value = '';
+}
+
+function clearEvImg() {
+  evImgFile = null;
+  document.getElementById('evImgPreviewImg').src = '';
+  document.getElementById('evImgPreviewWrap').style.display = 'none';
+}
+
 async function createEvent() {
   const title = document.getElementById('evTitle').value.trim();
   const date  = document.getElementById('evDate').value;
   if (!title) { showToast('イベント名を入力してください','error'); return; }
   if (!date)  { showToast('開催日を入力してください','error'); return; }
+
+  const btn = document.querySelector('#createEventForm .btn-gold');
+  btn.disabled = true; btn.textContent = '作成中…';
+
   try {
+    let imageUrl = document.getElementById('evImageUrl').value.trim();
+
+    if (evImgFile) {
+      const prog    = document.getElementById('evImgProgress');
+      const progBar = document.getElementById('evImgProgressBar');
+      prog.classList.add('show');
+      const path = `event_images/${Date.now()}_${evImgFile.name}`;
+      const ref  = storage.ref(path);
+      const task = ref.put(evImgFile);
+      task.on('state_changed', snap => {
+        progBar.style.width = (snap.bytesTransferred/snap.totalBytes*100)+'%';
+      });
+      await task;
+      imageUrl = await ref.getDownloadURL();
+      prog.classList.remove('show');
+      progBar.style.width = '0%';
+    }
+
     await db.collection('events').add({
       title, date,
       category:    document.getElementById('evCategory').value,
@@ -316,18 +374,21 @@ async function createEvent() {
       fee:         parseInt(document.getElementById('evFee').value)||0,
       capacity:    parseInt(document.getElementById('evCapacity').value)||0,
       description: document.getElementById('evDescription').value.trim(),
-      imageUrl:    document.getElementById('evImageUrl').value.trim(),
+      imageUrl,
       isPublic:    document.getElementById('evPublic').checked,
       participants: [],
       createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:   firebase.firestore.FieldValue.serverTimestamp(),
     });
+
     showToast('イベントを作成しました','success');
     document.getElementById('createEventForm').style.display = 'none';
     ['evTitle','evDate','evStartTime','evEndTime','evFee','evCapacity','evDescription','evImageUrl']
       .forEach(id => { document.getElementById(id).value=''; });
+    clearEvImg();
     loadAdminEvents();
   } catch(e) { showToast('エラー: '+e.message,'error'); }
+  btn.disabled = false; btn.textContent = '作成する';
 }
 
 async function toggleEventPublic(id, isPublic) {
@@ -341,6 +402,114 @@ async function deleteEvent(id) {
   await db.collection('events').doc(id).delete();
   showToast('削除しました','info');
   loadAdminEvents();
+}
+
+// ---- イベント編集モーダル ----
+
+async function openEventEditModal(id) {
+  editingEventId = id;
+  editEvImgFile  = null;
+
+  const doc = await db.collection('events').doc(id).get();
+  if (!doc.exists) { showToast('イベントが見つかりません','error'); return; }
+  const ev = doc.data();
+
+  document.getElementById('editEvTitle').value       = ev.title     || '';
+  document.getElementById('editEvDate').value        = ev.date      || '';
+  document.getElementById('editEvCategory').value    = ev.category  || 'other';
+  document.getElementById('editEvStartTime').value   = ev.startTime || '';
+  document.getElementById('editEvEndTime').value     = ev.endTime   || '';
+  document.getElementById('editEvFee').value         = ev.fee       || '';
+  document.getElementById('editEvCapacity').value    = ev.capacity  || '';
+  document.getElementById('editEvDescription').value = ev.description || '';
+  document.getElementById('editEvImageUrl').value    = ev.imageUrl  || '';
+  document.getElementById('editEvPublic').checked    = !!ev.isPublic;
+
+  const wrap = document.getElementById('editEvImgPreviewWrap');
+  const img  = document.getElementById('editEvImgPreviewImg');
+  if (ev.imageUrl) {
+    img.src = ev.imageUrl;
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+    img.src = '';
+  }
+
+  document.getElementById('eventEditModal').classList.add('open');
+}
+
+function closeEventEditModal() {
+  document.getElementById('eventEditModal').classList.remove('open');
+  editingEventId = null;
+  editEvImgFile  = null;
+}
+
+function previewEditEvImg(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('5MB以下の画像を選択してください','error'); return; }
+  editEvImgFile = file;
+  const img  = document.getElementById('editEvImgPreviewImg');
+  const wrap = document.getElementById('editEvImgPreviewWrap');
+  img.src = URL.createObjectURL(file);
+  wrap.style.display = '';
+  document.getElementById('editEvImageUrl').value = '';
+  event.target.value = '';
+}
+
+function clearEditEvImg() {
+  editEvImgFile = null;
+  document.getElementById('editEvImgPreviewImg').src = '';
+  document.getElementById('editEvImgPreviewWrap').style.display = 'none';
+  document.getElementById('editEvImageUrl').value = '';
+}
+
+async function saveEventEdit() {
+  const title = document.getElementById('editEvTitle').value.trim();
+  const date  = document.getElementById('editEvDate').value;
+  if (!title) { showToast('イベント名を入力してください','error'); return; }
+  if (!date)  { showToast('開催日を入力してください','error'); return; }
+
+  const btn = document.querySelector('#eventEditModal .btn-gold');
+  btn.disabled = true; btn.textContent = '保存中…';
+
+  try {
+    let imageUrl = document.getElementById('editEvImageUrl').value.trim();
+
+    if (editEvImgFile) {
+      const prog    = document.getElementById('editEvImgProgress');
+      const progBar = document.getElementById('editEvImgProgressBar');
+      prog.classList.add('show');
+      const path = `event_images/${editingEventId}_${Date.now()}`;
+      const ref  = storage.ref(path);
+      const task = ref.put(editEvImgFile);
+      task.on('state_changed', snap => {
+        progBar.style.width = (snap.bytesTransferred/snap.totalBytes*100)+'%';
+      });
+      await task;
+      imageUrl = await ref.getDownloadURL();
+      prog.classList.remove('show');
+      progBar.style.width = '0%';
+    }
+
+    await db.collection('events').doc(editingEventId).update({
+      title, date,
+      category:    document.getElementById('editEvCategory').value,
+      startTime:   document.getElementById('editEvStartTime').value,
+      endTime:     document.getElementById('editEvEndTime').value,
+      fee:         parseInt(document.getElementById('editEvFee').value)||0,
+      capacity:    parseInt(document.getElementById('editEvCapacity').value)||0,
+      description: document.getElementById('editEvDescription').value.trim(),
+      imageUrl,
+      isPublic:    document.getElementById('editEvPublic').checked,
+      updatedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    showToast('イベントを更新しました','success');
+    closeEventEditModal();
+    loadAdminEvents();
+  } catch(e) { showToast('エラー: '+e.message,'error'); }
+  btn.disabled = false; btn.textContent = '保存する';
 }
 
 // ========================================
@@ -398,10 +567,10 @@ async function applyPoints() {
 
 async function applyPointsTo(uid, type, amount, reason) {
   try {
-    const userRef = db.collection('users').doc(uid);
+    const userRef  = db.collection('users').doc(uid);
     const userData = (await userRef.get()).data();
-    let update = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-    const sign = type.endsWith('_sub') ? -1 : 1;
+    let update     = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    const sign     = type.endsWith('_sub') ? -1 : 1;
     if (type.startsWith('point')) {
       update.points = firebase.firestore.FieldValue.increment(sign * amount);
       if (sign > 0) update.totalPoints = firebase.firestore.FieldValue.increment(amount);
@@ -476,11 +645,11 @@ async function loadAdminNotices() {
       const n = doc.data();
       return `<div class="notice-card ${n.pinned?'pinned':''}">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-          <div>
+          <div style="flex:1;min-width:0;">
             ${n.pinned?'<span class="badge badge-gold" style="margin-bottom:6px;display:inline-block;">固定</span>':''}
             <div class="notice-title">${escHtml(n.title)}</div>
             <div class="notice-body">${escHtml(n.body)}</div>
-            <div class="notice-meta">${formatDate(n.createdAt)}</div>
+            <div class="notice-meta">${formatDate(n.createdAt)} by ${escHtml(n.createdBy||'')}</div>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button class="btn btn-outline btn-sm" onclick="toggleNoticePinned('${doc.id}',${n.pinned})">${n.pinned?'固定解除':'固定'}</button>
@@ -497,6 +666,7 @@ async function toggleNoticePinned(id, pinned) {
   showToast(pinned?'固定を解除しました':'固定しました','success');
   loadAdminNotices();
 }
+
 async function deleteNotice(id) {
   if (!confirm('削除しますか？')) return;
   await db.collection('notices').doc(id).delete();
@@ -523,7 +693,7 @@ async function loadAdminChat(roomId, btn) {
       if (snap.empty) { c.innerHTML = '<div class="empty-state"><p>メッセージがありません</p></div>'; return; }
       c.innerHTML = snap.docs.map(doc => {
         const m = doc.data();
-        return `<div class="log-row ${m.deleted?'':''}">
+        return `<div class="log-row">
           <div style="flex:1;min-width:0;">
             <div style="font-weight:700;font-size:13px;margin-bottom:2px;${m.deleted?'opacity:0.4;':''}">${escHtml(m.userName||'—')}</div>
             <div style="font-size:14px;${m.deleted?'color:var(--text-muted);font-style:italic;':'color:var(--text-sub);'}">${m.deleted?'[削除済み]':escHtml(m.message||'')}</div>
@@ -533,7 +703,7 @@ async function loadAdminChat(roomId, btn) {
           ${!m.deleted?`<button class="chat-delete-btn" style="font-size:12px;" onclick="adminDeleteMsg('${doc.id}')">削除</button>`:''}
         </div>`;
       }).join('');
-    });
+    }, err => { c.innerHTML = '<div class="empty-state"><p>読み込みエラー</p></div>'; });
 }
 
 async function adminDeleteMsg(id) {
@@ -571,4 +741,7 @@ function showToast(msg, type='info') {
 
 document.getElementById('memberModal').addEventListener('click', function(e) {
   if (e.target === this) closeMemberModal();
+});
+document.getElementById('eventEditModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEventEditModal();
 });

@@ -237,6 +237,31 @@
   </div>
 </div>
 
+<!-- ===== お知らせ詳細モーダル ===== -->
+<div class="modal-overlay" id="noticeDetailModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="noticeDetailTitle"></div>
+      <button class="modal-close" onclick="closeNoticeDetail()">✕</button>
+    </div>
+    <div class="notice-detail-body" id="noticeDetailBody"></div>
+    <div class="notice-meta" id="noticeDetailDate"></div>
+  </div>
+</div>
+
+<!-- ===== ユーザープロフィールモーダル ===== -->
+<div class="modal-overlay" id="userProfileModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="userProfileModalTitle"></div>
+      <button class="modal-close" onclick="closeUserProfileModal()">✕</button>
+    </div>
+    <div id="userProfileContent"></div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>

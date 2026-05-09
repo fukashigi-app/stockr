@@ -37,11 +37,11 @@ function doLogout() {
 // セクション切り替え
 // ========================================
 
-function switchSection(sec) {
+function switchSection(sec, btn) {
   document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + sec).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   currentSection = sec;
 
   const loaders = {
@@ -84,18 +84,26 @@ async function loadDashboard() {
 
     document.getElementById('dashEvents2').innerHTML = events.length === 0
       ? '<div class="empty-state"><p>イベントがありません</p></div>'
-      : events.map(ev => `
+      : events.map(ev => {
+          const d = ev.date ? new Date(ev.date + 'T00:00:00') : null;
+          const month = d ? (d.getMonth()+1)+'月' : '';
+          const day   = d ? d.getDate() : '—';
+          return `
           <div class="event-card" style="cursor:default;">
-            <div class="event-card-header">
+            <div class="event-date-col">
+              <div class="event-date-month">${month}</div>
+              <div class="event-date-day">${day}</div>
+            </div>
+            <div class="event-info-col">
               <div class="event-card-title">${escHtml(ev.title)}</div>
-              <span class="badge badge-purple">${categoryLabel(ev.category)}</span>
+              <div class="event-card-meta">
+                <span>${categoryLabel(ev.category)}</span>
+                <span>👥 ${(ev.participants||[]).length}${ev.capacity ? ' / ' + ev.capacity : ''}名</span>
+              </div>
+              <div><span class="badge ${ev.isPublic ? 'badge-green' : 'badge-gray'}">${ev.isPublic ? '公開' : '非公開'}</span></div>
             </div>
-            <div class="event-card-meta">
-              <span>📅 ${ev.date || '未定'}</span>
-              <span>👥 ${(ev.participants||[]).length}${ev.capacity ? ' / ' + ev.capacity : ''}名</span>
-              <span>${ev.isPublic ? '🌐 公開' : '🔒 非公開'}</span>
-            </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
   } catch (e) {
     console.error(e);
   }
@@ -162,12 +170,12 @@ function openMemberModal(uid) {
   document.getElementById('memberModalTitle').textContent = m.name || '—';
   document.getElementById('memberModalContent').innerHTML = `
     <div class="divider"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-      <span class="badge badge-blue">${rankInfo.rank}</span>
-      <span class="badge badge-purple">${m.title || '新参者'}</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+      <span class="badge badge-gold">${rankInfo.rank}</span>
+      <span class="badge badge-gray">${m.title || '新参者'}</span>
       <span class="badge badge-${m.role==='admin'?'gold':'gray'}">${m.role==='admin'?'管理者':'メンバー'}</span>
     </div>
-    <table style="width:100%;font-size:14px;border-collapse:collapse;margin-bottom:16px;">
+    <div class="detail-list" style="margin-bottom:16px;">
       ${adminRow('会員番号', m.memberNumber || '—')}
       ${adminRow('メール', m.email || '—')}
       ${adminRow('ポイント', (m.points||0).toLocaleString() + ' pt')}
@@ -175,7 +183,7 @@ function openMemberModal(uid) {
       ${adminRow('チップ', m.chips || 0)}
       ${adminRow('来店回数', (m.checkInCount||0) + ' 回')}
       ${adminRow('イベント参加', (m.eventJoinCount||0) + ' 回')}
-    </table>
+    </div>
 
     <!-- 権限変更 -->
     <div class="point-form" style="margin-bottom:12px;">
@@ -190,7 +198,7 @@ function openMemberModal(uid) {
 
     <!-- クイックポイント付与 -->
     <div class="point-form">
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--neon-blue);">ポイント付与</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--gold);">ポイント付与</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
         <input type="number" class="form-input" id="quickPtAmt" placeholder="100" style="font-size:14px;">
         <div class="select-wrap">
@@ -214,10 +222,10 @@ function closeMemberModal() {
 }
 
 function adminRow(label, val) {
-  return `<tr>
-    <td style="padding:7px 0;color:var(--text-muted);width:45%;">${escHtml(label)}</td>
-    <td style="padding:7px 0;font-weight:600;">${escHtml(String(val))}</td>
-  </tr>`;
+  return `<div class="detail-row">
+    <span class="label">${escHtml(label)}</span>
+    <span class="value" style="font-size:15px;">${escHtml(String(val))}</span>
+  </div>`;
 }
 
 async function changeRole(uid, role) {
@@ -259,26 +267,36 @@ async function loadAdminEvents() {
       container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>イベントがありません</p></div>';
       return;
     }
-    container.innerHTML = events.map(ev => `
-      <div class="event-card">
-        <div class="event-card-header">
-          <div class="event-card-title">${escHtml(ev.title)}</div>
-          <span class="badge badge-purple">${categoryLabel(ev.category)}</span>
+    container.innerHTML = events.map(ev => {
+      const d = ev.date ? new Date(ev.date + 'T00:00:00') : null;
+      const month = d ? (d.getMonth()+1)+'月' : '';
+      const day   = d ? d.getDate() : '—';
+      return `
+      <div class="event-card" style="display:flex;flex-direction:column;">
+        <div style="display:flex;">
+          <div class="event-date-col">
+            <div class="event-date-month">${month}</div>
+            <div class="event-date-day">${day}</div>
+          </div>
+          <div class="event-info-col">
+            <div class="event-card-title">${escHtml(ev.title)}</div>
+            <div class="event-card-meta">
+              <span>${categoryLabel(ev.category)}</span>
+              ${ev.startTime ? `<span>${ev.startTime}〜${ev.endTime||''}</span>` : ''}
+              <span>${ev.fee ? ev.fee.toLocaleString()+'円' : '無料'}</span>
+              <span>👥 ${(ev.participants||[]).length}${ev.capacity?'/'+ev.capacity:''}名</span>
+            </div>
+            <span class="badge ${ev.isPublic ? 'badge-green' : 'badge-gray'}">${ev.isPublic ? '公開' : '非公開'}</span>
+          </div>
         </div>
-        <div class="event-card-meta">
-          <span>📅 ${ev.date || '未定'}</span>
-          <span>🕐 ${ev.startTime||''}〜${ev.endTime||''}</span>
-          <span>💴 ${ev.fee ? ev.fee.toLocaleString()+'円' : '無料'}</span>
-          <span>👥 ${(ev.participants||[]).length}${ev.capacity?'/'+ev.capacity:''}名</span>
-          <span>${ev.isPublic ? '🌐 公開' : '🔒 非公開'}</span>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);">
           <button class="btn btn-outline btn-sm" onclick="toggleEventPublic('${ev.id}', ${ev.isPublic})">
             ${ev.isPublic ? '非公開にする' : '公開する'}
           </button>
           <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">削除</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch (e) {
     container.innerHTML = '<div class="empty-state"><p>読み込みエラー</p></div>';
   }

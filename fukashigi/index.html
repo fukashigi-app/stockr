@@ -5,45 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>FUKASHIGI APP — ログイン</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* ログインページ固有の背景エフェクト */
-    .bg-glow {
-      position: fixed;
-      pointer-events: none;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.12;
-    }
-    .bg-glow-1 {
-      width: 300px; height: 300px;
-      background: var(--neon-blue);
-      top: -100px; left: -100px;
-    }
-    .bg-glow-2 {
-      width: 300px; height: 300px;
-      background: var(--neon-purple);
-      bottom: -100px; right: -100px;
-    }
-  </style>
 </head>
 <body>
-
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
 
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="login-page">
+
+  <!-- ロゴ -->
   <div class="login-logo">
     <div class="app-title">FUKASHIGI</div>
     <div class="neon-line"></div>
     <div class="app-subtitle">Members Only</div>
   </div>
 
+  <!-- ログインカード -->
   <div class="login-card">
-    <!-- タブ切替 -->
     <div class="tab-switcher">
       <button class="tab-btn active" id="btnLogin" onclick="showTab('login')">ログイン</button>
       <button class="tab-btn" id="btnRegister" onclick="showTab('register')">新規登録</button>
@@ -60,8 +39,8 @@
         <label class="form-label">パスワード</label>
         <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary btn-block" id="loginBtn" onclick="doLogin()">
-        ▶ ログイン
+      <button class="btn btn-gold btn-block" id="loginBtn" onclick="doLogin()">
+        ログイン
       </button>
     </div>
 
@@ -80,24 +59,23 @@
         <label class="form-label">パスワード（6文字以上）</label>
         <input type="password" class="form-input" id="regPassword" placeholder="••••••••" autocomplete="new-password">
       </div>
-      <button class="btn btn-primary btn-block" id="registerBtn" onclick="doRegister()">
-        ✦ メンバー登録
+      <button class="btn btn-gold btn-block" id="registerBtn" onclick="doRegister()">
+        メンバー登録
       </button>
     </div>
   </div>
 
-  <p style="margin-top:20px; font-size:11px; color:var(--text-muted); text-align:center;">
-    FUKASHIGI TEAM — メンバー専用アプリ
+  <p style="margin-top:28px; font-size:11px; color:var(--text-muted); text-align:center; letter-spacing:0.1em;">
+    FUKASHIGI TEAM — MEMBERS ONLY
   </p>
 </div>
 
-<!-- Firebase SDK (compat版) -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="firebase.js"></script>
 <script>
-  // 既ログイン済みならリダイレクト
   auth.onAuthStateChanged(user => {
     if (user) {
       db.collection('users').doc(user.uid).get().then(doc => {
@@ -125,24 +103,22 @@
     const btn   = document.getElementById('loginBtn');
 
     if (!email || !pass) { showErr(errEl, 'メールアドレスとパスワードを入力してください'); return; }
-
     btn.disabled = true;
     btn.textContent = '認証中…';
     errEl.classList.remove('show');
 
     try {
       await auth.signInWithEmailAndPassword(email, pass);
-      // onAuthStateChanged がリダイレクトを処理
     } catch (e) {
       btn.disabled = false;
-      btn.textContent = '▶ ログイン';
+      btn.textContent = 'ログイン';
       const msgs = {
-        'auth/user-not-found': 'このメールアドレスは登録されていません',
-        'auth/wrong-password': 'パスワードが違います',
-        'auth/invalid-email': 'メールアドレスの形式が正しくありません',
-        'auth/too-many-requests': '試行回数が多すぎます。しばらく待ってから試してください',
+        'auth/user-not-found':    'このメールアドレスは登録されていません',
+        'auth/wrong-password':    'パスワードが違います',
+        'auth/invalid-email':     'メールアドレスの形式が正しくありません',
+        'auth/too-many-requests': 'しばらく待ってから再試行してください',
       };
-      showErr(errEl, msgs[e.code] || 'ログインに失敗しました: ' + e.message);
+      showErr(errEl, msgs[e.code] || 'ログインに失敗しました');
     }
   }
 
@@ -153,8 +129,8 @@
     const errEl = document.getElementById('registerError');
     const btn   = document.getElementById('registerBtn');
 
-    if (!name)  { showErr(errEl, '名前を入力してください'); return; }
-    if (!email) { showErr(errEl, 'メールアドレスを入力してください'); return; }
+    if (!name)           { showErr(errEl, '名前を入力してください'); return; }
+    if (!email)          { showErr(errEl, 'メールアドレスを入力してください'); return; }
     if (pass.length < 6) { showErr(errEl, 'パスワードは6文字以上で入力してください'); return; }
 
     btn.disabled = true;
@@ -164,36 +140,28 @@
     try {
       const cred = await auth.createUserWithEmailAndPassword(email, pass);
       const uid  = cred.user.uid;
-
-      // Firestoreにユーザー情報を保存
       const memberNumber = 'F' + String(Date.now()).slice(-6);
       await db.collection('users').doc(uid).set({
         uid, name, email,
         iconUrl: '',
         memberNumber,
         role: 'member',
-        points: 0,
-        totalPoints: 0,
-        chips: 0,
-        rank: 'ROOKIE',
-        title: '新参者',
-        badges: [],
-        checkInCount: 0,
-        eventJoinCount: 0,
+        points: 0, totalPoints: 0, chips: 0,
+        rank: 'ROOKIE', title: '新参者',
+        badges: [], checkInCount: 0, eventJoinCount: 0,
         comment: '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
-      // onAuthStateChanged でリダイレクト
     } catch (e) {
       btn.disabled = false;
-      btn.textContent = '✦ メンバー登録';
+      btn.textContent = 'メンバー登録';
       const msgs = {
         'auth/email-already-in-use': 'このメールアドレスはすでに使用されています',
-        'auth/invalid-email': 'メールアドレスの形式が正しくありません',
-        'auth/weak-password': 'パスワードが弱すぎます',
+        'auth/invalid-email':        'メールアドレスの形式が正しくありません',
+        'auth/weak-password':        'パスワードが弱すぎます',
       };
-      showErr(errEl, msgs[e.code] || '登録に失敗しました: ' + e.message);
+      showErr(errEl, msgs[e.code] || '登録に失敗しました');
     }
   }
 
@@ -202,11 +170,10 @@
     el.classList.add('show');
   }
 
-  // Enterキーでログイン
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      const loginVisible = document.getElementById('loginForm').style.display !== 'none';
-      if (loginVisible) doLogin(); else doRegister();
+      const isLogin = document.getElementById('loginForm').style.display !== 'none';
+      if (isLogin) doLogin(); else doRegister();
     }
   });
 </script>

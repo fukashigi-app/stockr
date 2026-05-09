@@ -5,50 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>FUKASHIGI APP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ========== ヘッダー ========== -->
+<!-- ヘッダー -->
 <header class="app-header">
   <div class="logo">FUKASHIGI</div>
   <div class="header-actions">
-    <span id="headerUserName" style="font-size:13px;color:var(--text-muted)"></span>
+    <span id="headerUserName" style="font-size:12px;color:var(--text-muted);letter-spacing:0.04em;"></span>
     <button class="btn btn-outline btn-sm" onclick="doLogout()">ログアウト</button>
   </div>
 </header>
 
-<!-- ========== メインコンテンツ ========== -->
+<!-- メインコンテンツ -->
 <div class="main-content">
 
-  <!-- ===== HOME タブ ===== -->
+  <!-- ===== HOME ===== -->
   <div id="tab-home" class="tab-section active">
 
-    <!-- ようこそメッセージ -->
-    <div style="padding:8px 0 12px;">
-      <div style="font-size:13px;color:var(--text-muted);">WELCOME BACK</div>
-      <div id="homeUserName" style="font-size:22px;font-weight:900;color:var(--text-bright);"></div>
+    <!-- ユーザーカード -->
+    <div class="user-card">
+      <div class="avatar">👤</div>
+      <div class="user-info">
+        <div class="user-name" id="homeUserName">…</div>
+        <div class="user-rank-row" id="homeRankRow"></div>
+      </div>
     </div>
 
-    <!-- ランク・称号 -->
-    <div class="rank-badge-row" id="homeRankRow"></div>
-
-    <!-- チェックインボタン -->
-    <div class="checkin-btn-wrap">
-      <button class="checkin-btn pulse" id="checkinBtn" onclick="openQRScanner()">
-        <span class="icon">📷</span> QRチェックイン
-      </button>
-      <div id="checkinStatus" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
-    </div>
-
-    <!-- スタッツ -->
-    <div class="hero-stats">
-      <div class="stat-box">
+    <!-- スタッツ（3列） -->
+    <div class="stats-row" id="homeStats">
+      <div class="stat-box gold-val">
         <div class="stat-val" id="statPoints">—</div>
-        <div class="stat-label">現在ポイント</div>
+        <div class="stat-label">ポイント</div>
       </div>
       <div class="stat-box">
         <div class="stat-val" id="statCheckins">—</div>
@@ -58,40 +50,49 @@
         <div class="stat-val" id="statChips">—</div>
         <div class="stat-label">チップ</div>
       </div>
-      <div class="stat-box">
-        <div class="stat-val" id="statEvents">—</div>
-        <div class="stat-label">参加イベント</div>
+    </div>
+
+    <!-- チェックインボタン -->
+    <div class="checkin-btn-wrap">
+      <button class="checkin-btn" id="checkinBtn" onclick="openQRScanner()">
+        <span class="icon">📷</span> QRチェックイン
+      </button>
+      <div id="checkinStatus" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+    </div>
+
+    <!-- 今日の来店メンバー -->
+    <div class="section-title">今日の来店</div>
+    <div id="todayMembersWrap">
+      <div class="today-members-scroll" id="todayMembers">
+        <div style="font-size:13px;color:var(--text-muted);padding:8px 0;">読み込み中…</div>
       </div>
     </div>
 
     <!-- お知らせ -->
-    <div class="section-title">📢 お知らせ</div>
+    <div class="section-title">お知らせ</div>
     <div id="homeNotices">
       <div class="loading"><div class="spinner"></div> 読み込み中…</div>
     </div>
 
     <!-- 直近のイベント -->
-    <div class="section-title">📅 イベント</div>
+    <div class="section-title">次回イベント</div>
     <div id="homeEvents">
       <div class="loading"><div class="spinner"></div> 読み込み中…</div>
     </div>
 
   </div><!-- /tab-home -->
 
-  <!-- ===== EVENTS タブ ===== -->
+  <!-- ===== EVENTS ===== -->
   <div id="tab-events" class="tab-section">
-    <div style="padding:8px 0 12px;">
-      <div style="font-size:20px;font-weight:900;color:var(--text-bright);">イベント一覧</div>
-    </div>
+    <div class="page-title">イベント</div>
 
-    <!-- カテゴリフィルター -->
     <div class="tag-filter" id="categoryFilter">
-      <button class="tag-btn active" data-cat="all" onclick="filterEvents('all',this)">すべて</button>
-      <button class="tag-btn" data-cat="poker"   onclick="filterEvents('poker',this)">ポーカー</button>
-      <button class="tag-btn" data-cat="smash"   onclick="filterEvents('smash',this)">スマブラ</button>
-      <button class="tag-btn" data-cat="fishing" onclick="filterEvents('fishing',this)">釣り</button>
-      <button class="tag-btn" data-cat="card"    onclick="filterEvents('card',this)">カード</button>
-      <button class="tag-btn" data-cat="other"   onclick="filterEvents('other',this)">その他</button>
+      <button class="tag-btn active" onclick="filterEvents('all',this)">すべて</button>
+      <button class="tag-btn" onclick="filterEvents('poker',this)">ポーカー</button>
+      <button class="tag-btn" onclick="filterEvents('smash',this)">スマブラ</button>
+      <button class="tag-btn" onclick="filterEvents('fishing',this)">釣り</button>
+      <button class="tag-btn" onclick="filterEvents('card',this)">カード</button>
+      <button class="tag-btn" onclick="filterEvents('other',this)">その他</button>
     </div>
 
     <div id="eventsList">
@@ -99,47 +100,48 @@
     </div>
   </div><!-- /tab-events -->
 
-  <!-- ===== MYPAGE タブ ===== -->
+  <!-- ===== MYPAGE ===== -->
   <div id="tab-mypage" class="tab-section">
+
     <!-- プロフィールヘッダー -->
     <div class="profile-header">
       <div class="avatar" id="mypageAvatar">👤</div>
       <div class="profile-name" id="mypageName"></div>
       <div class="profile-id" id="mypageMemberNo"></div>
-      <div style="margin-top:8px;" id="mypageRankRow"></div>
+      <div class="profile-rank-row" id="mypageRankRow"></div>
     </div>
 
-    <!-- ポイント詳細 -->
-    <div class="section-title">💎 ステータス</div>
-    <div class="points-detail">
-      <div class="points-detail-row">
+    <!-- ステータス詳細 -->
+    <div class="section-title" style="margin-top:0;">ステータス</div>
+    <div class="detail-list">
+      <div class="detail-row">
         <span class="label">現在ポイント</span>
-        <span class="value" id="mypagePoints">—</span>
+        <span class="value gold" id="mypagePoints">—</span>
       </div>
-      <div class="points-detail-row">
+      <div class="detail-row">
         <span class="label">累計ポイント</span>
-        <span class="value" id="mypageTotalPoints" style="color:var(--text-muted);font-size:15px;">—</span>
+        <span class="value" id="mypageTotalPoints">—</span>
       </div>
-      <div class="points-detail-row">
+      <div class="detail-row">
         <span class="label">チップ</span>
-        <span class="value" id="mypageChips" style="color:var(--gold);">—</span>
+        <span class="value" id="mypageChips">—</span>
       </div>
-      <div class="points-detail-row">
+      <div class="detail-row">
         <span class="label">来店回数</span>
-        <span class="value" id="mypageCheckins" style="color:var(--neon-purple);">—</span>
+        <span class="value" id="mypageCheckins">—</span>
       </div>
-      <div class="points-detail-row">
+      <div class="detail-row">
         <span class="label">イベント参加数</span>
-        <span class="value" id="mypageEventJoins" style="color:var(--success);">—</span>
+        <span class="value" id="mypageEventJoins">—</span>
       </div>
     </div>
 
     <!-- バッジ -->
-    <div class="section-title">🏅 バッジ</div>
+    <div class="section-title">バッジ</div>
     <div class="badge-grid" id="mypageBadges"></div>
 
     <!-- ポイント履歴 -->
-    <div class="section-title">📜 ポイント履歴</div>
+    <div class="section-title">ポイント履歴</div>
     <div id="mypagePointLogs">
       <div class="loading"><div class="spinner"></div> 読み込み中…</div>
     </div>
@@ -147,7 +149,7 @@
 
 </div><!-- /main-content -->
 
-<!-- ========== ボトムナビ ========== -->
+<!-- ボトムナビ -->
 <nav class="bottom-nav">
   <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
     <span class="nav-icon">🏠</span>
@@ -163,27 +165,38 @@
   </button>
 </nav>
 
-<!-- ========== QRスキャナーモーダル ========== -->
+<!-- QRスキャナーモーダル -->
 <div class="modal-overlay" id="qrModal">
   <div class="modal-box">
+    <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">📷 QRチェックイン</div>
+      <div class="modal-title">QRチェックイン</div>
       <button class="modal-close" onclick="closeQRScanner()">✕</button>
     </div>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
       会場に掲示されているQRコードをスキャンしてください
     </p>
     <div class="qr-scanner-wrap">
       <div id="qr-reader"></div>
+      <!-- 四隅フレーム -->
+      <div class="qr-corner-overlay">
+        <div class="qr-corners">
+          <span class="qr-corner tl"></span>
+          <span class="qr-corner tr"></span>
+          <span class="qr-corner bl"></span>
+          <span class="qr-corner br"></span>
+        </div>
+      </div>
     </div>
-    <div id="qrMessage" style="text-align:center;font-size:14px;padding:12px;display:none;"></div>
+    <div id="qrMessage" style="text-align:center;font-size:14px;padding:14px;display:none;font-weight:600;border-radius:6px;"></div>
     <button class="btn btn-outline btn-block" onclick="closeQRScanner()">閉じる</button>
   </div>
 </div>
 
-<!-- ========== イベント詳細モーダル ========== -->
+<!-- イベント詳細モーダル -->
 <div class="modal-overlay" id="eventModal">
   <div class="modal-box">
+    <div class="modal-handle"></div>
     <div class="modal-header">
       <div class="modal-title" id="eventModalTitle"></div>
       <button class="modal-close" onclick="closeEventModal()">✕</button>
@@ -196,7 +209,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<!-- QRスキャナー -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="firebase.js"></script>
 <script src="app.js"></script>

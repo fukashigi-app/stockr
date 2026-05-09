@@ -54,11 +54,11 @@ function categoryLabel(cat) {
 
 // ランク計算（来店回数ベース）
 function calcRank(checkInCount) {
-  if (checkInCount >= 50) return { rank:'LEGEND', color:'#ffd700' };
-  if (checkInCount >= 30) return { rank:'MASTER', color:'#9b45ff' };
-  if (checkInCount >= 15) return { rank:'VETERAN', color:'#00d4ff' };
-  if (checkInCount >= 5)  return { rank:'MEMBER', color:'#00ff88' };
-  return { rank:'ROOKIE', color:'#888' };
+  if (checkInCount >= 50) return { rank:'LEGEND', color:'#D4AF37' };
+  if (checkInCount >= 30) return { rank:'MASTER', color:'#E8C860' };
+  if (checkInCount >= 15) return { rank:'VETERAN', color:'#CCCCCC' };
+  if (checkInCount >= 5)  return { rank:'MEMBER',  color:'#AAAAAA' };
+  return { rank:'ROOKIE', color:'#666666' };
 }
 
 // 称号計算

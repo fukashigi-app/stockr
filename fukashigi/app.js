@@ -2,22 +2,19 @@
 // FUKASHIGI APP — メンバー用 JavaScript
 // ========================================
 
-let currentUser  = null;
+let currentUser     = null;
 let currentUserData = null;
-let allEvents    = [];
-let currentFilter = 'all';
-let qrScanner    = null;
-let selectedEvent = null;
+let allEvents       = [];
+let currentFilter   = 'all';
+let qrScanner       = null;
+let selectedEvent   = null;
 
 // ========================================
 // 初期化・認証
 // ========================================
 
 auth.onAuthStateChanged(async user => {
-  if (!user) {
-    window.location.href = 'index.html';
-    return;
-  }
+  if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
   await loadUserData();
   loadHome();
@@ -27,7 +24,6 @@ auth.onAuthStateChanged(async user => {
 async function loadUserData() {
   const doc = await db.collection('users').doc(currentUser.uid).get();
   if (!doc.exists) {
-    // ユーザードキュメントがない場合は作成
     const data = {
       uid: currentUser.uid,
       name: currentUser.displayName || currentUser.email.split('@')[0],
@@ -55,10 +51,7 @@ async function loadUserData() {
       currentUserData.title = title;
     }
   }
-  // 管理者は管理画面へ
-  if (currentUserData.role === 'admin') {
-    window.location.href = 'admin.html';
-  }
+  if (currentUserData.role === 'admin') { window.location.href = 'admin.html'; }
 }
 
 function doLogout() {
@@ -86,27 +79,30 @@ function loadHome() {
   const d = currentUserData;
 
   document.getElementById('headerUserName').textContent = d.name;
-  document.getElementById('homeUserName').textContent   = d.name + ' さん';
+  document.getElementById('homeUserName').textContent   = d.name;
 
-  // ランク・称号
+  // ランク・称号バッジ
   const rankInfo = calcRank(d.checkInCount || 0);
   document.getElementById('homeRankRow').innerHTML = `
-    <span class="badge badge-blue">${rankInfo.rank}</span>
-    <span class="badge badge-purple">${d.title || '新参者'}</span>
+    <span class="badge badge-gold" style="font-size:11px;">${rankInfo.rank}</span>
+    <span class="badge badge-gray" style="font-size:11px;">${d.title || '新参者'}</span>
   `;
 
   // スタッツ
   document.getElementById('statPoints').textContent   = (d.points || 0).toLocaleString();
   document.getElementById('statCheckins').textContent = d.checkInCount || 0;
   document.getElementById('statChips').textContent    = d.chips || 0;
-  document.getElementById('statEvents').textContent   = d.eventJoinCount || 0;
 
-  // チェックイン済みか確認
+  // 今日チェックイン済みか
   checkTodayCheckIn();
+
+  // 今日の来店メンバー
+  loadTodayMembers();
 
   // お知らせ
   loadNotices();
-  // イベント（ホーム用）
+
+  // 直近イベント
   loadHomeEvents();
 }
 
@@ -117,14 +113,39 @@ async function checkTodayCheckIn() {
     .where('dateStr', '==', today)
     .limit(1).get();
 
-  const btn = document.getElementById('checkinBtn');
+  const btn    = document.getElementById('checkinBtn');
   const status = document.getElementById('checkinStatus');
   if (!snap.empty) {
     btn.disabled = true;
-    btn.style.opacity = '0.5';
-    btn.classList.remove('pulse');
-    btn.innerHTML = '<span class="icon">✅</span> 本日チェックイン済み';
+    btn.innerHTML = '<span class="icon">✓</span> 本日チェックイン済み';
     status.textContent = '次回のチェックインは明日から可能です';
+  }
+}
+
+async function loadTodayMembers() {
+  const today   = todayStr();
+  const container = document.getElementById('todayMembers');
+  try {
+    const snap = await db.collection('checkins')
+      .where('dateStr', '==', today)
+      .orderBy('checkedInAt', 'asc')
+      .limit(20).get();
+
+    if (snap.empty) {
+      container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">まだ来店者がいません</div>';
+      return;
+    }
+    container.innerHTML = snap.docs.map(doc => {
+      const c = doc.data();
+      const initial = (c.userName || '?').charAt(0);
+      return `
+        <div class="today-member-item">
+          <div class="today-member-avatar">${initial}</div>
+          <div class="today-member-name">${escHtml(c.userName || '—')}</div>
+        </div>`;
+    }).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">読み込みエラー</div>';
   }
 }
 
@@ -144,10 +165,10 @@ async function loadNotices() {
       const n = doc.data();
       return `
         <div class="notice-card ${n.pinned ? 'pinned' : ''}">
-          ${n.pinned ? '<span class="badge badge-gold" style="margin-bottom:6px;display:inline-block;">📌 固定</span>' : ''}
+          ${n.pinned ? '<span class="badge badge-gold" style="margin-bottom:8px;display:inline-block;">固定</span>' : ''}
           <div class="notice-title">${escHtml(n.title)}</div>
           <div class="notice-body">${escHtml(n.body)}</div>
-          <div class="notice-meta">${formatDate(n.createdAt)} — ${escHtml(n.createdBy || '')}</div>
+          <div class="notice-meta">${formatDate(n.createdAt)}</div>
         </div>`;
     }).join('');
   } catch (e) {
@@ -158,22 +179,19 @@ async function loadNotices() {
 async function loadHomeEvents() {
   const container = document.getElementById('homeEvents');
   try {
-    const now = new Date();
-    const snap = await db.collection('events')
+    const today = new Date().toISOString().slice(0, 10);
+    const snap  = await db.collection('events')
       .where('isPublic', '==', true)
       .orderBy('date', 'asc')
-      .limit(5).get();
+      .limit(10).get();
 
-    const upcoming = snap.docs.filter(d => {
-      const ev = d.data();
-      return new Date(ev.date) >= new Date(now.toISOString().slice(0,10));
-    });
+    const upcoming = snap.docs.filter(d => (d.data().date || '') >= today);
 
     if (upcoming.length === 0) {
       container.innerHTML = '<div class="empty-state"><p>予定されているイベントはありません</p></div>';
       return;
     }
-    container.innerHTML = upcoming.slice(0,3).map(doc => renderEventCard(doc.id, doc.data())).join('');
+    container.innerHTML = upcoming.slice(0, 3).map(doc => renderEventCard(doc.id, doc.data())).join('');
   } catch (e) {
     container.innerHTML = '<div class="empty-state"><p>読み込みエラー</p></div>';
   }
@@ -217,26 +235,37 @@ function filterEvents(cat, btn) {
   renderEventsList();
 }
 
+// イベントカード（日付を左に大きく表示）
 function renderEventCard(id, ev) {
-  const joined = (ev.participants || []).includes(currentUser.uid);
+  const joined = (ev.participants || []).includes(currentUser?.uid || '');
   const count  = (ev.participants || []).length;
-  const cap    = ev.capacity || 0;
-  const pct    = cap > 0 ? Math.min(100, Math.round(count / cap * 100)) : 0;
+
+  // 日付パース
+  let month = '', day = '', wd = '';
+  if (ev.date) {
+    const d = new Date(ev.date + 'T00:00:00');
+    month = (d.getMonth() + 1) + '月';
+    day   = d.getDate();
+    wd    = ['日','月','火','水','木','金','土'][d.getDay()];
+  }
+
   return `
     <div class="event-card ${joined ? 'joined' : ''} fade-in" onclick="openEventModal('${id}')">
-      <div class="event-card-header">
+      <div class="event-date-col">
+        <div class="event-date-month">${month}</div>
+        <div class="event-date-day">${day || '—'}</div>
+        <div class="event-date-wd">${wd}</div>
+      </div>
+      <div class="event-info-col">
         <div class="event-card-title">${escHtml(ev.title)}</div>
-        <span class="badge badge-purple">${categoryLabel(ev.category)}</span>
-      </div>
-      <div class="event-card-meta">
-        <span>📅 ${ev.date || '未定'}</span>
-        <span>🕐 ${ev.startTime || ''}〜${ev.endTime || ''}</span>
-        <span>💴 ${ev.fee ? ev.fee.toLocaleString() + '円' : '無料'}</span>
-        <span>👥 ${count}${cap > 0 ? ' / ' + cap : ''}名</span>
-      </div>
-      <div class="event-join-row">
-        ${cap > 0 ? `<div class="participants-bar"><div class="participants-bar-fill" style="width:${pct}%"></div></div>` : '<div style="flex:1"></div>'}
-        <span class="badge ${joined ? 'badge-green' : 'badge-gray'}">${joined ? '✓ 参加予定' : '未参加'}</span>
+        <div class="event-card-meta">
+          ${ev.startTime ? `<span>${ev.startTime}〜${ev.endTime || ''}</span>` : ''}
+          ${ev.fee ? `<span>${ev.fee.toLocaleString()}円</span>` : '<span>無料</span>'}
+        </div>
+        <div class="event-card-footer">
+          <span class="participants-count">👥 ${count}${ev.capacity > 0 ? ' / ' + ev.capacity : ''}名</span>
+          <span class="badge ${joined ? 'badge-green' : 'badge-gray'}">${joined ? '参加予定' : '未参加'}</span>
+        </div>
       </div>
     </div>`;
 }
@@ -248,40 +277,40 @@ function renderEventCard(id, ev) {
 async function openEventModal(eventId) {
   const ev = allEvents.find(e => e.id === eventId) || {};
   selectedEvent = { id: eventId, ...ev };
-  const joined  = (ev.participants || []).includes(currentUser.uid);
-  const count   = (ev.participants || []).length;
+  const joined = (ev.participants || []).includes(currentUser.uid);
+  const count  = (ev.participants || []).length;
 
   document.getElementById('eventModalTitle').textContent = ev.title || '';
   document.getElementById('eventModalContent').innerHTML = `
     <div class="divider"></div>
-    <div style="margin-bottom:12px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-        <span class="badge badge-purple">${categoryLabel(ev.category)}</span>
-        ${joined ? '<span class="badge badge-green">✓ 参加予定</span>' : ''}
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <span class="badge badge-gray">${categoryLabel(ev.category)}</span>
+        ${joined ? '<span class="badge badge-green">参加予定</span>' : ''}
       </div>
-      <table style="width:100%;font-size:14px;border-collapse:collapse;">
-        ${row('📅 開催日', ev.date || '未定')}
-        ${row('🕐 時間', (ev.startTime || '?') + '〜' + (ev.endTime || '?'))}
-        ${row('💴 参加費', ev.fee ? ev.fee.toLocaleString() + '円' : '無料')}
-        ${row('👥 参加者', count + (ev.capacity ? ' / ' + ev.capacity : '') + '名')}
-      </table>
+      <div class="detail-list">
+        ${dRow('開催日', ev.date || '未定')}
+        ${dRow('時間', (ev.startTime || '?') + '〜' + (ev.endTime || '?'))}
+        ${dRow('参加費', ev.fee ? ev.fee.toLocaleString() + '円' : '無料')}
+        ${dRow('参加者', count + (ev.capacity > 0 ? ' / ' + ev.capacity : '') + '名')}
+      </div>
     </div>
-    ${ev.description ? `<div style="background:var(--bg-card2);border-radius:8px;padding:12px;font-size:14px;line-height:1.7;white-space:pre-line;margin-bottom:16px;">${escHtml(ev.description)}</div>` : ''}
-    <button class="btn ${joined ? 'btn-danger' : 'btn-primary'} btn-block"
+    ${ev.description ? `<div style="background:var(--bg-card2);border-radius:6px;padding:14px;font-size:13px;line-height:1.8;color:var(--text-sub);white-space:pre-line;margin-bottom:18px;">${escHtml(ev.description)}</div>` : ''}
+    <button class="btn ${joined ? 'btn-danger' : 'btn-gold'} btn-block"
             id="joinCancelBtn"
             onclick="toggleJoin('${eventId}', ${joined})">
-      ${joined ? '❌ 参加キャンセル' : '✅ 参加する'}
+      ${joined ? '参加キャンセル' : '参加する'}
     </button>
   `;
 
   document.getElementById('eventModal').classList.add('open');
 }
 
-function row(label, val) {
-  return `<tr>
-    <td style="padding:6px 0;color:var(--text-muted);width:45%;">${label}</td>
-    <td style="padding:6px 0;font-weight:600;">${escHtml(String(val))}</td>
-  </tr>`;
+function dRow(label, val) {
+  return `<div class="detail-row">
+    <span class="label">${escHtml(label)}</span>
+    <span class="value" style="font-size:15px;">${escHtml(String(val))}</span>
+  </div>`;
 }
 
 function closeEventModal() {
@@ -293,14 +322,12 @@ async function toggleJoin(eventId, currentlyJoined) {
   btn.disabled = true;
 
   try {
-    const ref = db.collection('events').doc(eventId);
-    const ev  = await ref.get();
+    const ref  = db.collection('events').doc(eventId);
+    const ev   = await ref.get();
     const data = ev.data();
 
     if (currentlyJoined) {
-      await ref.update({
-        participants: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-      });
+      await ref.update({ participants: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) });
       await db.collection('users').doc(currentUser.uid).update({
         eventJoinCount: firebase.firestore.FieldValue.increment(-1)
       });
@@ -311,22 +338,19 @@ async function toggleJoin(eventId, currentlyJoined) {
         btn.disabled = false;
         return;
       }
-      await ref.update({
-        participants: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-      });
+      await ref.update({ participants: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
       await db.collection('users').doc(currentUser.uid).update({
         eventJoinCount: firebase.firestore.FieldValue.increment(1)
       });
-      showToast('参加登録しました！', 'success');
+      showToast('参加登録しました', 'success');
     }
 
-    // データ再読み込み
     closeEventModal();
     await loadUserData();
     loadEvents();
     loadHome();
   } catch (e) {
-    showToast('エラーが発生しました: ' + e.message, 'error');
+    showToast('エラー: ' + e.message, 'error');
     btn.disabled = false;
   }
 }
@@ -339,73 +363,59 @@ function openQRScanner() {
   document.getElementById('qrModal').classList.add('open');
   document.getElementById('qrMessage').style.display = 'none';
 
-  if (qrScanner) {
-    qrScanner.resume();
-    return;
-  }
+  if (qrScanner) { qrScanner.resume(); return; }
 
   qrScanner = new Html5Qrcode('qr-reader');
   qrScanner.start(
     { facingMode: 'environment' },
-    { fps: 10, qrbox: { width: 200, height: 200 } },
+    { fps: 10, qrbox: { width: 180, height: 180 } },
     onQRSuccess,
     () => {}
-  ).catch(err => {
-    document.getElementById('qrMessage').textContent = 'カメラを起動できませんでした。ブラウザのカメラ許可を確認してください。';
-    document.getElementById('qrMessage').style.display = 'block';
-    document.getElementById('qrMessage').style.color = 'var(--danger)';
+  ).catch(() => {
+    showQRMessage('カメラを起動できませんでした。\nブラウザのカメラ許可を確認してください。', 'var(--danger)');
   });
 }
 
 async function onQRSuccess(text) {
-  const expected = todayCheckinCode();
-  if (text !== expected) {
-    showQRMessage('❌ 無効なQRコードです', 'var(--danger)');
+  if (text !== todayCheckinCode()) {
+    showQRMessage('無効なQRコードです', 'var(--danger)');
     return;
   }
 
-  // スキャン停止
   if (qrScanner) qrScanner.pause();
 
-  // 今日のチェックイン確認
   const today = todayStr();
-  const snap = await db.collection('checkins')
+  const snap  = await db.collection('checkins')
     .where('userId', '==', currentUser.uid)
     .where('dateStr', '==', today)
     .limit(1).get();
 
   if (!snap.empty) {
-    showQRMessage('✅ 本日はすでにチェックイン済みです', 'var(--neon-blue)');
+    showQRMessage('本日はすでにチェックイン済みです', 'var(--text-muted)');
     return;
   }
 
-  // チェックイン登録
-  const batch = db.batch();
+  const batch     = db.batch();
   const checkinRef = db.collection('checkins').doc();
   batch.set(checkinRef, {
-    userId:   currentUser.uid,
-    userName: currentUserData.name,
-    dateStr:  today,
+    userId:      currentUser.uid,
+    userName:    currentUserData.name,
+    dateStr:     today,
     checkedInAt: firebase.firestore.FieldValue.serverTimestamp(),
-    eventId:  '',
+    eventId:     '',
     pointsAdded: 10,
-    memo: '通常チェックイン',
+    memo:        '通常チェックイン',
   });
-
-  const userRef = db.collection('users').doc(currentUser.uid);
-  batch.update(userRef, {
+  batch.update(db.collection('users').doc(currentUser.uid), {
     checkInCount: firebase.firestore.FieldValue.increment(1),
     points:       firebase.firestore.FieldValue.increment(10),
     totalPoints:  firebase.firestore.FieldValue.increment(10),
     updatedAt:    firebase.firestore.FieldValue.serverTimestamp(),
   });
-
   await batch.commit();
 
-  showQRMessage('✅ チェックイン完了！ +10ポイント', 'var(--success)');
+  showQRMessage('チェックイン完了  +10 pt', 'var(--gold)');
   showToast('チェックイン完了！ +10pt 獲得', 'success');
-
-  // バッジ付与チェック
   await checkAndAwardBadges();
 
   setTimeout(() => {
@@ -417,7 +427,8 @@ async function onQRSuccess(text) {
 function showQRMessage(msg, color) {
   const el = document.getElementById('qrMessage');
   el.textContent = msg;
-  el.style.color = color;
+  el.style.color  = color;
+  el.style.background = 'var(--bg-card2)';
   el.style.display = 'block';
 }
 
@@ -436,22 +447,22 @@ function closeQRScanner() {
 // ========================================
 
 const BADGES_DEF = [
-  { id: 'first_visit',   name: '初来店',      icon: '🌟', condition: d => d.checkInCount >= 1 },
-  { id: 'visit_5',       name: '5回来店',      icon: '⭐', condition: d => d.checkInCount >= 5 },
-  { id: 'visit_10',      name: '10回来店',     icon: '💫', condition: d => d.checkInCount >= 10 },
-  { id: 'visit_30',      name: '常連',         icon: '🏆', condition: d => d.checkInCount >= 30 },
-  { id: 'event_join',    name: 'イベント参加', icon: '🎮', condition: d => d.eventJoinCount >= 1 },
-  { id: 'event_5',       name: '5回参加',      icon: '🎯', condition: d => d.eventJoinCount >= 5 },
-  { id: 'resistance',    name: 'レジスタンス', icon: '✊', condition: d => d.checkInCount >= 20 },
-  { id: 'headquarters',  name: '不可思議の住人',icon: '🏠', condition: d => d.checkInCount >= 50 },
-  { id: 'executive',     name: '幹部候補',     icon: '👑', condition: d => d.checkInCount >= 30 },
+  { id: 'first_visit',  name: '初来店',      icon: '⭐', condition: d => d.checkInCount >= 1 },
+  { id: 'visit_5',      name: '5回来店',      icon: '🌟', condition: d => d.checkInCount >= 5 },
+  { id: 'visit_10',     name: '10回来店',     icon: '💎', condition: d => d.checkInCount >= 10 },
+  { id: 'visit_30',     name: '30回来店',     icon: '👑', condition: d => d.checkInCount >= 30 },
+  { id: 'event_join',   name: 'イベント参加', icon: '🎮', condition: d => d.eventJoinCount >= 1 },
+  { id: 'event_5',      name: '5回参加',      icon: '🏆', condition: d => d.eventJoinCount >= 5 },
+  { id: 'resistance',   name: 'レジスタンス', icon: '✊', condition: d => d.checkInCount >= 20 },
+  { id: 'headquarters', name: '住人',         icon: '🏠', condition: d => d.checkInCount >= 50 },
+  { id: 'executive',    name: '幹部候補',     icon: '🗝', condition: d => d.checkInCount >= 30 },
 ];
 
 async function checkAndAwardBadges() {
-  const doc = await db.collection('users').doc(currentUser.uid).get();
-  const data = doc.data();
+  const doc     = await db.collection('users').doc(currentUser.uid).get();
+  const data    = doc.data();
   const current = data.badges || [];
-  const toAdd = BADGES_DEF
+  const toAdd   = BADGES_DEF
     .filter(b => !current.includes(b.id) && b.condition(data))
     .map(b => b.id);
   if (toAdd.length > 0) {
@@ -460,7 +471,7 @@ async function checkAndAwardBadges() {
     });
     toAdd.forEach(id => {
       const badge = BADGES_DEF.find(b => b.id === id);
-      if (badge) showToast(`🏅 新バッジ獲得：${badge.name}`, 'success');
+      if (badge) showToast(`バッジ獲得：${badge.name}`, 'success');
     });
   }
 }
@@ -472,33 +483,32 @@ async function checkAndAwardBadges() {
 async function loadMyPage() {
   const doc = await db.collection('users').doc(currentUser.uid).get();
   currentUserData = doc.data();
-  const d = currentUserData;
+  const d   = currentUserData;
 
   document.getElementById('mypageName').textContent     = d.name;
   document.getElementById('mypageMemberNo').textContent = 'MEMBER #' + (d.memberNumber || '—');
 
   const rankInfo = calcRank(d.checkInCount || 0);
   document.getElementById('mypageRankRow').innerHTML = `
-    <span class="badge badge-blue">${rankInfo.rank}</span>
-    <span class="badge badge-purple" style="margin-left:6px;">${d.title || '新参者'}</span>
+    <span class="badge badge-gold">${rankInfo.rank}</span>
+    <span class="badge badge-gray" style="margin-left:6px;">${d.title || '新参者'}</span>
   `;
 
-  document.getElementById('mypagePoints').textContent      = (d.points || 0).toLocaleString();
-  document.getElementById('mypageTotalPoints').textContent  = (d.totalPoints || 0).toLocaleString();
-  document.getElementById('mypageChips').textContent       = d.chips || 0;
-  document.getElementById('mypageCheckins').textContent    = d.checkInCount || 0;
-  document.getElementById('mypageEventJoins').textContent  = d.eventJoinCount || 0;
+  document.getElementById('mypagePoints').textContent     = (d.points || 0).toLocaleString();
+  document.getElementById('mypageTotalPoints').textContent = (d.totalPoints || 0).toLocaleString();
+  document.getElementById('mypageChips').textContent      = d.chips || 0;
+  document.getElementById('mypageCheckins').textContent   = d.checkInCount || 0;
+  document.getElementById('mypageEventJoins').textContent = d.eventJoinCount || 0;
 
   // バッジ
-  const earnedBadges = d.badges || [];
+  const earned = d.badges || [];
   document.getElementById('mypageBadges').innerHTML = BADGES_DEF.map(b => `
-    <div class="badge-item ${earnedBadges.includes(b.id) ? 'earned' : ''}">
+    <div class="badge-item ${earned.includes(b.id) ? 'earned' : ''}">
       <span class="badge-icon">${b.icon}</span>
       <span class="badge-name">${b.name}</span>
     </div>
   `).join('');
 
-  // ポイント履歴
   loadPointLogs();
 }
 
@@ -515,7 +525,7 @@ async function loadPointLogs() {
       return;
     }
     container.innerHTML = snap.docs.map(doc => {
-      const l = doc.data();
+      const l    = doc.data();
       const plus = l.amount > 0;
       return `
         <div class="log-row">
@@ -553,7 +563,6 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// モーダル外クリックで閉じる
 document.getElementById('eventModal').addEventListener('click', function(e) {
   if (e.target === this) closeEventModal();
 });
